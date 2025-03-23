@@ -2,13 +2,18 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "rea
 import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
 
-const AccountScreen = () => {
-  const { user } = useUser()
+const AccountScreen = ({ navigation }: any) => {
+  const { user, setUser } = useUser()
+
+  const handleLogout = () => {
+    setUser(null)
+    navigation.replace("Landing")
+  }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileSection}>
-        <Image source={{ uri: "https://via.placeholder.com/150" }} style={styles.profileImage} />
+        <Image source={require("../../assets/images/profile.png")} style={styles.profileImage} />
         <Text style={styles.userName}>{user?.name}</Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
         <TouchableOpacity style={styles.editButton}>
@@ -71,7 +76,7 @@ const AccountScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
         <Feather name="log-out" size={20} color="#fff" />
         <Text style={styles.logoutButtonText}>Log Out</Text>
       </TouchableOpacity>
@@ -92,8 +97,8 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   profileImage: {
-    width: 100,
-    height: 100,
+    width: 70,
+    height: 70,
     borderRadius: 50,
     marginBottom: 15,
   },

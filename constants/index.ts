@@ -1,4 +1,4 @@
-import { DecisionResult } from "@/types"
+import { DecisionResult, RecentActivity } from "@/types"
 
 export const menuItems = [
   {
@@ -92,5 +92,29 @@ export const mockRecommendations = [
       "The Mazda CX-5 is a compact crossover SUV known for its upscale interior and engaging driving dynamics.",
     pros: ["Upscale interior design", "Engaging handling", "Premium feel for the price", "Strong safety ratings"],
     cons: ["Less cargo space than competitors", "Infotainment system can be finicky"],
+  },
+]
+
+export const mockRecentActivities: Array<RecentActivity> = [
+  {
+    id: 1,
+    title: "Toyota Camry 2020",
+    date: "Yesterday",
+    description: "Deal valuation completed",
+    result: "GOOD DEAL",
+  },
+  {
+    id: 2,
+    title: "Honda Civic 2019",
+    date: "2 days ago",
+    description: "Price change alert",
+    result: "FAIR DEAL",
+  },
+  {
+    id: 3,
+    title: "Ford Focus 2021",
+    date: "1 week ago",
+    description: "Deal valuation completed",
+    result: "BAD DEAL",
   },
 ]

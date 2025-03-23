@@ -1,22 +1,21 @@
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native"
 import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
-import { menuItems } from "@/constants"
+import { menuItems, mockRecentActivities } from "@/constants"
 
 const HomeScreen = ({ navigation }: any) => {
   const { user, setUser } = useUser()
 
   const handleLogout = () => {
     setUser(null)
-    navigation.replace("Login")
+    navigation.replace("Landing")
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Hello, {user?.name}</Text>
-          <Text style={styles.subGreeting}>What would you like to do today?</Text>
+          <Image source={require("../../assets/images/longLogo.png")} style={styles.logo} />
         </View>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Feather name="log-out" size={24} color="#e74c3c" />
@@ -24,6 +23,11 @@ const HomeScreen = ({ navigation }: any) => {
       </View>
 
       <ScrollView style={styles.menuContainer}>
+        <View style={styles.greetingContainer}>
+          <Text style={styles.greeting}>Hello, {user?.name}</Text>
+          <Text style={styles.subGreeting}>What would you like to do today?</Text>
+        </View>
+
         <View style={styles.tilesContainer}>
           {menuItems.map((item) => (
             <TouchableOpacity
@@ -39,19 +43,23 @@ const HomeScreen = ({ navigation }: any) => {
 
         <View style={styles.recentActivityContainer}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
-          <View style={styles.activityCard}>
-            <View style={styles.activityHeader}>
-              <Text style={styles.activityTitle}>Toyota Camry 2020</Text>
-              <Text style={styles.activityDate}>Yesterday</Text>
+          {mockRecentActivities.map((activity) => (
+            <View key={activity.id} style={styles.activityCard}>
+              <View style={styles.activityHeader}>
+                <Text style={styles.activityTitle}>{activity.title}</Text>
+                <Text style={styles.activityDate}>{activity.date}</Text>
+              </View>
+              <Text style={styles.activityDescription}>{activity.description}</Text>
+              <View style={styles.activityResult}>
+                <Text style={activity.result === "GOOD DEAL" ? styles.goodDeal : activity.result === "FAIR DEAL" ? styles.fairDeal : activity.result === "BAD DEAL" ? styles.badDeal : ""}>
+                  {activity.result}
+                </Text>
+                <TouchableOpacity>
+                  <Text style={styles.viewDetails}>View Details</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <Text style={styles.activityDescription}>Deal valuation completed</Text>
-            <View style={styles.activityResult}>
-              <Text style={styles.goodDeal}>GOOD DEAL</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewDetails}>View Details</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+          ))}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -67,10 +75,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 20,
+    padding: 10,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#eee",
+  },
+  greetingContainer: {
+    marginBottom: 20
   },
   greeting: {
     fontSize: 22,
@@ -162,12 +173,25 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   goodDeal: {
-    color: "#2ecc71",
+    color: "#2ecc71", // Green
+    fontWeight: "bold",
+  },
+  fairDeal: {
+    color: "#ffc107", // Yellow
+    fontWeight: "bold",
+  },
+  badDeal: {
+    color: "#dc3545", // Red
     fontWeight: "bold",
   },
   viewDetails: {
     color: "#3498db",
   },
+  logo: {
+    width: 150,
+    resizeMode: "contain",
+    marginLeft: 10
+  }
 })
 
 export default HomeScreen

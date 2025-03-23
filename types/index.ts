@@ -18,3 +18,11 @@ export type Recommendation = {
   pros: string[]
   cons: string[]
 }
+
+export type RecentActivity = {
+  id: number
+  title: string
+  date: string
+  description: string
+  result: "GOOD DEAL" | "FAIR DEAL" | "BAD DEAL"
+}

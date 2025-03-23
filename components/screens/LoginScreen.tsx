@@ -47,9 +47,7 @@ const LoginScreen = ({ navigation }: any) => {
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={{ uri: "https://via.placeholder.com/150" }} style={styles.logo} />
-        <Text style={styles.appName}>DealCheck</Text>
-        <Text style={styles.tagline}>Smart Car Deal Analysis</Text>
+        <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
       </View>
 
       <View style={styles.formContainer}>
@@ -93,9 +91,8 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 20,
+    width: 300,
+    resizeMode: "contain",
   },
   appName: {
     fontSize: 28,
