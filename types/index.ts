@@ -1,13 +1,3 @@
-export type DecisionResult = {
-  decision: "GOOD" | "BAD";
-  confidence: number;
-  reports: Array<{
-    agentName: string;
-    decision: "GOOD" | "BAD";
-    reasoning: string;
-  }>;
-};
-
 export type Recommendation = {
   make: string
   model: string
@@ -24,5 +14,25 @@ export type RecentActivity = {
   title: string
   date: string
   description: string
-  result: "GOOD DEAL" | "FAIR DEAL" | "BAD DEAL"
+  result: "RECOMMENDED" | "NOT RECOMMENDED"
+}
+
+export type DecisionResult = {
+  decision: "RECOMMENDED" | "NOT RECOMMENDED";
+  confidence: number;
+  reports: Array<{
+    agentName: string;
+    decision: "GREAT" | "GOOD" | "FAIR" | "WEAK" | "AWFUL";
+    reasoning: string;
+  }>;
+};
+
+export type DealValuation = {
+  carMake: string;
+  carModel: string;
+  carYear: string;
+  mileage: string;
+  price: string;
+  condition: string;
+  result: DecisionResult;
 }

@@ -1,14 +1,14 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native"
 import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
-import { menuItems, mockRecentActivities } from "@/constants"
+import { menuItems, mockRecentActivities, mockResults, mockValuations } from "@/constants"
 
 const HomeScreen = ({ navigation }: any) => {
   const { user, setUser } = useUser()
 
   const handleLogout = () => {
     setUser(null)
-    navigation.replace("Landing")
+    navigation.navigate("Landing")
   }
 
   return (
@@ -51,11 +51,11 @@ const HomeScreen = ({ navigation }: any) => {
               </View>
               <Text style={styles.activityDescription}>{activity.description}</Text>
               <View style={styles.activityResult}>
-                <Text style={activity.result === "GOOD DEAL" ? styles.goodDeal : activity.result === "FAIR DEAL" ? styles.fairDeal : activity.result === "BAD DEAL" ? styles.badDeal : ""}>
+                <Text style={activity.result === "RECOMMENDED" ? styles.recommended : activity.result === "NOT RECOMMENDED" ? styles.notRecommended : ""}>
                   {activity.result}
                 </Text>
                 <TouchableOpacity>
-                  <Text style={styles.viewDetails}>View Details</Text>
+                  <Text style={styles.viewDetails} onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>View Details</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -172,15 +172,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 5,
   },
-  goodDeal: {
-    color: "#2ecc71", // Green
+  recommended: {
+    color: "#28a745", // Green
     fontWeight: "bold",
   },
-  fairDeal: {
-    color: "#ffc107", // Yellow
-    fontWeight: "bold",
-  },
-  badDeal: {
+  notRecommended: {
     color: "#dc3545", // Red
     fontWeight: "bold",
   },

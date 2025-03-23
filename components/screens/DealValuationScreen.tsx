@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockResults } from "@/constants"
-import { DecisionResult } from "@/types"
+import { DealValuation, DecisionResult } from "@/types"
+import { useRoute } from "@react-navigation/native"
 
 const DealValuationScreen = () => {
   const [carMake, setCarMake] = useState("")
@@ -15,6 +16,29 @@ const DealValuationScreen = () => {
   const [condition, setCondition] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<null | DecisionResult>(null)
+
+  const route = useRoute()
+  
+  useEffect(() => {
+    // Default to empty object if there is no deal valuation provided as a parameter
+    const { dealValuation = {
+      carMake: "",
+      carModel: "",
+      carYear: "",
+      mileage: "",
+      price: "",
+      condition: "",
+      result: null,
+    }, } = route.params as { dealValuation?: DealValuation } || {}
+
+    setCarMake(dealValuation.carMake)
+    setCarModel(dealValuation.carModel)
+    setCarYear(dealValuation.carYear)
+    setMileage(dealValuation.mileage)
+    setPrice(dealValuation.price)
+    setCondition(dealValuation.condition)
+    setResult(dealValuation.result)
+  }, [route])
 
   const handleSubmit = () => {
     // Validate inputs
@@ -30,7 +54,7 @@ const DealValuationScreen = () => {
       setIsLoading(false)
 
       // Mock result from the 3 agents
-      setResult(mockResults)
+      setResult(mockResults[0])
     }, 2000)
   }
 
@@ -124,9 +148,9 @@ const DealValuationScreen = () => {
       ) : (
         <View style={styles.resultContainer}>
           <View
-            style={[styles.resultHeader, result.decision === "GOOD" ? styles.goodDealHeader : styles.badDealHeader]}
+            style={[styles.resultHeader, result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
           >
-            <Text style={styles.resultHeaderText}>{result.decision === "GOOD" ? "GOOD DEAL" : "BAD DEAL"}</Text>
+            <Text style={styles.resultHeaderText}>{result.decision}</Text>
             <Text style={styles.confidenceText}>{result.confidence}% Confidence</Text>
           </View>
 
@@ -146,7 +170,15 @@ const DealValuationScreen = () => {
               <View style={styles.reportHeader}>
                 <Text style={styles.agentName}>{report.agentName}</Text>
                 <View
-                  style={[styles.decisionBadge, report.decision === "GOOD" ? styles.goodDecision : styles.badDecision]}
+                  style={[
+                    styles.decisionBadge,
+                    report.decision === "GREAT" ? styles.greatDeal :
+                    report.decision === "GOOD" ? styles.goodDeal :
+                    report.decision === "FAIR" ? styles.fairDeal :
+                    report.decision === "WEAK" ? styles.weakDeal :
+                    report.decision === "AWFUL" ? styles.awfulDeal :
+                    ""
+                  ]}
                 >
                   <Text style={styles.decisionText}>{report.decision}</Text>
                 </View>
@@ -298,11 +330,20 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 15,
   },
-  goodDecision: {
-    backgroundColor: "#e6f7ee",
+  greatDeal: {
+    backgroundColor: "#27ae60", // Green background for GREAT DEAL
   },
-  badDecision: {
-    backgroundColor: "#fae5e5",
+  goodDeal: {
+    backgroundColor: "#2ecc71", // Light Green background for GOOD DEAL
+  },
+  fairDeal: {
+    backgroundColor: "#f39c12", // Yellow background for FAIR DEAL
+  },
+  weakDeal: {
+    backgroundColor: "#e67e22", // Orange background for WEAK DEAL
+  },
+  awfulDeal: {
+    backgroundColor: "#c0392b", // Red background for AWFUL DEAL
   },
   decisionText: {
     fontWeight: "bold",

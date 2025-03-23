@@ -5,7 +5,7 @@ export default function LandingScreen({ navigation }: any) {
     <View style={styles.container}>
       <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.replace("Login")}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("Login")}>
           <Text style={styles.secondaryButtonText}>Log In</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryButton}>

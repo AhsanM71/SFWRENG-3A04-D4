@@ -7,7 +7,7 @@ const AccountScreen = ({ navigation }: any) => {
 
   const handleLogout = () => {
     setUser(null)
-    navigation.replace("Landing")
+    navigation.naviagte("Landing")
   }
 
   return (

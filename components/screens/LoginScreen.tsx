@@ -40,7 +40,7 @@ const LoginScreen = ({ navigation }: any) => {
         email: email,
       })
 
-      navigation.replace("Home")
+      navigation.navigate("Home")
     }, 1500)
   }
 
