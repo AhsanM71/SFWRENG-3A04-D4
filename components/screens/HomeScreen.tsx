@@ -1,7 +1,8 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native"
 import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
-import { menuItems, mockRecentActivities, mockResults, mockValuations } from "@/constants"
+import { LinearGradient } from "expo-linear-gradient"
+import { menuItems, mockRecentActivities, mockValuations } from "@/constants"
 
 const HomeScreen = ({ navigation }: any) => {
   const { user, setUser } = useUser()
@@ -13,34 +14,34 @@ const HomeScreen = ({ navigation }: any) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header Section */}
       <View style={styles.header}>
-        <View>
-          <Image source={require("../../assets/images/longLogo.png")} style={styles.logo} />
-        </View>
+        <Image source={require("../../assets/images/longLogo.png")} style={styles.logo} />
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Feather name="log-out" size={24} color="#e74c3c" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.menuContainer}>
+      <ScrollView style={styles.contentContainer}>
+        {/* Greeting */}
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Hello, {user?.name}</Text>
+          <Text style={styles.greeting}>Hey, {user?.name} 👋</Text>
           <Text style={styles.subGreeting}>What would you like to do today?</Text>
         </View>
 
+        {/* Action Tiles */}
         <View style={styles.tilesContainer}>
           {menuItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={[styles.tile, { backgroundColor: item.color }]}
-              onPress={() => navigation.navigate(item.screen)}
-            >
-              <Feather name={item.icon as any} size={40} color="#fff" />
-              <Text style={styles.tileText}>{item.title}</Text>
+            <TouchableOpacity key={item.id} style={styles.tile} onPress={() => navigation.navigate(item.screen)}>
+              <LinearGradient colors={[item.color1, item.color2]} style={styles.gradient}>
+                <Feather name={item.icon as any} size={40} color="#fff" />
+                <Text style={styles.tileText}>{item.title}</Text>
+              </LinearGradient>
             </TouchableOpacity>
           ))}
         </View>
 
+        {/* Recent Activity */}
         <View style={styles.recentActivityContainer}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           {mockRecentActivities.map((activity) => (
@@ -51,11 +52,20 @@ const HomeScreen = ({ navigation }: any) => {
               </View>
               <Text style={styles.activityDescription}>{activity.description}</Text>
               <View style={styles.activityResult}>
-                <Text style={activity.result === "RECOMMENDED" ? styles.recommended : activity.result === "NOT RECOMMENDED" ? styles.notRecommended : ""}>
+                <Text
+                  style={[
+                    styles.activityStatus,
+                    activity.result === "RECOMMENDED"
+                      ? styles.recommended
+                      : activity.result === "NOT RECOMMENDED"
+                      ? styles.notRecommended
+                      : styles.neutral,
+                  ]}
+                >
                   {activity.result}
                 </Text>
-                <TouchableOpacity>
-                  <Text style={styles.viewDetails} onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>View Details</Text>
+                <TouchableOpacity onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>
+                  <Text style={styles.viewDetails}>View Details →</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -69,72 +79,78 @@ const HomeScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#f8f9fd",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 10,
+    padding: 15,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
-    borderBottomColor: "#eee",
+    borderBottomColor: "#e0e0e0",
   },
-  greetingContainer: {
-    marginBottom: 20
-  },
-  greeting: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "#2c3e50",
-  },
-  subGreeting: {
-    fontSize: 16,
-    color: "#7f8c8d",
-    marginTop: 5,
+  logo: {
+    width: 160,
+    resizeMode: "contain",
   },
   logoutButton: {
     padding: 10,
   },
-  menuContainer: {
+  contentContainer: {
     flex: 1,
-    padding: 15,
+    padding: 20,
+  },
+  greetingContainer: {
+    marginBottom: 20,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#2d3436",
+  },
+  subGreeting: {
+    fontSize: 16,
+    color: "#636e72",
+    marginTop: 5,
   },
   tilesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 20,
   },
   tile: {
     width: "48%",
-    aspectRatio: 1,
     borderRadius: 15,
-    padding: 20,
+    overflow: "hidden",
     marginBottom: 15,
-    justifyContent: "center",
-    alignItems: "center",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
     shadowRadius: 4,
-    elevation: 3,
+    elevation: 4,
+  },
+  gradient: {
+    padding: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    height: 120,
   },
   tileText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: "bold",
-    marginTop: 15,
+    marginTop: 10,
     textAlign: "center",
   },
   recentActivityContainer: {
-    marginTop: 10,
+    marginTop: 25,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#2d3436",
     marginBottom: 15,
-    color: "#2c3e50",
   },
   activityCard: {
     backgroundColor: "#fff",
@@ -142,53 +158,51 @@ const styles = StyleSheet.create({
     padding: 15,
     marginBottom: 15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   activityHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   activityTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#2c3e50",
+    color: "#2d3436",
   },
   activityDate: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: "#636e72",
   },
   activityDescription: {
     fontSize: 14,
-    color: "#7f8c8d",
+    color: "#636e72",
     marginBottom: 10,
   },
   activityResult: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginTop: 5,
+  },
+  activityStatus: {
+    fontWeight: "bold",
   },
   recommended: {
-    color: "#28a745", // Green
-    fontWeight: "bold",
+    color: "#27ae60", // Green
   },
   notRecommended: {
-    color: "#dc3545", // Red
-    fontWeight: "bold",
+    color: "#e74c3c", // Red
+  },
+  neutral: {
+    color: "#f39c12", // Yellow/Neutral
   },
   viewDetails: {
-    color: "#3498db",
+    color: "#2980b9",
+    fontWeight: "bold",
   },
-  logo: {
-    width: 150,
-    resizeMode: "contain",
-    marginLeft: 10
-  }
 })
 
 export default HomeScreen
-

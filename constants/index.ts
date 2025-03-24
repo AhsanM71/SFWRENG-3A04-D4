@@ -6,22 +6,26 @@ export const menuItems = [
     title: "Account Information",
     icon: "user",
     screen: "Account",
-    color: "#3498db",
+    color1: "#4A90E2",
+    color2: "#1C74D5"
   },
   {
     id: "dealValuation",
     title: "Deal Valuation",
     icon: "check-circle",
     screen: "DealValuation",
-    color: "#2ecc71",
+    color1: "#2ECC71",
+    color2: "#27AE60",
   },
   {
     id: "carRecommendation",
     title: "Car Recommendations",
     icon: "star",
     screen: "CarRecommendation",
-    color: "#f39c12",
+    color1: "#F1C40F",
+    color2: "#F39C12"
   },
+  // Red Gradient for Future: colors={["#E74C3C", "#C0392B"]}
 ]
 
 export const carImages: { [key: string]: any } = {
@@ -179,23 +183,23 @@ export const mockValuations: Array<DealValuation> = [
 export const mockRecentActivities: Array<RecentActivity> = [
   {
     id: 0,
-    title: "Toyota Camry 2020",
+    title: "Deal Valuation",
     date: "Yesterday",
-    description: "Deal valuation completed",
+    description: "Toyota Camry 2020",
     result: mockResults[0].decision,
   },
   {
     id: 1,
-    title: "Honda Civic 2019",
+    title: "Deal Valuation",
     date: "2 days ago",
-    description: "Deal valuation completed",
+    description: "Honda Civic 2019",
     result: mockResults[1].decision,
   },
   {
     id: 2,
-    title: "Ford Focus 2021",
+    title: "Deal Valuation",
     date: "1 week ago",
-    description: "Deal valuation completed",
+    description: "Ford Focus 2021",
     result: mockResults[2].decision,
   },
 ]

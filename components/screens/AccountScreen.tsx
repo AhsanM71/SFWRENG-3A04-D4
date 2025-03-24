@@ -16,7 +16,7 @@ const AccountScreen = ({ navigation }: any) => {
         <Image source={require("../../assets/images/profile.png")} style={styles.profileImage} />
         <Text style={styles.userName}>{user?.name}</Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
-        <TouchableOpacity style={styles.editButton}>
+        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate("EditProfile")}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockResults } from "@/constants"
 import { DealValuation, DecisionResult } from "@/types"
@@ -18,7 +18,7 @@ const DealValuationScreen = () => {
   const [result, setResult] = useState<null | DecisionResult>(null)
 
   const route = useRoute()
-  
+
   useEffect(() => {
     // Default to empty object if there is no deal valuation provided as a parameter
     const { dealValuation = {
@@ -69,130 +69,133 @@ const DealValuationScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Car Deal Valuation</Text>
-        <Text style={styles.subtitle}>
-          Our AI agents will analyze your potential car deal and tell you if it's a good deal
-        </Text>
-      </View>
-
-      {!result ? (
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Car Make*</Text>
-            <TextInput style={styles.input} value={carMake} onChangeText={setCarMake} placeholder="e.g., Toyota" />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Car Model*</Text>
-            <TextInput style={styles.input} value={carModel} onChangeText={setCarModel} placeholder="e.g., Camry" />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Year*</Text>
-            <TextInput
-              style={styles.input}
-              value={carYear}
-              onChangeText={setCarYear}
-              placeholder="e.g., 2020"
-              keyboardType="number-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Mileage*</Text>
-            <TextInput
-              style={styles.input}
-              value={mileage}
-              onChangeText={setMileage}
-              placeholder="e.g., 35000"
-              keyboardType="number-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Asking Price*</Text>
-            <TextInput
-              style={styles.input}
-              value={price}
-              onChangeText={setPrice}
-              placeholder="e.g., 18500"
-              keyboardType="number-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Condition (Optional)</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={condition}
-              onChangeText={setCondition}
-              placeholder="Describe the condition of the vehicle..."
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Text style={styles.submitButtonText}>Analyze Deal</Text>
-                <Feather name="arrow-right" size={20} color="#fff" />
-              </>
-            )}
-          </TouchableOpacity>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
+      
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Car Deal Valuation</Text>
+          <Text style={styles.subtitle}>
+            Our AI agents will analyze your potential car deal and tell you if it's a good deal
+          </Text>
         </View>
-      ) : (
-        <View style={styles.resultContainer}>
-          <View
-            style={[styles.resultHeader, result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
-          >
-            <Text style={styles.resultHeaderText}>{result.decision}</Text>
-            <Text style={styles.confidenceText}>{result.confidence}% Confidence</Text>
-          </View>
 
-          <View style={styles.carSummary}>
-            <Text style={styles.carSummaryText}>
-              {carYear} {carMake} {carModel}
-            </Text>
-            <Text style={styles.carDetailsText}>
-              {mileage} miles · ${price}
-            </Text>
-          </View>
-
-          <Text style={styles.agentReportsTitle}>Agent Reports</Text>
-
-          {result.reports.map((report, index) => (
-            <View key={index} style={styles.reportCard}>
-              <View style={styles.reportHeader}>
-                <Text style={styles.agentName}>{report.agentName}</Text>
-                <View
-                  style={[
-                    styles.decisionBadge,
-                    report.decision === "GREAT" ? styles.greatDeal :
-                    report.decision === "GOOD" ? styles.goodDeal :
-                    report.decision === "FAIR" ? styles.fairDeal :
-                    report.decision === "WEAK" ? styles.weakDeal :
-                    report.decision === "AWFUL" ? styles.awfulDeal :
-                    ""
-                  ]}
-                >
-                  <Text style={styles.decisionText}>{report.decision}</Text>
-                </View>
-              </View>
-              <Text style={styles.reasoning}>{report.reasoning}</Text>
+        {!result ? (
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Car Make*</Text>
+              <TextInput style={styles.input} value={carMake} onChangeText={setCarMake} placeholder="e.g., Toyota" />
             </View>
-          ))}
 
-          <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
-            <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Car Model*</Text>
+              <TextInput style={styles.input} value={carModel} onChangeText={setCarModel} placeholder="e.g., Camry" />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Year*</Text>
+              <TextInput
+                style={styles.input}
+                value={carYear}
+                onChangeText={setCarYear}
+                placeholder="e.g., 2020"
+                keyboardType="number-pad"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Mileage*</Text>
+              <TextInput
+                style={styles.input}
+                value={mileage}
+                onChangeText={setMileage}
+                placeholder="e.g., 35000"
+                keyboardType="number-pad"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Asking Price*</Text>
+              <TextInput
+                style={styles.input}
+                value={price}
+                onChangeText={setPrice}
+                placeholder="e.g., 18500"
+                keyboardType="number-pad"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Condition (Optional)</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={condition}
+                onChangeText={setCondition}
+                placeholder="Describe the condition of the vehicle..."
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.submitButtonText}>Analyze Deal</Text>
+                  <Feather name="arrow-right" size={20} color="#fff" />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.resultContainer}>
+            <View
+              style={[styles.resultHeader, result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
+            >
+              <Text style={styles.resultHeaderText}>{result.decision}</Text>
+              <Text style={styles.confidenceText}>{result.confidence}% Confidence</Text>
+            </View>
+
+            <View style={styles.carSummary}>
+              <Text style={styles.carSummaryText}>
+                {carYear} {carMake} {carModel}
+              </Text>
+              <Text style={styles.carDetailsText}>
+                {mileage} miles · ${price}
+              </Text>
+            </View>
+
+            <Text style={styles.agentReportsTitle}>Agent Reports</Text>
+
+            {result.reports.map((report, index) => (
+              <View key={index} style={styles.reportCard}>
+                <View style={styles.reportHeader}>
+                  <Text style={styles.agentName}>{report.agentName}</Text>
+                  <View
+                    style={[
+                      styles.decisionBadge,
+                      report.decision === "GREAT" ? styles.greatDeal :
+                        report.decision === "GOOD" ? styles.goodDeal :
+                          report.decision === "FAIR" ? styles.fairDeal :
+                            report.decision === "WEAK" ? styles.weakDeal :
+                              report.decision === "AWFUL" ? styles.awfulDeal :
+                                ""
+                    ]}
+                  >
+                    <Text style={styles.decisionText}>{report.decision}</Text>
+                  </View>
+                </View>
+                <Text style={styles.reasoning}>{report.reasoning}</Text>
+              </View>
+            ))}
+
+            <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
+              <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

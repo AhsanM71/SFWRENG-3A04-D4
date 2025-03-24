@@ -9,6 +9,7 @@ import AccountScreen from "../components/screens/AccountScreen"
 import DealValuationScreen from "../components/screens/DealValuationScreen"
 import CarRecommendationScreen from "../components/screens/CarRecommendationScreen"
 import LandingScreen from "@/components/screens/LandingScreen"
+import EditProfileScreen from "@/components/screens/EditProfileScreen"
 
 const Stack = createNativeStackNavigator()
 
@@ -21,6 +22,7 @@ export default function App() {
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Account Information" }} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
           <Stack.Screen name="DealValuation" component={DealValuationScreen} options={{ title: "Deal Valuation" }} />
           <Stack.Screen name="CarRecommendation" component={CarRecommendationScreen} options={{ title: "Car Recommendations" }}/>
         </Stack.Navigator>

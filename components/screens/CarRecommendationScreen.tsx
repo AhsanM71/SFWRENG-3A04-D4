@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { carImages, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
@@ -37,110 +37,113 @@ const CarRecommendationScreen = () => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Car Recommendations</Text>
-        <Text style={styles.subtitle}>
-          Tell us about your needs and our AI agents will recommend the best cars for you
-        </Text>
-      </View>
+    <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
 
-      {!recommendations ? (
-        <View style={styles.formContainer}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Budget*</Text>
-            <TextInput
-              style={styles.input}
-              value={budget}
-              onChangeText={setBudget}
-              placeholder="e.g., $25,000"
-              keyboardType="number-pad"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Primary Purpose*</Text>
-            <TextInput
-              style={styles.input}
-              value={purpose}
-              onChangeText={setPurpose}
-              placeholder="e.g., Family car, commuting, off-road"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Additional Preferences (Optional)</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              value={preferences}
-              onChangeText={setPreferences}
-              placeholder="e.g., Fuel efficiency, safety features, tech features, etc."
-              multiline
-              numberOfLines={4}
-            />
-          </View>
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
-            {isLoading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <>
-                <Text style={styles.submitButtonText}>Get Recommendations</Text>
-                <Feather name="arrow-right" size={20} color="#fff" />
-              </>
-            )}
-          </TouchableOpacity>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Car Recommendations</Text>
+          <Text style={styles.subtitle}>
+            Tell us about your needs and our AI agents will recommend the best cars for you
+          </Text>
         </View>
-      ) : (
-        <View style={styles.recommendationsContainer}>
-          <Text style={styles.recommendationsTitle}>Recommended Cars for You</Text>
 
-          {recommendations.map((car, index) => (
-            <View key={index} style={styles.carCard}>
-              <Image source={ carImages[car.image] || { uri: "https://via.placeholder.com/300x200" } } style={styles.carImage} />
-
-              <View style={styles.carInfo}>
-                <Text style={styles.carTitle}>
-                  {car.year} {car.make} {car.model}
-                </Text>
-                <Text style={styles.carPrice}>${car.price}</Text>
-                <Text style={styles.carDescription}>{car.description}</Text>
-
-                <View style={styles.prosConsContainer}>
-                  <View style={styles.prosContainer}>
-                    <Text style={styles.prosConsTitle}>Pros</Text>
-                    {car.pros.map((pro, i) => (
-                      <View key={i} style={styles.bulletPoint}>
-                        <Feather name="check" size={16} color="#2ecc71" />
-                        <Text style={styles.bulletText}>{pro}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View style={styles.consContainer}>
-                    <Text style={styles.prosConsTitle}>Cons</Text>
-                    {car.cons.map((con, i) => (
-                      <View key={i} style={styles.bulletPoint}>
-                        <Feather name="x" size={16} color="#e74c3c" />
-                        <Text style={styles.bulletText}>{con}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-
-                <TouchableOpacity style={styles.findDealsButton}>
-                  <Text style={styles.findDealsButtonText}>Find Deals</Text>
-                </TouchableOpacity>
-              </View>
+        {!recommendations ? (
+          <View style={styles.formContainer}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Budget*</Text>
+              <TextInput
+                style={styles.input}
+                value={budget}
+                onChangeText={setBudget}
+                placeholder="e.g., $25,000"
+                keyboardType="number-pad"
+              />
             </View>
-          ))}
 
-          <TouchableOpacity style={styles.newSearchButton} onPress={resetForm}>
-            <Text style={styles.newSearchButtonText}>New Search</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Primary Purpose*</Text>
+              <TextInput
+                style={styles.input}
+                value={purpose}
+                onChangeText={setPurpose}
+                placeholder="e.g., Family car, commuting, off-road"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Additional Preferences (Optional)</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                value={preferences}
+                onChangeText={setPreferences}
+                placeholder="e.g., Fuel efficiency, safety features, tech features, etc."
+                multiline
+                numberOfLines={4}
+              />
+            </View>
+
+            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
+              {isLoading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <>
+                  <Text style={styles.submitButtonText}>Get Recommendations</Text>
+                  <Feather name="arrow-right" size={20} color="#fff" />
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.recommendationsContainer}>
+            <Text style={styles.recommendationsTitle}>Recommended Cars for You</Text>
+
+            {recommendations.map((car, index) => (
+              <View key={index} style={styles.carCard}>
+                <Image source={carImages[car.image] || { uri: "https://via.placeholder.com/300x200" }} style={styles.carImage} />
+
+                <View style={styles.carInfo}>
+                  <Text style={styles.carTitle}>
+                    {car.year} {car.make} {car.model}
+                  </Text>
+                  <Text style={styles.carPrice}>${car.price}</Text>
+                  <Text style={styles.carDescription}>{car.description}</Text>
+
+                  <View style={styles.prosConsContainer}>
+                    <View style={styles.prosContainer}>
+                      <Text style={styles.prosConsTitle}>Pros</Text>
+                      {car.pros.map((pro, i) => (
+                        <View key={i} style={styles.bulletPoint}>
+                          <Feather name="check" size={16} color="#2ecc71" />
+                          <Text style={styles.bulletText}>{pro}</Text>
+                        </View>
+                      ))}
+                    </View>
+
+                    <View style={styles.consContainer}>
+                      <Text style={styles.prosConsTitle}>Cons</Text>
+                      {car.cons.map((con, i) => (
+                        <View key={i} style={styles.bulletPoint}>
+                          <Feather name="x" size={16} color="#e74c3c" />
+                          <Text style={styles.bulletText}>{con}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+
+                  <TouchableOpacity style={styles.findDealsButton}>
+                    <Text style={styles.findDealsButtonText}>Find Deals</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            <TouchableOpacity style={styles.newSearchButton} onPress={resetForm}>
+              <Text style={styles.newSearchButtonText}>New Search</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

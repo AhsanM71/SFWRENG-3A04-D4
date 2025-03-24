@@ -4,9 +4,9 @@ import type React from "react"
 import { createContext, useState, useContext } from "react"
 
 type User = {
-  id: string
-  name: string
-  email: string
+  id: string | undefined
+  name: string | undefined
+  email: string | undefined
 }
 
 type UserContextType = {
