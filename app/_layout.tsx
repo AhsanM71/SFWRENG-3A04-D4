@@ -10,6 +10,7 @@ import DealValuationScreen from "../components/screens/DealValuationScreen"
 import CarRecommendationScreen from "../components/screens/CarRecommendationScreen"
 import LandingScreen from "@/components/screens/LandingScreen"
 import EditProfileScreen from "@/components/screens/EditProfileScreen"
+import CreateAccountScreen from "@/components/screens/CreateAccountScreen"
 
 const Stack = createNativeStackNavigator()
 
@@ -19,6 +20,7 @@ export default function App() {
       <UserProvider>
         <Stack.Navigator initialRouteName="Landing" >
           <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Account Information" }} />

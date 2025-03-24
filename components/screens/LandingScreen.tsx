@@ -8,7 +8,7 @@ export default function LandingScreen({ navigation }: any) {
         <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("Login")}>
           <Text style={styles.secondaryButtonText}>Log In</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("CreateAccount")}>
           <Text style={styles.secondaryButtonText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
