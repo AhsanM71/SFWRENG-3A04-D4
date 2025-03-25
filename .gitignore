@@ -39,3 +39,6 @@ yarn-error.*
 .vscode
 
 serviceAccountKey.json
+
+ios
+android
