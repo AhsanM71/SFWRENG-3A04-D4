@@ -1,20 +1,23 @@
+from __future__ import annotations
+from firebase_admin.auth import UserRecord
+
 class User:
     @staticmethod
-    def fromJSON(jsonData: dict) -> User:
+    def fromUserRecord(record: UserRecord) -> User:
         '''
-        Takes in firebase JSON object that contains user data and converts it to a User object
+        Takes in firebase UserRecord object that contains user data and converts it to a User object
 
         Args:
-            jsonData (dict): The firebase JSON object containing the user data
+            record (UserRecord): The firebase UserRecord object containing the user data
 
         Returns:
-            User: The user object matching the provided JSON user data
+            User: The user object matching the provided UserRecord user data
         '''
 
-        userId: str = jsonData['uid']
-        email: str = jsonData['email']
-        username: str = jsonData['displayName']
-        phoneNumber: str = jsonData['phoneNumber']
+        userId: str = record.uid
+        email: str = record.email
+        username: str = record.display_name
+        phoneNumber: str = record.phone_number
 
         return User(
             userId=userId,
@@ -35,6 +38,6 @@ class User:
         '''
 
         self.userId = userId
-        self.userName = username
+        self.username = username
         self.email = email
         self.phoneNumber = phoneNumber
