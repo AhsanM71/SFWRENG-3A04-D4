@@ -106,7 +106,7 @@ async def retrieveAccount():
         return response
     
 @authenticaion_blueprint.route('/logout', methods=['POST'])
-def logout():
+async def logout():
     '''
     API endpoint at /auth/logout that logs out a user given their authentication tocken
 
@@ -128,7 +128,7 @@ def logout():
     token = data.get('token')
 
     try:
-        loggedOut: bool = accountManagement.logout(token=token)
+        loggedOut: bool = await accountManagement.logout(token=token)
 
         response = jsonify({
             'success': loggedOut,
