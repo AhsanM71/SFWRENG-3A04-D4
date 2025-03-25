@@ -104,3 +104,43 @@ async def retrieveAccount():
         })
         response.status_code = 200
         return response
+    
+@authenticaion_blueprint.route('/logout', methods=['POST'])
+def logout():
+    '''
+    API endpoint at /auth/logout that logs out a user given their authentication tocken
+
+    Methods:
+        POST
+    
+    Args:
+        tocken (str): The authentication tocken of the client
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message"
+        }
+    '''
+
+    data = request.get_json()
+    token = data.get('token')
+
+    try:
+        loggedOut: bool = accountManagement.logout(token=token)
+
+        response = jsonify({
+            'success': loggedOut,
+            'msg': 'User successfully logged out!'
+        })
+        response.status_code = 200
+
+        return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
