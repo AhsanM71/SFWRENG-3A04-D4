@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
-import { mockResults } from "@/constants"
-import { DealValuation, DecisionResult } from "@/types"
+import { mockValuationResults } from "@/constants"
+import { DealValuation, ValuationResult } from "@/types"
 import { useRoute } from "@react-navigation/native"
 
 const DealValuationScreen = () => {
@@ -15,7 +15,7 @@ const DealValuationScreen = () => {
   const [price, setPrice] = useState("")
   const [condition, setCondition] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<null | DecisionResult>(null)
+  const [result, setResult] = useState<null | ValuationResult>(null)
 
   const route = useRoute()
 
@@ -54,7 +54,7 @@ const DealValuationScreen = () => {
       setIsLoading(false)
 
       // Mock result from the 3 agents
-      setResult(mockResults[0])
+      setResult(mockValuationResults[0])
     }, 2000)
   }
 

@@ -11,6 +11,7 @@ import CarRecommendationScreen from "../components/screens/CarRecommendationScre
 import LandingScreen from "@/components/screens/LandingScreen"
 import EditProfileScreen from "@/components/screens/EditProfileScreen"
 import CreateAccountScreen from "@/components/screens/CreateAccountScreen"
+import DepreciationCurveScreen from "@/components/screens/DepreciationCurveScreen"
 
 const Stack = createNativeStackNavigator()
 
@@ -26,6 +27,7 @@ export default function App() {
           <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Account Information" }} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
           <Stack.Screen name="DealValuation" component={DealValuationScreen} options={{ title: "Deal Valuation" }} />
+          <Stack.Screen name="DepreciationCurve" component={DepreciationCurveScreen} options={{ title: "Depreciation Curve" }} />
           <Stack.Screen name="CarRecommendation" component={CarRecommendationScreen} options={{ title: "Car Recommendations" }}/>
         </Stack.Navigator>
       </UserProvider>

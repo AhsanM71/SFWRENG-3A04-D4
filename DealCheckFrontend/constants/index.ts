@@ -1,4 +1,4 @@
-import { DealValuation, DecisionResult, RecentActivity } from "@/types"
+import { DealValuation, ValuationResult, Activity } from "@/types"
 
 export const menuItems = [
   {
@@ -25,7 +25,14 @@ export const menuItems = [
     color1: "#F1C40F",
     color2: "#F39C12"
   },
-  // Red Gradient for Future: colors={["#E74C3C", "#C0392B"]}
+  {
+    id: "depreciationCurve",
+    title: "Depreciation Curve",
+    icon: "trending-down",
+    screen: "DepreciationCurve",
+    color1: "#E74C3C",
+    color2: "#C0392B"
+  },
 ]
 
 export const carImages: { [key: string]: any } = {
@@ -74,7 +81,7 @@ export const mockRecommendations = [
   },
 ]
 
-export const mockResults: Array<DecisionResult> = [
+export const mockValuationResults: Array<ValuationResult> = [
   { // Toyota Camry 2020
     decision: "RECOMMENDED",
     confidence: 90,
@@ -157,7 +164,7 @@ export const mockValuations: Array<DealValuation> = [
     mileage: "25,000",
     price: "22,000",
     condition: "Good",
-    result: mockResults[0],
+    result: mockValuationResults[0],
   },
   {
     carMake: "Honda",
@@ -166,7 +173,7 @@ export const mockValuations: Array<DealValuation> = [
     mileage: "45,000",
     price: "18,500",
     condition: "Fair",
-    result: mockResults[1],
+    result: mockValuationResults[1],
   },
   {
     carMake: "Ford",
@@ -175,31 +182,39 @@ export const mockValuations: Array<DealValuation> = [
     mileage: "15,000",
     price: "20,500",
     condition: "Good",
-    result: mockResults[2],
+    result: mockValuationResults[2],
   },
 ]
 
+export const mockDepreciationCurve = require("../assets/images/carDepreciationCurve.png")
 
-export const mockRecentActivities: Array<RecentActivity> = [
+export const mockActivities: Array<Activity> = [
   {
     id: 0,
-    title: "Deal Valuation",
+    type: "Deal Valuation",
     date: "Yesterday",
     description: "Toyota Camry 2020",
-    result: mockResults[0].decision,
+    data: mockValuations[0],
   },
   {
     id: 1,
-    title: "Deal Valuation",
+    type: "Recommendation",
     date: "2 days ago",
-    description: "Honda Civic 2019",
-    result: mockResults[1].decision,
+    description: "Reliable and Affordable SUV",
+    data: mockRecommendations,
   },
   {
     id: 2,
-    title: "Deal Valuation",
+    type: "Deal Valuation",
     date: "1 week ago",
+    description: "Honda Civic 2019",
+    data: mockValuations[1],
+  },
+  {
+    id: 3,
+    type: "Deal Valuation",
+    date: "2 week ago",
     description: "Ford Focus 2021",
-    result: mockResults[2].decision,
+    data: mockValuations[2],
   },
 ]
