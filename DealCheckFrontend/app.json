@@ -1,0 +1,34 @@
+{
+  "expo": {
+    "name": "DealCheck",
+    "slug": "dealcheck",
+    "scheme": "dealcheck",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/blackCar.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.3a04.dealcheck"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/blackCar.png",
+        "backgroundColor": "#F9F9F9"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/whiteCar.png"
+    },
+    "entryPoint": "./App.tsx",
+    "newArchEnabled": true
+  }
+}
