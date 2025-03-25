@@ -34,11 +34,6 @@ async def createAccount():
     password = data.get('password')
     phoneNumber = data.get('phoneNumber')
 
-    print(username)
-    print(email)
-    print(password)
-    print(phoneNumber)
-
     try:
         user: User = await accountManagement.createAccount(
             username=username,
