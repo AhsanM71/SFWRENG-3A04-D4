@@ -1,10 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { carImages, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
+import { useRoute } from "@react-navigation/native"
 
 const CarRecommendationScreen = () => {
   const [budget, setBudget] = useState("")
@@ -12,6 +13,14 @@ const CarRecommendationScreen = () => {
   const [preferences, setPreferences] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
+
+  const route = useRoute()
+
+  useEffect(() => {
+      // Default to null if no recommendations are supplied
+      const { recommendations = null } = route.params as { recommendations?: Array<Recommendation> } || {}
+      setRecommendations(recommendations)
+    }, [route])
 
   const handleSubmit = () => {
     if (!budget || !purpose) {

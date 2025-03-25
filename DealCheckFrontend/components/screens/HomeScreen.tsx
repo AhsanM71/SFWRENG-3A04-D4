@@ -2,7 +2,8 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Ima
 import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
-import { menuItems, mockRecentActivities, mockValuations } from "@/constants"
+import { menuItems, mockActivities, mockRecommendations, mockValuations } from "@/constants"
+import { DealValuation } from "@/types"
 
 const HomeScreen = ({ navigation }: any) => {
   const { user, setUser } = useUser()
@@ -41,32 +42,43 @@ const HomeScreen = ({ navigation }: any) => {
           ))}
         </View>
 
-        {/* Recent Activity */}
+        {/* Recent Activities */}
         <View style={styles.recentActivityContainer}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
-          {mockRecentActivities.map((activity) => (
+          {mockActivities.map((activity) => (
             <View key={activity.id} style={styles.activityCard}>
               <View style={styles.activityHeader}>
-                <Text style={styles.activityTitle}>{activity.title}</Text>
+                <Text style={styles.activityTitle}>{activity.type}</Text>
                 <Text style={styles.activityDate}>{activity.date}</Text>
               </View>
               <Text style={styles.activityDescription}>{activity.description}</Text>
               <View style={styles.activityResult}>
-                <Text
-                  style={[
-                    styles.activityStatus,
-                    activity.result === "RECOMMENDED"
-                      ? styles.recommended
-                      : activity.result === "NOT RECOMMENDED"
-                      ? styles.notRecommended
-                      : styles.neutral,
-                  ]}
-                >
-                  {activity.result}
-                </Text>
-                <TouchableOpacity onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>
-                  <Text style={styles.viewDetails}>View Details →</Text>
-                </TouchableOpacity>
+                {activity.type === "Deal Valuation" &&
+                  <>
+                    <Text
+                      style={[
+                        styles.activityStatus,
+                        (activity.data as DealValuation).result.decision === "RECOMMENDED"
+                          ? styles.recommended
+                          : (activity.data as DealValuation).result.decision === "NOT RECOMMENDED"
+                            ? styles.notRecommended
+                            : styles.neutral
+                      ]}
+                    >
+                      {(activity.data as DealValuation).result.decision}
+                    </Text>
+                    <TouchableOpacity onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>
+                      <Text style={styles.viewDetails}>View Details →</Text>
+                    </TouchableOpacity>
+                  </>
+                }
+                {activity.type === "Recommendation" &&
+                  <>
+                    <TouchableOpacity onPress={() => navigation.navigate("CarRecommendation", { recommendations: mockRecommendations })}>
+                      <Text style={styles.viewDetails}>View Details →</Text>
+                    </TouchableOpacity>
+                  </>
+                }
               </View>
             </View>
           ))}
