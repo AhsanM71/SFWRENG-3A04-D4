@@ -5,6 +5,66 @@ from ..authentication.data import User
 
 accountManagement: AccountManagement = AccountManagement()
 
+@authenticaion_blueprint.route('/account/edit', methods=['POST'])
+async def editAccount():
+    '''
+    API endpoint at /auth/account/edit that edits an account
+
+    Methods:
+        POST
+    
+    Args:
+        tocken (str): The authentication tocken of the client
+        username (str): The new username of the user being editted
+        email (str): The new email of the user being editted
+        password (str): The new password of the user being editted
+        phoneNumber (str): The new phone number of the user being editted
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            username: The updated username,
+            email: The updated email,
+            phoneNumber: The updated phone number
+        }
+    '''
+
+    data = request.get_json()
+    token: str = data.get('token')
+    username: str = data.get('username')
+    email: str = data.get('email')
+    password: str = data.get('password')
+    phoneNumber: str = data.get('phoneNumber')
+
+    try:
+        updatedUser: User = await accountManagement.editAccount(
+            token=token,
+            username=username,
+            email=email,
+            password=password,
+            phoneNumber=phoneNumber
+        )
+
+        response = jsonify({
+            'success': True,
+            'msg': 'Account successfully updated!',
+            'username': updatedUser.username,
+            'email': updatedUser.email,
+            'phoneNumber': updatedUser.phoneNumber
+        })
+        response.status_code = 200
+
+        return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
+
 @authenticaion_blueprint.route('/signup', methods=['POST'])
 async def createAccount():
     '''

@@ -1,3 +1,4 @@
+from core.authentication.actions.EditAccount import EditAccount
 from core.authentication.actions.AccountLogout import AccountLogout
 from core.authentication.actions.RegistrationSystem import RegistrationSystem
 from core.authentication.actions.AccountRetriever import AccountRetriever
@@ -7,9 +8,33 @@ import asyncio
  
 class AccountManagement:
     def __init__(self):
+        self.editAccount = EditAccount()
         self.accountLogout = AccountLogout()
         self.registrationSystem = RegistrationSystem()
         self.accountRetriever = AccountRetriever()
+
+    async def editAccount(self, token: str, username: str, password: str, email: str, phoneNumber: str) -> User:
+        ''' Edits the owner of the provided auth token, delegates editting logic to EditAccount '''
+
+        if not token or not username or not password or not email or not phoneNumber:
+            raise Exception('Token, username, password, email, and phone number fields are mandatory!')
+        
+        decoded_tocken = await asyncio.to_thread(auth.verify_id_token, id_token=token)
+        uid = decoded_tocken['uid']
+
+        user: User = User(
+            userId=uid,
+            username=username,
+            email=email,
+            phoneNumber=phoneNumber
+        )
+
+        updatedUser: User = await self.editAccount.editAccount(
+            user=user,
+            password=password
+        )
+
+        return updatedUser
 
     async def logout(self, token: str) -> bool:
         ''' Logs out the owner of the provided auth token, delegates logout to AccountLogout '''
