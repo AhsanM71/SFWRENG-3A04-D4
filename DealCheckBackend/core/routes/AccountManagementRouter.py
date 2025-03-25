@@ -57,3 +57,50 @@ async def createAccount():
         })
         response.status_code = 200
         return response
+    
+@authenticaion_blueprint.route('/account/retrieve', methods=['POST'])
+async def retrieveAccount():
+    '''
+    API endpoint at /auth/account/retrieve that retrieves an accounts data
+
+    Methods:
+        POST
+    
+    Args:
+        tocken (str): The authentication tocken of the client
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            username: The username of the retrieved account,
+            email: The email of the retrieved account,
+            phoneNumber: The phone number of the retrieved account
+        }
+    '''
+
+    data = request.get_json()
+    token = data.get('token')
+
+    try:
+        user: User = await accountManagement.retrieveAccount(token=token)
+
+        userData: dict = {
+            'success': True,
+            'username': user.username,
+            'email': user.email,
+            'phoneNumber': user.phoneNumber
+        }
+
+        response = jsonify(userData)
+        response.status_code = 200
+
+        return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
