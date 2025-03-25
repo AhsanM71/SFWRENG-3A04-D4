@@ -1,3 +1,4 @@
+from core.authentication.actions.AccountLogin import AccountLogin
 from core.authentication.actions.EditAccount import EditAccount
 from core.authentication.actions.AccountLogout import AccountLogout
 from core.authentication.actions.RegistrationSystem import RegistrationSystem
@@ -8,10 +9,16 @@ import asyncio
  
 class AccountManagement:
     def __init__(self):
+        self.accountLogin = AccountLogin()
         self.editAccount = EditAccount()
         self.accountLogout = AccountLogout()
         self.registrationSystem = RegistrationSystem()
         self.accountRetriever = AccountRetriever()
+
+    async def login(self, token: str):
+        ''' Authenticates a user, delegates to AccountLogin '''
+
+        return await self.accountLogin.login(token=token)
 
     async def editAccount(self, token: str, username: str, password: str, email: str, phoneNumber: str) -> User:
         ''' Edits the owner of the provided auth token, delegates editting logic to EditAccount '''

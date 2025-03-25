@@ -5,6 +5,49 @@ from ..authentication.data import User
 
 accountManagement: AccountManagement = AccountManagement()
 
+@authenticaion_blueprint.route('/login', methods=['POST'])
+async def login():
+    '''
+    API endpoint at /auth/login that authenticates a user
+
+    Methods:
+        POST
+    
+    Args:
+        token (str): The authentication tocken of the client
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            uid: "The authenticated users id"
+        }
+    '''
+
+    data = request.get_json()
+
+    token: str = data.get('token')
+
+    try:
+        uid: str = await accountManagement.login(token=token)
+
+        if(uid):
+            response = jsonify({
+                'success': True,
+                'msg': 'User successfully authenticated!',
+                'uid': uid
+            })
+        else:
+            raise Exception('Unable to authenticate user!')
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
+
 @authenticaion_blueprint.route('/account/edit', methods=['POST'])
 async def editAccount():
     '''
