@@ -20,8 +20,8 @@ export default function App() {
       <UserProvider>
         <Stack.Navigator initialRouteName="Landing" >
           <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ title: "Create Account" }} />
+          <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Login" }} />
           <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Account Information" }} />
           <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
