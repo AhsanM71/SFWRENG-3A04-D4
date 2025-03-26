@@ -34,9 +34,10 @@ const EditProfileScreen = () => {
         password
       );
 
-      if(editResponse.success)
+      if(editResponse.success) {
+        Alert.alert('Updated Successfully.', 'Your data has been successfully updated!');
         reload();
-      else
+      } else
         throw Error(editResponse.msg);
     } catch(error: any) {
       Alert.alert("Editting Account Failed: ", error.message);
@@ -58,9 +59,10 @@ const EditProfileScreen = () => {
         password
       );
 
-      if(editResponse.success)
+      if(editResponse.success) {
+        Alert.alert('Updated Successfully.', 'Your password has been successfully updated!');
         reload();
-      else
+      } else
         throw Error(editResponse.msg);
     } catch(error: any) {
       Alert.alert("Editting Password Failed: ", error.message);
