@@ -23,7 +23,8 @@ async def login():
         {
             success: True/False,
             msg: "Error/Success Message",
-            uid: "The authenticated users id"
+            uid: The authenticated users id,
+            token: The authentication token the client can use to authenticate the user
         }
     '''
 
@@ -35,10 +36,13 @@ async def login():
     try:
         uid: str = await accountManagement.login(email=email, password=password)
 
+        token = auth.create_custom_token(uid=uid)
+
         response = jsonify({
             'success': True,
             'msg': 'User successfully authenticated!',
-            'uid': uid
+            'uid': uid,
+            'token': token.decode('utf-8')
         })
         response.status_code = 200
 

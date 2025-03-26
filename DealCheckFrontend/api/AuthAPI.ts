@@ -7,7 +7,8 @@ async function sendAuthRequest<T>(path: string, data: object): Promise<T> {
 }
 
 export type LoginResponse = APIResponse & {
-    uid: string | undefined
+    uid: string | undefined,
+    token: string | undefined
 }
 
 /**

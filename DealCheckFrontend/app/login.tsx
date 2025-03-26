@@ -12,7 +12,7 @@ import {
   Alert,
   ScrollView,
 } from "react-native"
-import { signInWithEmailAndPassword } from "firebase/auth"
+import { signInWithCustomToken } from "firebase/auth"
 import { auth } from "@/FirebaseConfig"
 import { loginRequest, LoginResponse } from "@/api/AuthAPI"
 
@@ -32,8 +32,8 @@ const LoginScreen = () => {
     try {
       const responseData: LoginResponse = await loginRequest(email, password);
 
-      if(responseData.success && responseData.uid) {
-        await signInWithEmailAndPassword(auth, email, password);
+      if(responseData.success && responseData.uid && responseData.token) {
+        await signInWithCustomToken(auth, responseData.token);
       } else
         throw new Error(responseData.msg);
     } catch(error: any) {
