@@ -10,7 +10,7 @@ import asyncio
 class AccountManagement:
     def __init__(self):
         self.accountLogin = AccountLogin()
-        self.editAccount = EditAccount()
+        self.accountEditor = EditAccount()
         self.accountLogout = AccountLogout()
         self.registrationSystem = RegistrationSystem()
         self.accountRetriever = AccountRetriever()
@@ -36,7 +36,7 @@ class AccountManagement:
             phoneNumber=phoneNumber
         )
 
-        updatedUser: User = await self.editAccount.editAccount(
+        updatedUser: User = await self.accountEditor.editAccount(
             user=user,
             password=password
         )

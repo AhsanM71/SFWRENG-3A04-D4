@@ -31,7 +31,7 @@ class EditAccount:
         
         updateData = {
             "email": user.email,
-            "display_name": user.displayName,
+            "display_name": user.username,
             "phone_number": user.phoneNumber
         }
 
