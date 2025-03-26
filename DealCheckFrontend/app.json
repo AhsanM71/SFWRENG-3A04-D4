@@ -7,11 +7,6 @@
     "orientation": "portrait",
     "icon": "./assets/images/blackCar.png",
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/images/logo.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": [
       "**/*"
     ],

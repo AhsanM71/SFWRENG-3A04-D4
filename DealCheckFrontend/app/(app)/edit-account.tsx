@@ -1,6 +1,4 @@
-"use client"
-
-import { useUser } from "@/context/UserContext"
+import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import {
   View,
@@ -14,8 +12,8 @@ import {
 } from "react-native"
 
 const EditProfileScreen = () => {
-  const { user, setUser } = useUser()
-  const [name, setName] = useState(user?.name || "")
+  const { user, loading } = useAuth()
+  const [name, setName] = useState(user?.displayName || "")
   const [email, setEmail] = useState(user?.email || "")
   const [password, setPassword] = useState("")
 
@@ -24,12 +22,6 @@ const EditProfileScreen = () => {
       Alert.alert("Error", "Name and email cannot be empty")
       return
     }
-
-    setUser({
-      id: user?.id,
-      name: name,
-      email: email,
-    })
     
     Alert.alert("Success", "Profile updated successfully")
   }

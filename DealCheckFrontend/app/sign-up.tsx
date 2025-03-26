@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   View,
@@ -14,11 +12,9 @@ import {
   Text,
   ScrollView,
 } from "react-native"
-import { useUser } from "@/context/UserContext"
 import { useRouter } from "expo-router"
 
 const CreateAccountScreen = () => {
-  const { setUser } = useUser()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
@@ -36,7 +32,6 @@ const CreateAccountScreen = () => {
     // Simulate account creation
     setTimeout(() => {
       setIsLoading(false)
-      setUser({ id: "1", name, email })
       Alert.alert("Success", "Account created successfully")
       router.push("/home")
     }, 1500)
@@ -46,7 +41,7 @@ const CreateAccountScreen = () => {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
         </View>
 
         <View>

@@ -3,15 +3,14 @@ import { Feather } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { menuItems, mockActivities, mockRecommendations, mockValuations } from "@/constants"
 import { DealValuation } from "@/types"
-import { useUser } from "@/context/UserContext"
+import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "expo-router"
 
 const HomeScreen = () => {
-  const { user, setUser } = useUser()
+  const { user, loading } = useAuth()
   const router = useRouter()
 
   const handleLogout = () => {
-    setUser(null)
     router.push("/")
   }
 
@@ -19,7 +18,7 @@ const HomeScreen = () => {
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Image source={require("../assets/images/longLogo.png")} style={styles.logo} />
+        <Image source={require("@/assets/images/longLogo.png")} style={styles.logo} />
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Feather name="log-out" size={24} color="#e74c3c" />
         </TouchableOpacity>
@@ -28,7 +27,7 @@ const HomeScreen = () => {
       <ScrollView style={styles.contentContainer}>
         {/* Greeting */}
         <View style={styles.greetingContainer}>
-          <Text style={styles.greeting}>Hey, {user?.name} 👋</Text>
+          <Text style={styles.greeting}>Hey, {user?.displayName} 👋</Text>
           <Text style={styles.subGreeting}>What would you like to do today?</Text>
         </View>
 
