@@ -2,18 +2,28 @@
 
 import { mockActivities, mockDepreciationCurve, mockValuations } from "@/constants"
 import { DealValuation } from "@/types"
-import { useRoute } from "@react-navigation/native"
+import { router, useLocalSearchParams } from "expo-router"
 import { useEffect, useState } from "react"
 import { StyleSheet, KeyboardAvoidingView, ScrollView, View, Text, Platform, TouchableOpacity, ActivityIndicator, Image } from "react-native"
 
-const DepreciationCurveScreen = ({ navigation }: any) => {
+const DepreciationCurveScreen = () => {
   const [dealValuation, setDealValuation] = useState<null | DealValuation>(null)
   const [isLoading, setIsLoading] = useState(false)
+  const params = useLocalSearchParams()
 
   useEffect(() => {
-    const { dealValuation = null } = route.params as { dealValuation?: DealValuation } || {}
-    setDealValuation(dealValuation)
-  }, [])
+    let parsedValuation = null;
+  
+    if (params?.dealValuation && typeof params.dealValuation === "string") {
+      try {
+        parsedValuation = JSON.parse(params.dealValuation);
+      } catch (error) {
+        console.error("Failed to parse deal valuation:", error);
+      }
+    }
+  
+    setDealValuation(parsedValuation);
+  }, []);
 
   const handleGetCurve = (id: number) => {
     setIsLoading(true)
@@ -25,7 +35,7 @@ const DepreciationCurveScreen = ({ navigation }: any) => {
     }, 2000)
   }
 
-  const route = useRoute()
+  
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
@@ -65,7 +75,12 @@ const DepreciationCurveScreen = ({ navigation }: any) => {
                       >
                         {(activity.data as DealValuation).result.decision}
                       </Text>
-                      <TouchableOpacity onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>
+                      <TouchableOpacity
+                        onPress={() => router.push({
+                          pathname: "/deal-valuation",
+                          params: { dealValuation: JSON.stringify(mockValuations[activity.id]) }
+                        })}
+                      >
                         <Text style={styles.viewDetails}>View Details →</Text>
                       </TouchableOpacity>
                     </View>

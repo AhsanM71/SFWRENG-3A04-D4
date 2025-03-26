@@ -1,5 +1,6 @@
 "use client"
 
+import { useUser } from "@/context/UserContext"
 import { useState } from "react"
 import {
   View,
@@ -11,9 +12,8 @@ import {
   Platform,
   Alert,
 } from "react-native"
-import { useUser } from "../../context/UserContext"
 
-const EditProfileScreen = ({ navigation }: any) => {
+const EditProfileScreen = () => {
   const { user, setUser } = useUser()
   const [name, setName] = useState(user?.name || "")
   const [email, setEmail] = useState(user?.email || "")
@@ -32,7 +32,6 @@ const EditProfileScreen = ({ navigation }: any) => {
     })
     
     Alert.alert("Success", "Profile updated successfully")
-    navigation.goBack()
   }
 
   const handleUpdatePassword = () => {

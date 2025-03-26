@@ -14,13 +14,15 @@ import {
   Alert,
   ScrollView,
 } from "react-native"
-import { useUser } from "../../context/UserContext"
+import { useRouter } from "expo-router"
+import { useUser } from "@/context/UserContext"
 
-const LoginScreen = ({ navigation }: any) => {
+const LoginScreen = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const { setUser } = useUser()
+  const router = useRouter()
 
   const handleLogin = () => {
     if (!email || !password) {
@@ -41,7 +43,7 @@ const LoginScreen = ({ navigation }: any) => {
         email: email,
       })
 
-      navigation.navigate("Home")
+      router.push("/home")
     }, 1500)
   }
 
@@ -49,7 +51,7 @@ const LoginScreen = ({ navigation }: any) => {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.logoContainer}>
-          <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
+          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
         </View>
 
         <View>
@@ -147,4 +149,3 @@ const styles = StyleSheet.create({
 })
 
 export default LoginScreen
-

@@ -1,22 +1,24 @@
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native"
-import { useUser } from "../../context/UserContext"
+import { useUser } from "../context/UserContext"
 import { Feather } from "@expo/vector-icons"
+import { useRouter } from "expo-router"
 
-const AccountScreen = ({ navigation }: any) => {
+const AccountScreen = () => {
   const { user, setUser } = useUser()
+  const router = useRouter()
 
   const handleLogout = () => {
     setUser(null)
-    navigation.naviagte("Landing")
+    router.push("/")
   }
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileSection}>
-        <Image source={require("../../assets/images/profile.png")} style={styles.profileImage} />
+        <Image source={require("../assets/images/profile.png")} style={styles.profileImage} />
         <Text style={styles.userName}>{user?.name}</Text>
         <Text style={styles.userEmail}>{user?.email}</Text>
-        <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate("EditProfile")}>
+        <TouchableOpacity style={styles.editButton} onPress={() => router.push("/edit-account")}>
           <Text style={styles.editButtonText}>Edit Profile</Text>
         </TouchableOpacity>
       </View>

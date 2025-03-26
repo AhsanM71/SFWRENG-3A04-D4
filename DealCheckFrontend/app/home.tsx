@@ -1,23 +1,25 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image } from "react-native"
-import { useUser } from "../../context/UserContext"
 import { Feather } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { menuItems, mockActivities, mockRecommendations, mockValuations } from "@/constants"
 import { DealValuation } from "@/types"
+import { useUser } from "@/context/UserContext"
+import { useRouter } from "expo-router"
 
-const HomeScreen = ({ navigation }: any) => {
+const HomeScreen = () => {
   const { user, setUser } = useUser()
+  const router = useRouter()
 
   const handleLogout = () => {
     setUser(null)
-    navigation.navigate("Landing")
+    router.push("/")
   }
 
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <Image source={require("../../assets/images/longLogo.png")} style={styles.logo} />
+        <Image source={require("../assets/images/longLogo.png")} style={styles.logo} />
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
           <Feather name="log-out" size={24} color="#e74c3c" />
         </TouchableOpacity>
@@ -33,7 +35,7 @@ const HomeScreen = ({ navigation }: any) => {
         {/* Action Tiles */}
         <View style={styles.tilesContainer}>
           {menuItems.map((item) => (
-            <TouchableOpacity key={item.id} style={styles.tile} onPress={() => navigation.navigate(item.screen)}>
+            <TouchableOpacity key={item.id} style={styles.tile} onPress={() => router.push(item.screen)}>
               <LinearGradient colors={[item.color1, item.color2]} style={styles.gradient}>
                 <Feather name={item.icon as any} size={40} color="#fff" />
                 <Text style={styles.tileText}>{item.title}</Text>
@@ -67,14 +69,24 @@ const HomeScreen = ({ navigation }: any) => {
                     >
                       {(activity.data as DealValuation).result.decision}
                     </Text>
-                    <TouchableOpacity onPress={() => navigation.navigate("DealValuation", { dealValuation: mockValuations[activity.id] })}>
+                    <TouchableOpacity
+                      onPress={() => router.push({
+                        pathname: "/deal-valuation",
+                        params: { dealValuation: JSON.stringify(mockValuations[activity.id]) }
+                      })}
+                    >
                       <Text style={styles.viewDetails}>View Details →</Text>
                     </TouchableOpacity>
                   </>
                 }
                 {activity.type === "Recommendation" &&
                   <>
-                    <TouchableOpacity onPress={() => navigation.navigate("CarRecommendation", { recommendations: mockRecommendations })}>
+                    <TouchableOpacity
+                      onPress={() => router.push({
+                        pathname: "/car-recommendation",
+                        params: { recommendations: JSON.stringify(mockRecommendations) }
+                      })}
+                    >
                       <Text style={styles.viewDetails}>View Details →</Text>
                     </TouchableOpacity>
                   </>
