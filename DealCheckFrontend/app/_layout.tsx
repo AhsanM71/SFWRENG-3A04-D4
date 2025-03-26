@@ -6,10 +6,15 @@ import { useEffect } from "react";
 function AuthStateHandler() {
   const { loggedIn, loading } = useAuth();
 
+  useEffect(() => {
+    if(!loading) {
+      router.dismissAll();
+      router.replace(loggedIn ? '/(app)' : '/main');
+    }
+  }, [loading, loggedIn]);
+
   if(!loading) {
-    return (
-      <Redirect href={loggedIn ? '/(app)' : '/main'} />
-    ); 
+    return (<></>); 
   }
 }
 
