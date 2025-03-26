@@ -1,14 +1,29 @@
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Alert } from "react-native"
 import { useAuth } from "@/context/AuthContext"
 import { Feather } from "@expo/vector-icons"
 import { useRouter } from "expo-router"
+import { LogoutResponse, logoutRequest } from "@/api/AuthAPI"
+import { signOut } from "firebase/auth"
+import { auth } from "@/FirebaseConfig"
 
 const AccountScreen = () => {
   const { user, loading } = useAuth()
   const router = useRouter()
 
-  const handleLogout = () => {
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      // Get id token and send request to revoke token
+      const idToken = await user?.getIdToken();
+      const responseData: LogoutResponse = await logoutRequest(idToken);
+
+      if(responseData.success)
+        // Signout the user
+        signOut(auth)
+      else
+        throw Error(responseData.msg);
+    } catch(error: any) {
+      Alert.alert("Logout Failed: ", error.message);
+    }
   }
 
   return (
