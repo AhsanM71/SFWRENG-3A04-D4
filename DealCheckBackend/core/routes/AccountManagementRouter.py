@@ -130,7 +130,8 @@ async def createAccount():
         {
             success: True/False,
             msg: "Error/Success Message",
-            uid: The new users id if the user has successfully been created
+            uid: The new users id if the user has successfully been created,
+            tocken: The auth token the client can use to authenticate the user
         }
     '''
 
