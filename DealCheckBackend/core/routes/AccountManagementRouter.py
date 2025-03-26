@@ -2,6 +2,7 @@ from flask import request, jsonify
 from core import authenticaion_blueprint
 from ..authentication.AccountManagement import AccountManagement
 from ..authentication.data import User
+from FirebaseConfig import auth
 
 accountManagement: AccountManagement = AccountManagement()
 
@@ -145,10 +146,13 @@ async def createAccount():
             phoneNumber=phoneNumber
         )
 
+        token = auth.create_custom_token(uid=user.userId)
+
         response = jsonify({
             "success": True,
             "msg": "Account created successfully!",
-            "uid": user.userId
+            "uid": user.userId,
+            "token": token.decode("utf-8")
         })
         response.status_code = 200
 
