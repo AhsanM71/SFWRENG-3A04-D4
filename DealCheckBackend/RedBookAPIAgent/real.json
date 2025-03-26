@@ -1,0 +1,27 @@
+{
+  "car_details": {
+    "make": "Toyota",
+    "model": "Camry",
+    "year": 2020,
+    "trim": "XLE",
+    "mileage": 45000,
+    "condition": "Used",
+    "accident_history": false,
+    "previous_owners": 1,
+    "image": null,
+    "description": "This Toyota Camry XLE comes with a 2.5L 4-cylinder engine producing 203 horsepower. It has an 8-speed automatic transmission and a front-wheel-drive (FWD) drivetrain. The car runs on regular gasoline and has an estimated fuel economy of 28 MPG city / 39 MPG highway. Interior features include leather seats, a sunroof, dual-zone climate control, and a premium JBL audio system."
+  },
+  "pricing": {
+    "listed_price": 40000
+  },
+  "seller_info": {
+    "seller_type": "Dealer",
+    "warranty": "6 months",
+    "inspection_completed": true
+  },
+  "additional_factors": {
+    "fuel_efficiency_mpg": 28,
+    "insurance_estimate": 120,
+    "resale_value_estimate": 18000
+  }
+}
