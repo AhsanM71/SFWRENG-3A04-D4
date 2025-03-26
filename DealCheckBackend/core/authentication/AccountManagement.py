@@ -52,7 +52,7 @@ class AccountManagement:
         decoded_tocken = await asyncio.to_thread(auth.verify_id_token, id_token=token)
         uid = decoded_tocken['uid']
 
-        return self.accountLogout.logout(userId=uid)
+        return await self.accountLogout.logout(userId=uid)
 
     async def createAccount(self, username: str, email: str, password: str, phoneNumber: str) -> User:
         ''' Creates a new user, delegates to RegistrationSystem '''
