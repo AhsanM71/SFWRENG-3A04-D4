@@ -1,14 +1,19 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"
+"use client"
 
-export default function LandingScreen({ navigation }: any) {
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native"
+import { useRouter } from "expo-router"
+
+export default function LandingScreen() {
+  const router = useRouter()
+
   return (
     <View style={styles.container}>
-      <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
+      <Image source={require("../assets/images/logo.png")} style={styles.logo} />
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("Login")}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/login")}>
           <Text style={styles.secondaryButtonText}>Log In</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.secondaryButton} onPress={() => navigation.navigate("CreateAccount")}>
+        <TouchableOpacity style={styles.secondaryButton} onPress={() => router.push("/sign-up")}>
           <Text style={styles.secondaryButtonText}>Sign Up</Text>
         </TouchableOpacity>
       </View>

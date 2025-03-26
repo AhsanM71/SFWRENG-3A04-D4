@@ -14,14 +14,16 @@ import {
   Text,
   ScrollView,
 } from "react-native"
-import { useUser } from "../../context/UserContext"
+import { useUser } from "@/context/UserContext"
+import { useRouter } from "expo-router"
 
-const CreateAccountScreen = ({ navigation }: any) => {
+const CreateAccountScreen = () => {
   const { setUser } = useUser()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
 
   const handleCreateAccount = () => {
     if (!name || !email || !password) {
@@ -36,7 +38,7 @@ const CreateAccountScreen = ({ navigation }: any) => {
       setIsLoading(false)
       setUser({ id: "1", name, email })
       Alert.alert("Success", "Account created successfully")
-      navigation.navigate("Home")
+      router.push("/home")
     }, 1500)
   }
 
@@ -44,7 +46,7 @@ const CreateAccountScreen = ({ navigation }: any) => {
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.logoContainer}>
-          <Image source={require("../../assets/images/logo.png")} style={styles.logo} />
+          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
         </View>
 
         <View>

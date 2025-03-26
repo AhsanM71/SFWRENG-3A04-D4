@@ -5,7 +5,7 @@ export const menuItems = [
     id: "account",
     title: "Account Information",
     icon: "user",
-    screen: "Account",
+    screen: "/account",
     color1: "#4A90E2",
     color2: "#1C74D5"
   },
@@ -13,7 +13,7 @@ export const menuItems = [
     id: "dealValuation",
     title: "Deal Valuation",
     icon: "check-circle",
-    screen: "DealValuation",
+    screen: "/deal-valuation",
     color1: "#2ECC71",
     color2: "#27AE60",
   },
@@ -21,7 +21,7 @@ export const menuItems = [
     id: "carRecommendation",
     title: "Car Recommendations",
     icon: "star",
-    screen: "CarRecommendation",
+    screen: "/car-recommendation",
     color1: "#F1C40F",
     color2: "#F39C12"
   },
@@ -29,7 +29,7 @@ export const menuItems = [
     id: "depreciationCurve",
     title: "Depreciation Curve",
     icon: "trending-down",
-    screen: "DepreciationCurve",
+    screen: "/depreciation-curve",
     color1: "#E74C3C",
     color2: "#C0392B"
   },

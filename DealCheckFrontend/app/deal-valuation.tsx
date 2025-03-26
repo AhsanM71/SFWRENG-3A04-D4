@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Activi
 import { Feather } from "@expo/vector-icons"
 import { mockValuationResults } from "@/constants"
 import { DealValuation, ValuationResult } from "@/types"
-import { useRoute } from "@react-navigation/native"
+import { useLocalSearchParams, useRouter } from "expo-router"
 
 const DealValuationScreen = () => {
   const [carMake, setCarMake] = useState("")
@@ -16,12 +16,10 @@ const DealValuationScreen = () => {
   const [condition, setCondition] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<null | ValuationResult>(null)
-
-  const route = useRoute()
+  const params = useLocalSearchParams()
 
   useEffect(() => {
-    // Default to empty object if there is no deal valuation provided as a parameter
-    const { dealValuation = {
+    let parsedValuation = {
       carMake: "",
       carModel: "",
       carYear: "",
@@ -29,16 +27,26 @@ const DealValuationScreen = () => {
       price: "",
       condition: "",
       result: null,
-    }, } = route.params as { dealValuation?: DealValuation } || {}
-
-    setCarMake(dealValuation.carMake)
-    setCarModel(dealValuation.carModel)
-    setCarYear(dealValuation.carYear)
-    setMileage(dealValuation.mileage)
-    setPrice(dealValuation.price)
-    setCondition(dealValuation.condition)
-    setResult(dealValuation.result)
-  }, [route])
+    };
+  
+    if (typeof params.dealValuation === "string") {
+      try {
+        parsedValuation = JSON.parse(params.dealValuation);
+      } catch (error) {
+        console.error("Failed to parse deal valuation:", error);
+      }
+    }
+  
+    setCarMake(parsedValuation.carMake);
+    setCarModel(parsedValuation.carModel);
+    setCarYear(parsedValuation.carYear);
+    setMileage(parsedValuation.mileage);
+    setPrice(parsedValuation.price);
+    setCondition(parsedValuation.condition);
+    setResult(parsedValuation.result);
+  }, [params.dealValuation]);
+  
+  
 
   const handleSubmit = () => {
     // Validate inputs

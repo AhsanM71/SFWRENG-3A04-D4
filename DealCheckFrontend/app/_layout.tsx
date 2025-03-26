@@ -1,37 +1,24 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import { SafeAreaProvider } from "react-native-safe-area-context"
-
-import { UserProvider } from "../context/UserContext"
-
-import LoginScreen from "../components/screens/LoginScreen"
-import HomeScreen from "../components/screens/HomeScreen"
-import AccountScreen from "../components/screens/AccountScreen"
-import DealValuationScreen from "../components/screens/DealValuationScreen"
-import CarRecommendationScreen from "../components/screens/CarRecommendationScreen"
-import LandingScreen from "@/components/screens/LandingScreen"
-import EditProfileScreen from "@/components/screens/EditProfileScreen"
-import CreateAccountScreen from "@/components/screens/CreateAccountScreen"
-import DepreciationCurveScreen from "@/components/screens/DepreciationCurveScreen"
-
-const Stack = createNativeStackNavigator()
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Stack } from "expo-router";
+import { UserProvider } from "@/context/UserContext";
 
 export default function App() {
   return (
     <SafeAreaProvider>
       <UserProvider>
-        <Stack.Navigator initialRouteName="Landing" >
-          <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ title: "Create Account" }} />
-          <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Login" }} />
-          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-          <Stack.Screen name="Account" component={AccountScreen} options={{ title: "Account Information" }} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
-          <Stack.Screen name="DealValuation" component={DealValuationScreen} options={{ title: "Deal Valuation" }} />
-          <Stack.Screen name="DepreciationCurve" component={DepreciationCurveScreen} options={{ title: "Depreciation Curve" }} />
-          <Stack.Screen name="CarRecommendation" component={CarRecommendationScreen} options={{ title: "Car Recommendations" }}/>
-        </Stack.Navigator>
+        <Stack>
+          <Stack.Screen name="index" options={{ title: "", headerShown: false }} />  
+          <Stack.Screen name="sign-up" options={{ title: "Create Account" }} />
+          <Stack.Screen name="login" options={{ title: "Login" }} />
+          <Stack.Screen name="home" options={{ title: "Home", headerShown: false }} />
+          <Stack.Screen name="account" options={{ title: "Account Information" }} />
+          <Stack.Screen name="edit-account" options={{ title: "Edit Profile" }} />
+          <Stack.Screen name="deal-valuation" options={{ title: "Deal Valuation" }} />
+          <Stack.Screen name="depreciation-curve" options={{ title: "Depreciation Curve" }} />
+          <Stack.Screen name="car-recommendation" options={{ title: "Car Recommendations" }} />
+        </Stack>
       </UserProvider>
     </SafeAreaProvider>
-  )
+  );
 }
 

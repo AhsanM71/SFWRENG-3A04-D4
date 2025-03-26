@@ -5,7 +5,7 @@ import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Activi
 import { Feather } from "@expo/vector-icons"
 import { carImages, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
-import { useRoute } from "@react-navigation/native"
+import { useLocalSearchParams } from "expo-router"
 
 const CarRecommendationScreen = () => {
   const [budget, setBudget] = useState("")
@@ -13,14 +13,22 @@ const CarRecommendationScreen = () => {
   const [preferences, setPreferences] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
-
-  const route = useRoute()
+  const params = useLocalSearchParams()
 
   useEffect(() => {
-      // Default to null if no recommendations are supplied
-      const { recommendations = null } = route.params as { recommendations?: Array<Recommendation> } || {}
-      setRecommendations(recommendations)
-    }, [route])
+    let parsedRecommendations: Array<Recommendation> | null = null;
+  
+    if (params?.recommendations && typeof params.recommendations === "string") {
+      try {
+        parsedRecommendations = JSON.parse(params.recommendations);
+      } catch (error) {
+        console.error("Failed to parse recommendations:", error);
+      }
+    }
+  
+    setRecommendations(parsedRecommendations);
+  }, []);
+  
 
   const handleSubmit = () => {
     if (!budget || !purpose) {
