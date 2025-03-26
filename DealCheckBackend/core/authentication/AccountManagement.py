@@ -15,10 +15,10 @@ class AccountManagement:
         self.registrationSystem = RegistrationSystem()
         self.accountRetriever = AccountRetriever()
 
-    async def login(self, token: str):
+    async def login(self, email: str, password: str) -> str:
         ''' Authenticates a user, delegates to AccountLogin '''
 
-        return await self.accountLogin.login(token=token)
+        return await self.accountLogin.login(email=email, password=password)
 
     async def editAccount(self, token: str, username: str, password: str, email: str, phoneNumber: str) -> User:
         ''' Edits the owner of the provided auth token, delegates editting logic to EditAccount '''

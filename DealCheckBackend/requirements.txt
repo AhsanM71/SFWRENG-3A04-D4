@@ -3,3 +3,5 @@ flask[async]
 firebase-admin
 Flask-Cors
 aiohttp
+requests
+python-dotenv

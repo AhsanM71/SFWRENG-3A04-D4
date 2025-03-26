@@ -15,7 +15,8 @@ async def login():
         POST
     
     Args:
-        token (str): The authentication tocken of the client
+        email (str): The email of the user being authenticated
+        password (str): The password of the user being authenticated
 
     Return:
         JSON: 
@@ -28,19 +29,20 @@ async def login():
 
     data = request.get_json()
 
-    token: str = data.get('token')
+    email: str = data.get('email')
+    password: str = data.get('password')
 
     try:
-        uid: str = await accountManagement.login(token=token)
+        uid: str = await accountManagement.login(email=email, password=password)
 
-        if(uid):
-            response = jsonify({
-                'success': True,
-                'msg': 'User successfully authenticated!',
-                'uid': uid
-            })
-        else:
-            raise Exception('Unable to authenticate user!')
+        response = jsonify({
+            'success': True,
+            'msg': 'User successfully authenticated!',
+            'uid': uid
+        })
+        response.status_code = 200
+
+        return response
     except Exception as e:
         response = jsonify({
             "success": False,
