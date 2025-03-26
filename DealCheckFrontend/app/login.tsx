@@ -37,7 +37,6 @@ const LoginScreen = () => {
       } else
         throw new Error(responseData.msg);
     } catch(error: any) {
-      console.log(error);
       Alert.alert("Signin Failed: ", error.message);
       setIsLoading(false);
     }
