@@ -13,28 +13,42 @@ import {
   ScrollView,
 } from "react-native"
 import { useRouter } from "expo-router"
+import { registrationRequest, RegistrationResponse } from "@/api/AuthAPI"
+import { signInWithCustomToken } from "firebase/auth"
+import { auth } from "@/FirebaseConfig"
 
 const CreateAccountScreen = () => {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleCreateAccount = () => {
-    if (!name || !email || !password) {
+  const handleCreateAccount = async () => {
+    if (!name || !email || !phoneNumber || !password) {
       Alert.alert("Error", "All fields are required")
       return
     }
 
-    setIsLoading(true)
+    try {
+      setIsLoading(true);
 
-    // Simulate account creation
-    setTimeout(() => {
-      setIsLoading(false)
-      Alert.alert("Success", "Account created successfully")
-      router.push("/home")
-    }, 1500)
+      const registrationResponse: RegistrationResponse = await registrationRequest(
+        email,
+        password,
+        name,
+        phoneNumber
+      );
+
+      if(registrationResponse.success && registrationResponse.uid && registrationResponse.token) {
+        await signInWithCustomToken(auth, registrationResponse.token!);
+      } else
+        throw Error(registrationResponse.msg);
+    } catch(error: any) {
+      Alert.alert("Registeration failed: ", error.message);
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -51,6 +65,16 @@ const CreateAccountScreen = () => {
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            dataDetectorTypes='phoneNumber'
+            textContentType='telephoneNumber'
+            autoCapitalize="none"
           />
           <TextInput
             style={styles.input}

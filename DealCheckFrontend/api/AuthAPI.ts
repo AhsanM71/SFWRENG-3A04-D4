@@ -21,6 +21,29 @@ export async function loginRequest(email: string, password: string): Promise<Log
     return login;
 }
 
+export type RegistrationResponse = APIResponse & {
+    uid: string | undefined,
+    token: string | undefined
+};
+
+/**
+ * 
+ * @param email The email of the user being created
+ * @param password The password of the user being created
+ * @param username The username of the user being created
+ * @param phoneNumber The phone number of the user being created
+ * @returns The registration API response
+ */
+export async function registrationRequest(email: string, password: string, username: string, phoneNumber: string): Promise<RegistrationResponse> {
+    const signup: RegistrationResponse = await sendAuthRequest<RegistrationResponse>('/auth/signup', {
+        username: username,
+        email: email,
+        password: password,
+        phoneNumber: phoneNumber
+    });
+    return signup
+}
+
 export type LogoutResponse = APIResponse;
 
 /**
