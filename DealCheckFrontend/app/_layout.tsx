@@ -1,18 +1,16 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack, router } from "expo-router";
+import { Redirect, Stack, router } from "expo-router";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 
 function AuthStateHandler() {
-  const { user, loading } = useAuth();
+  const { loggedIn, loading } = useAuth();
 
-  useEffect(() => {
-    if (!loading) {
-      router.replace(user ? '/(app)' : '/main');
-    }
-  }, [loading, user]);
-
-  return (<></>); 
+  if(!loading) {
+    return (
+      <Redirect href={loggedIn ? '/(app)' : '/main'} />
+    ); 
+  }
 }
 
 export default function App() {

@@ -1,3 +1,4 @@
+import { EditAccountResponse, editRequest } from "@/api/AuthAPI"
 import { useAuth } from "@/context/AuthContext"
 import { useState } from "react"
 import {
@@ -12,28 +13,58 @@ import {
 } from "react-native"
 
 const EditProfileScreen = () => {
-  const { user, loading } = useAuth()
+  const { user, loading, reload } = useAuth()
   const [name, setName] = useState(user?.displayName || "")
   const [email, setEmail] = useState(user?.email || "")
+  const [phoneNumber, setPhoneNumber] = useState(user?.phoneNumber || "")
   const [password, setPassword] = useState("")
 
-  const handleSaveProfile = () => {
-    if (!name || !email) {
-      Alert.alert("Error", "Name and email cannot be empty")
+  const handleSaveProfile = async () => {
+    if (!name || !email || !phoneNumber) {
+      Alert.alert("Error", "Name, email, and phone number cannot be empty")
       return
     }
     
-    Alert.alert("Success", "Profile updated successfully")
+    try {
+      const editResponse: EditAccountResponse = await editRequest(
+        await user?.getIdToken(),
+        name,
+        email, 
+        phoneNumber, 
+        password
+      );
+
+      if(editResponse.success)
+        reload();
+      else
+        throw Error(editResponse.msg);
+    } catch(error: any) {
+      Alert.alert("Editting Account Failed: ", error.message);
+    }
   }
 
-  const handleUpdatePassword = () => {
+  const handleUpdatePassword = async () => {
     if (!password) {
       Alert.alert("Error", "Password cannot be empty")
       return
     }
 
-    Alert.alert("Success", "Password updated successfully")
-    setPassword("")
+    try {
+      const editResponse: EditAccountResponse = await editRequest(
+        await user?.getIdToken(),
+        name,
+        email, 
+        phoneNumber, 
+        password
+      );
+
+      if(editResponse.success)
+        reload();
+      else
+        throw Error(editResponse.msg);
+    } catch(error: any) {
+      Alert.alert("Editting Password Failed: ", error.message);
+    }
   }
 
   return (
@@ -54,6 +85,17 @@ const EditProfileScreen = () => {
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
+          autoCapitalize="none"
+        />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          value={phoneNumber}
+          onChangeText={setPhoneNumber}
+          keyboardType="phone-pad"
+          dataDetectorTypes='phoneNumber'
+          textContentType='telephoneNumber'
           autoCapitalize="none"
         />
         <TouchableOpacity style={styles.saveButton} onPress={handleSaveProfile}>
