@@ -36,9 +36,9 @@ export const menuItems = [
 ]
 
 export const carImages: { [key: string]: any } = {
-  "car1": require("../assets/images/2020_toyota_rav4.jpg"),
-  "car2": require("../assets/images/2015_honda_accord.jpg"),
-  "car3": require("../assets/images/2019_mazda_cx5.jpg"),
+  "car1": require("@/assets/images/2020_toyota_rav4.jpg"),
+  "car2": require("@/assets/images/2015_honda_accord.jpg"),
+  "car3": require("@/assets/images/2019_mazda_cx5.jpg"),
 }
 
 export const mockRecommendations = [
@@ -186,7 +186,7 @@ export const mockValuations: Array<DealValuation> = [
   },
 ]
 
-export const mockDepreciationCurve = require("../assets/images/carDepreciationCurve.png")
+export const mockDepreciationCurve = require("@/assets/images/carDepreciationCurve.png")
 
 export const mockActivities: Array<Activity> = [
   {

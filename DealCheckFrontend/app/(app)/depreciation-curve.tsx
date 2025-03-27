@@ -1,5 +1,3 @@
-"use client"
-
 import { mockActivities, mockDepreciationCurve, mockValuations } from "@/constants"
 import { DealValuation } from "@/types"
 import { router, useLocalSearchParams } from "expo-router"

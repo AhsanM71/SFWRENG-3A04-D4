@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   View,
@@ -14,17 +12,16 @@ import {
   Alert,
   ScrollView,
 } from "react-native"
-import { useRouter } from "expo-router"
-import { useUser } from "@/context/UserContext"
+import { signInWithCustomToken } from "firebase/auth"
+import { auth } from "@/FirebaseConfig"
+import { loginRequest, LoginResponse } from "@/api/AuthAPI"
 
 const LoginScreen = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
-  const { setUser } = useUser()
-  const router = useRouter()
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Error", "Please enter both email and password")
       return
@@ -32,26 +29,24 @@ const LoginScreen = () => {
 
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      const responseData: LoginResponse = await loginRequest(email, password);
 
-      // Mock successful login
-      setUser({
-        id: "1",
-        name: "John Doe",
-        email: email,
-      })
-
-      router.push("/home")
-    }, 1500)
+      if(responseData.success && responseData.uid && responseData.token) {
+        await signInWithCustomToken(auth, responseData.token);
+      } else
+        throw new Error(responseData.msg);
+    } catch(error: any) {
+      Alert.alert("Signin Failed: ", error.message);
+      setIsLoading(false);
+    }
   }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
         </View>
 
         <View>

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   View,
@@ -14,39 +12,50 @@ import {
   Text,
   ScrollView,
 } from "react-native"
-import { useUser } from "@/context/UserContext"
 import { useRouter } from "expo-router"
+import { registrationRequest, RegistrationResponse } from "@/api/AuthAPI"
+import { signInWithCustomToken } from "firebase/auth"
+import { auth } from "@/FirebaseConfig"
 
 const CreateAccountScreen = () => {
-  const { setUser } = useUser()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
-  const handleCreateAccount = () => {
-    if (!name || !email || !password) {
+  const handleCreateAccount = async () => {
+    if (!name || !email || !phoneNumber || !password) {
       Alert.alert("Error", "All fields are required")
       return
     }
 
-    setIsLoading(true)
+    try {
+      setIsLoading(true);
 
-    // Simulate account creation
-    setTimeout(() => {
-      setIsLoading(false)
-      setUser({ id: "1", name, email })
-      Alert.alert("Success", "Account created successfully")
-      router.push("/home")
-    }, 1500)
+      const registrationResponse: RegistrationResponse = await registrationRequest(
+        email,
+        password,
+        name,
+        phoneNumber
+      );
+
+      if(registrationResponse.success && registrationResponse.uid && registrationResponse.token) {
+        await signInWithCustomToken(auth, registrationResponse.token!);
+      } else
+        throw Error(registrationResponse.msg);
+    } catch(error: any) {
+      Alert.alert("Registeration failed: ", error.message);
+      setIsLoading(false);
+    }
   }
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
         <View style={styles.logoContainer}>
-          <Image source={require("../assets/images/logo.png")} style={styles.logo} />
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} />
         </View>
 
         <View>
@@ -56,6 +65,16 @@ const CreateAccountScreen = () => {
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+            dataDetectorTypes='phoneNumber'
+            textContentType='telephoneNumber'
+            autoCapitalize="none"
           />
           <TextInput
             style={styles.input}

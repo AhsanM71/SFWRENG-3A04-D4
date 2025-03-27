@@ -1,23 +1,36 @@
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Stack } from "expo-router";
-import { UserProvider } from "@/context/UserContext";
+import { Redirect, Stack, router } from "expo-router";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useEffect } from "react";
+
+function AuthStateHandler() {
+  const { loggedIn, loading } = useAuth();
+
+  useEffect(() => {
+    if(!loading) {
+      router.dismissAll();
+      router.replace(loggedIn ? '/(app)' : '/main');
+    }
+  }, [loading, loggedIn]);
+
+  if(!loading) {
+    return (<></>); 
+  }
+}
 
 export default function App() {
   return (
     <SafeAreaProvider>
-      <UserProvider>
+      <AuthProvider>
         <Stack>
-          <Stack.Screen name="index" options={{ title: "", headerShown: false }} />  
+          <Stack.Screen name="index" options={{ title: "", headerShown: false, animation: "none" }} />
+          <Stack.Screen name="main" options={{ title: "", headerShown: false, animation: "none" }} />
           <Stack.Screen name="sign-up" options={{ title: "Create Account" }} />
           <Stack.Screen name="login" options={{ title: "Login" }} />
-          <Stack.Screen name="home" options={{ title: "Home", headerShown: false }} />
-          <Stack.Screen name="account" options={{ title: "Account Information" }} />
-          <Stack.Screen name="edit-account" options={{ title: "Edit Profile" }} />
-          <Stack.Screen name="deal-valuation" options={{ title: "Deal Valuation" }} />
-          <Stack.Screen name="depreciation-curve" options={{ title: "Depreciation Curve" }} />
-          <Stack.Screen name="car-recommendation" options={{ title: "Car Recommendations" }} />
+          <Stack.Screen name="(app)" options={{ title: "", headerShown: false, animation: "none" }} />
         </Stack>
-      </UserProvider>
+        <AuthStateHandler />
+      </AuthProvider>
     </SafeAreaProvider>
   );
 }
