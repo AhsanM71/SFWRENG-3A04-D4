@@ -4,6 +4,22 @@ from google.cloud.firestore_v1.async_document import AsyncDocumentReference
 from google.cloud.firestore_v1.base_document import DocumentSnapshot
 from google.cloud.firestore_v1.async_query import AsyncQuery
 
+CARS_COLLECTION = 'Cars'
+
+def getDocumentRefPath(collection: str, id: str) -> str:
+    '''
+    Creates the path to a document that can be used as a reference in another document
+
+    Args:
+        collection (str): The name of the collection
+        id (str): The id of the document
+
+    Returns:
+        str: The reference to the document /collection/id
+    '''
+
+    return '/{collection}/{id}'.format(collection=collection, id=id)
+
 async def createDocument(collection: str, data: dict) -> str:
     '''
     Creates a document in the firestore database given a collection name and data
