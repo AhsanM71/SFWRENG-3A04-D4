@@ -8,6 +8,28 @@ from firebase_admin.firestore_async import FieldFilter
 CARS_COLLECTION = 'Cars'
 CAR_RECOMMENDATION_COLLECTION='CarRecommendationInformation'
 
+async def resolve_references(data: dict) -> dict:
+    '''
+    Recursively resolves all AsyncDocumentReferences in a Firestore document
+
+    Args:
+        data (dict): The dictionary data of the document
+
+    Returns:
+        dict: The full dictionary of the data of the document
+    '''
+
+    for key, value in data.items():
+        if isinstance(value, AsyncDocumentReference):
+            snapshot = await value.get()
+            nested_data = snapshot.to_dict()
+            nested_data['id'] = snapshot.id
+            if nested_data:
+                data[key] = await resolve_references(nested_data)
+            else:
+                data[key] = None 
+    return data
+
 def getDocumentRefPath(collection: str, id: str) -> str:
     '''
     Creates the path to a document that can be used as a reference in another document
@@ -35,10 +57,10 @@ async def createDocument(collection: str, data: dict) -> str:
     '''
 
     collectionRef: AsyncCollectionReference = getCollectionRef(collection)
-    _, docRef = await collectionRef.add(data)
+    _, docSnap = await collectionRef.add(data)
 
-    data: dict = docRef.to_dict()
-    data['id'] = docRef.id
+    data: dict = await resolve_references(docSnap.to_dict())
+    data['id'] = docSnap.id
 
     return data
 
@@ -64,7 +86,7 @@ async def getDocument(collection: str, id: str) -> dict:
     if not docSnap.exists:
         raise Exception('Could not find a document with the reference {collection}/{id}'.format(collection=collection, id=id))
     
-    data: dict = docSnap.to_dict()
+    data: dict = await resolve_references(docSnap.to_dict())
     data['id'] = docSnap.id
 
     return data
@@ -114,7 +136,7 @@ async def getQueryResults(query: AsyncQuery) -> list[any]:
     result = []
 
     for doc in queryResults:
-        data: dict = doc.to_dict()
+        data: dict = await resolve_references(doc.to_dict())
         data['id'] = doc.id
         result.append(data)
 
@@ -148,7 +170,7 @@ async def updateDocument(collection: str, id: str, data: dict) -> dict:
     docRef: AsyncDocumentReference = getDocRef(collection, id)
     _, updatedDocRef = await docRef.set(data)
     
-    data: dict = updatedDocRef.to_dict()
+    data: dict = await resolve_references(updatedDocRef.to_dict())
     data['id'] = updatedDocRef.id
 
     return data
