@@ -3,8 +3,10 @@ from google.cloud.firestore_v1.async_collection import AsyncCollectionReference
 from google.cloud.firestore_v1.async_document import AsyncDocumentReference
 from google.cloud.firestore_v1.base_document import DocumentSnapshot
 from google.cloud.firestore_v1.async_query import AsyncQuery
+from firebase_admin.firestore_async import FieldFilter
 
 CARS_COLLECTION = 'Cars'
+CAR_RECOMMENDATION_COLLECTION='CarRecommendationInformation'
 
 def getDocumentRefPath(collection: str, id: str) -> str:
     '''
@@ -78,7 +80,7 @@ def getCollectionRef(collection: str) -> AsyncCollectionReference:
         AsyncCollectionReference: The reference to the collection
     '''
 
-    return db.collection(collection).where()
+    return db.collection(collection)
 
 def getDocRef(collection: str, id: str) -> AsyncDocumentReference:
     '''
