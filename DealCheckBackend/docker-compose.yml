@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  flask-app:
+    build: .
+    image: deal_check_backend
+    ports:
+      - "8001:8001"
+    volumes:
+      - ${LOCAL_PROJECT_PATH}:/app
