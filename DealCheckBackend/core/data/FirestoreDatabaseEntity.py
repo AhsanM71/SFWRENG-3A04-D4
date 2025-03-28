@@ -10,5 +10,5 @@ class FirestoreDatabaseEntity[T](ABC):
         pass
 
     @abstractmethod
-    def to_dict() -> dict:
+    def to_dict(self) -> dict:
         pass
