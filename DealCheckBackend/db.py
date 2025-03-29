@@ -4,7 +4,7 @@ from google.cloud.firestore_v1.async_document import AsyncDocumentReference
 from google.cloud.firestore_v1.base_document import DocumentSnapshot
 from google.cloud.firestore_v1.async_query import AsyncQuery
 
-async def createDocument(collection: str, data: dict) -> str:
+async def createDocument(collection: str, data: dict) -> dict:
     '''
     Creates a document in the firestore database given a collection name and data
 
