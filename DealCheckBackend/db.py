@@ -7,6 +7,7 @@ from firebase_admin.firestore_async import FieldFilter
 
 CARS_COLLECTION = 'Cars'
 CAR_RECOMMENDATION_COLLECTION='CarRecommendationInformation'
+CAR_DEALCHECK_FEATURE = 'CarDealCheckFeature'
 
 async def resolve_references(data: dict) -> dict:
     '''
