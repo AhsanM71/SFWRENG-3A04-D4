@@ -3,7 +3,7 @@ from core.dealCheckExpertsService.DealCheckExpertsService import DealCheckExpert
 from core.dealCheckExpertsService.Enums import DealCheckExpertType
 from data.DealCheckData import DealCheckData
 
-class DealCheckBlackBoardController(BlackBoardController[DealCheckData]):
+class DealCheckExpertBlackBoardController(BlackBoardController[DealCheckData]):
     def __init__(self, expertsService: DealCheckExpertsService):
         super().__init__()
         self.expertsService: DealCheckExpertsService = expertsService

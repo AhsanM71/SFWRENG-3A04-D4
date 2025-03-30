@@ -4,7 +4,7 @@ from data.DealCheckData import DealCheckData
 import pandas as pd
 import re
 
-class Redbook(Expert):
+class Redbook(Expert[DealCheckData]):
     def __init__():
         super.__init__()
     
