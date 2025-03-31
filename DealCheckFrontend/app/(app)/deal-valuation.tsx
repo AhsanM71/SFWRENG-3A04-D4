@@ -1,20 +1,46 @@
 import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
+import { View, SafeAreaView, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, FlatList } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockValuationResults } from "@/constants"
 import { DealValuation, ValuationResult } from "@/types"
+import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
+import carData from "../../assets/data/car-list.json"
 
 const DealValuationScreen = () => {
+
+  // State variables to track form inputs
   const [carMake, setCarMake] = useState("")
   const [carModel, setCarModel] = useState("")
+  const [carTrim, setCarTrim] = useState("")
+  const [carCondition, setCarCondition] = useState("Used")
+  const [previousOwners, setPreviousOwners] = useState("1")
+  const [sellerType, setSellerType] = useState("Dealer")
+  const [warranty,setWarranty] = useState("")
   const [carYear, setCarYear] = useState("")
   const [mileage, setMileage] = useState("")
   const [price, setPrice] = useState("")
+  const [accidentHistory, setAccidentHistory] = useState(false)
+  const [inspectionCompleted, setInspectionCompleted] = useState(false)
+  const [fuelEfficiencyMpg, setFuelEfficiencyMpg] = useState("")
+  const [insuranceEstimate, setInsuranceEstimate] = useState("")
+  const [resaleValueEstimate, setResaleValueEstimate] = useState("")
+  const [userGuess, setUserGuess] = useState("0");
   const [condition, setCondition] = useState("")
+  const [fuelType, setFuelType] = useState("gasoline")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<null | ValuationResult>(null)
   const params = useLocalSearchParams()
+  
+  // Further boolean variables to track drop-down inputs
+  const [carMakeOpen, setCarMakeOpen] = useState(false);
+  const [carModelOpen, setCarModelOpen] = useState(false);
+  const [conditionOpen, setConditionOpen] = useState(false);
+  const [fuelTypeOpen, setFuelTypeOpen] = useState(false)
+  const [sellerTypeOpen, setSellerTypeOpen] = useState(false);
+
+  // Tracking car models, used in drop-down inputs
+  const models = carData.find(car => car.brand === carMake)?.models || []
 
   useEffect(() => {
     let parsedValuation = {
@@ -24,6 +50,7 @@ const DealValuationScreen = () => {
       mileage: "",
       price: "",
       condition: "",
+      fuelType: "gasoline",
       result: null,
     };
   
@@ -42,11 +69,55 @@ const DealValuationScreen = () => {
     setPrice(parsedValuation.price);
     setCondition(parsedValuation.condition);
     setResult(parsedValuation.result);
-  }, [params.dealValuation]);
-  
-  
+    setFuelType(parsedValuation.fuelType);
 
+  }, [params.dealValuation]);
+
+  const formatDataForSubmission = () => {
+    // Convert string values to numbers where needed
+    const yearInt = parseInt(carYear) || 0;
+    const mileageInt = parseInt(mileage) || 0;
+    const priceInt = parseInt(price) || 0;
+    const ownersInt = parseInt(previousOwners) || 1;
+    const fuelEffInt = parseInt(fuelEfficiencyMpg) || 0;
+    const insuranceInt = parseInt(insuranceEstimate) || 0;
+    const resaleInt = parseInt(resaleValueEstimate) || 0;
+    
+    return {
+      car_details: {
+        make: carMake,
+        model: carModel,
+        year: yearInt,
+        trim: carTrim,
+        mileage: mileageInt,
+        condition: carCondition,
+        accident_history: accidentHistory,
+        previous_owners: ownersInt,
+        image: null,
+        description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+      },
+      pricing: {
+        listed_price: priceInt
+      },
+      seller_info: {
+        seller_type: sellerType,
+        warranty: warranty || "None",
+        inspection_completed: inspectionCompleted
+      },
+      additional_factors: {
+        fuel_efficiency_mpg: fuelEffInt,
+        insurance_estimate: insuranceInt,
+        resale_value_estimate: resaleInt
+      },
+      answers: {
+        predicted: "Yes", // This would be set based on user input
+        actual: ""      // This would be set based on agent analysis
+      }
+    };
+  };
+  
   const handleSubmit = () => {
+
     // Validate inputs
     if (!carMake || !carModel || !carYear || !mileage || !price) {
       Alert.alert("Error", "Please fill in all required fields")
@@ -54,6 +125,12 @@ const DealValuationScreen = () => {
     }
 
     setIsLoading(true)
+
+
+    // Format data to go to API
+    const formattedData = formatDataForSubmission();
+
+    console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
     // Simulate API call to the agents
     setTimeout(() => {
@@ -71,138 +148,424 @@ const DealValuationScreen = () => {
     setMileage("")
     setPrice("")
     setCondition("")
+    setFuelType("gasoline")
     setResult(null)
   }
 
+  // Option sets for dropdowns.
+  const fuelTypeOptions = [
+    { label: "Gasoline", value: "gasoline" },
+    { label: "Diesel", value: "diesel" },
+    { label: "Hybrid", value: "hybrid" },
+    { label: "Electric", value: "electric" },
+  ];
+
+  const conditionOptions = [
+    { label: "New", value: "New" },
+    { label: "Used", value: "Used" },
+    { label: "Salvage", value: "Salvage" },
+  ];
+  
+  const sellerTypeOptions = [
+    { label: "Dealer", value: "Dealer" },
+    { label: "Private", value: "Private" },
+  ];
+
+  // Close other dropdowns when one opens
+  const onCarMakeOpen = () => {
+    setCarModelOpen(false);
+    setFuelTypeOpen(false);
+    setConditionOpen(false);
+    setSellerTypeOpen(false);
+  };
+
+  const onCarModelOpen = () => {
+    setCarMakeOpen(false);
+    setFuelTypeOpen(false);
+    setConditionOpen(false);
+    setSellerTypeOpen(false);
+  };
+
+  const onFuelTypeOpen = () => {
+    setCarMakeOpen(false);
+    setCarModelOpen(false);
+    setSellerTypeOpen(false);
+    setConditionOpen(false);
+  };
+
+  const onConditionOpen = () => {
+    setCarMakeOpen(false);
+    setCarModelOpen(false);
+    setFuelTypeOpen(false);
+    setSellerTypeOpen(false);
+  };
+  
+  const onSellerTypeOpen = () => {
+    setCarMakeOpen(false);
+    setCarModelOpen(false);
+    setFuelTypeOpen(false);
+    setConditionOpen(false);
+  };
+
+  // Create form data elements
+  const renderFormElements = () => (
+    <View style={styles.formContainer}>
+      {/* Brand Picker */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Car Brand*</Text>
+        <DropDownPicker
+          open={carMakeOpen}
+          value={carMake}
+          items={carData.map(car => ({ label: car.brand, value: car.brand }))}
+          setOpen={setCarMakeOpen}
+          setValue={setCarMake}
+          onOpen={onCarMakeOpen}
+          placeholder="Select Car Brand"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          zIndex={3000}
+          zIndexInverse={1000}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+
+      {/* Model Picker */}
+      <View style={[styles.inputGroup, { marginTop: carMakeOpen ? 100 : 15 }]}>
+        <Text style={styles.label}>Car Model*</Text>
+        <DropDownPicker
+          open={carModelOpen}
+          value={carModel}
+          items={models.map(model => ({ label: model, value: model }))}
+          setOpen={setCarModelOpen}
+          setValue={setCarModel}
+          onOpen={onCarModelOpen}
+          placeholder={"Select Car Model"}
+          placeholderStyle={!carMake ? styles.disabledPlaceholder : styles.placeholder}
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          disabled={!carMake}
+          disabledStyle={styles.disabledDropdown}
+          disabledItemLabelStyle={styles.disabledText}
+          zIndex={2000}
+          zIndexInverse={2000}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+
+      {/* Trim Input */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Trim (Optional)</Text>
+        <TextInput
+          style={styles.input}
+          value={carTrim}
+          onChangeText={setCarTrim}
+          placeholder="e.g., XLE, Sport, Limited"
+        />
+      </View>
+
+      {/* Year Input */}
+      <View style={[styles.inputGroup, { marginTop: carModelOpen ? 100 : 15 }]}>
+        <Text style={styles.label}>Year*</Text>
+        <TextInput
+          style={styles.input}
+          value={carYear}
+          onChangeText={setCarYear}
+          placeholder="e.g., 2020"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Mileage Input */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Mileage*</Text>
+        <TextInput
+          style={styles.input}
+          value={mileage}
+          onChangeText={setMileage}
+          placeholder="e.g., 35000"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Price Input */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Asking Price*</Text>
+        <TextInput
+          style={styles.input}
+          value={price}
+          onChangeText={setPrice}
+          placeholder="e.g., 18500"
+          keyboardType="number-pad"
+        />
+      </View>
+      
+      {/* Fuel Type Input */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Fuel Type</Text>
+        <DropDownPicker
+          open={fuelTypeOpen}
+          value={fuelType}
+          items={fuelTypeOptions}
+          setOpen={setFuelTypeOpen}
+          setValue={setFuelType}
+          onOpen={onFuelTypeOpen}
+          placeholder="Select Fuel Type"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          zIndex={1000}
+          zIndexInverse={3000}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+
+      {/* Condition Dropdown */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Condition*</Text>
+        <DropDownPicker
+          open={conditionOpen}
+          value={carCondition}
+          items={conditionOptions}
+          setOpen={setConditionOpen}
+          setValue={setCarCondition}
+          onOpen={onConditionOpen}
+          placeholder="Select Condition"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          placeholderStyle={styles.placeholder}
+          zIndex={900}
+          zIndexInverse={3100}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+
+      {/* Description Input */}
+      <View style={[styles.inputGroup, { marginTop: fuelTypeOpen ? 100 : 15 }]}>
+        <Text style={styles.label}>Condition (Optional)</Text>
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={condition}
+          onChangeText={setCondition}
+          placeholder="Add further description..."
+          multiline
+          numberOfLines={4}
+        />
+      </View>
+
+      {/* Accident History */}
+      <View style={[styles.inputGroup, { marginTop: conditionOpen ? 100 : 15 }]}>
+        <Text style={styles.label}>Accident History</Text>
+        <View style={styles.toggleContainer}>
+          <Text>Has Accident History?</Text>
+          <TouchableOpacity 
+            style={[styles.toggleButton, accidentHistory ? styles.toggleActive : {}]} 
+            onPress={() => setAccidentHistory(!accidentHistory)}
+          >
+            <Text style={accidentHistory ? styles.toggleTextActive : styles.toggleText}>
+              {accidentHistory ? "Yes" : "No"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Previous Owners */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Previous Owners</Text>
+        <TextInput
+          style={styles.input}
+          value={previousOwners}
+          onChangeText={setPreviousOwners}
+          placeholder="e.g., 1"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Seller Type */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Seller Type*</Text>
+        <DropDownPicker
+          open={sellerTypeOpen}
+          value={sellerType}
+          items={sellerTypeOptions}
+          setOpen={setSellerTypeOpen}
+          setValue={setSellerType}
+          onOpen={onSellerTypeOpen}
+          placeholder="Select Seller Type"
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          placeholderStyle={styles.placeholder}
+          zIndex={800}
+          zIndexInverse={3200}
+          listMode="SCROLLVIEW"
+        />
+      </View>
+
+      {/* Warranty */}
+      <View style={[styles.inputGroup, { marginTop: sellerTypeOpen ? 100 : 15 }]}>
+        <Text style={styles.label}>Warranty (Optional)</Text>
+        <TextInput
+          style={styles.input}
+          value={warranty}
+          onChangeText={setWarranty}
+          placeholder="e.g., 6 months"
+        />
+      </View>
+
+      {/* Inspection Completed */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Inspection Status</Text>
+        <View style={styles.toggleContainer}>
+          <Text>Inspection Completed?</Text>
+          <TouchableOpacity 
+            style={[styles.toggleButton, inspectionCompleted ? styles.toggleActive : {}]} 
+            onPress={() => setInspectionCompleted(!inspectionCompleted)}
+          >
+            <Text style={inspectionCompleted ? styles.toggleTextActive : styles.toggleText}>
+              {inspectionCompleted ? "Yes" : "No"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Fuel Efficiency */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Fuel Efficiency (MPG)</Text>
+        <TextInput
+          style={styles.input}
+          value={fuelEfficiencyMpg}
+          onChangeText={setFuelEfficiencyMpg}
+          placeholder="e.g., 28"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Insurance Estimate */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Monthly Insurance Estimate ($)</Text>
+        <TextInput
+          style={styles.input}
+          value={insuranceEstimate}
+          onChangeText={setInsuranceEstimate}
+          placeholder="e.g., 120"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Resale Value Estimate */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>Resale Value Estimate ($)</Text>
+        <TextInput
+          style={styles.input}
+          value={resaleValueEstimate}
+          onChangeText={setResaleValueEstimate}
+          placeholder="e.g., 18000"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* User Estimate of Deal Rating */}
+      <View style={styles.inputGroup}>
+        <Text style={styles.label}>User Estimate</Text>
+        <TextInput
+          style={styles.input}
+          value={userGuess}
+          onChangeText={setUserGuess}
+          placeholder="1-100"
+          keyboardType="number-pad"
+        />
+      </View>
+
+      {/* Submit Form Button */}
+      <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            <Text style={styles.submitButtonText}>Analyze Deal</Text>
+            <Feather name="arrow-right" size={20} color="#fff" />
+          </>
+        )}
+      </TouchableOpacity>
+    </View>
+  );
+
+  // Create result elements
+  const renderResultElements = () => (
+    <View style={styles.resultContainer}>
+      <View
+        style={[styles.resultHeader, result?.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
+      >
+        <Text style={styles.resultHeaderText}>{result?.decision}</Text>
+        <Text style={styles.confidenceText}>{result?.confidence}% Confidence</Text>
+      </View>
+
+      <View style={styles.carSummary}>
+        <Text style={styles.carSummaryText}>
+          {carYear} {carMake} {carModel}
+        </Text>
+        <Text style={styles.carDetailsText}>
+          {mileage} miles · ${price}
+        </Text>
+      </View>
+
+      <Text style={styles.agentReportsTitle}>Agent Reports</Text>
+
+      {result?.reports.map((report, index) => (
+        <View key={index} style={styles.reportCard}>
+          <View style={styles.reportHeader}>
+            <Text style={styles.agentName}>{report.agentName}</Text>
+            <View
+              style={[
+                styles.decisionBadge,
+                report.decision === "GREAT" ? styles.greatDeal :
+                  report.decision === "GOOD" ? styles.goodDeal :
+                    report.decision === "FAIR" ? styles.fairDeal :
+                      report.decision === "WEAK" ? styles.weakDeal :
+                        report.decision === "AWFUL" ? styles.awfulDeal :
+                          ""
+              ]}
+            >
+              <Text style={styles.decisionText}>{report.decision}</Text>
+            </View>
+          </View>
+          <Text style={styles.reasoning}>{report.reasoning}</Text>
+        </View>
+      ))}
+
+      <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
+        <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
+  const renderHeader = () => (
+    <View style={styles.header}>
+      <Text style={styles.title}>Car Deal Valuation</Text>
+      <Text style={styles.subtitle}>
+        Our AI agents will analyze your potential car deal and tell you if it's a good deal
+      </Text>
+    </View>
+  );
+
+  const renderContent = () => {
+    if (!result) {
+      return renderFormElements();
+    } else {
+      return renderResultElements();
+    }
+  };
+
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
-      
-      <ScrollView style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Car Deal Valuation</Text>
-          <Text style={styles.subtitle}>
-            Our AI agents will analyze your potential car deal and tell you if it's a good deal
-          </Text>
-        </View>
-
-        {!result ? (
-          <View style={styles.formContainer}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Car Make*</Text>
-              <TextInput style={styles.input} value={carMake} onChangeText={setCarMake} placeholder="e.g., Toyota" />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Car Model*</Text>
-              <TextInput style={styles.input} value={carModel} onChangeText={setCarModel} placeholder="e.g., Camry" />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Year*</Text>
-              <TextInput
-                style={styles.input}
-                value={carYear}
-                onChangeText={setCarYear}
-                placeholder="e.g., 2020"
-                keyboardType="number-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Mileage*</Text>
-              <TextInput
-                style={styles.input}
-                value={mileage}
-                onChangeText={setMileage}
-                placeholder="e.g., 35000"
-                keyboardType="number-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Asking Price*</Text>
-              <TextInput
-                style={styles.input}
-                value={price}
-                onChangeText={setPrice}
-                placeholder="e.g., 18500"
-                keyboardType="number-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Condition (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={condition}
-                onChangeText={setCondition}
-                placeholder="Describe the condition of the vehicle..."
-                multiline
-                numberOfLines={4}
-              />
-            </View>
-
-            <TouchableOpacity style={styles.submitButton} onPress={handleSubmit} disabled={isLoading}>
-              {isLoading ? (
-                <ActivityIndicator color="#fff" />
-              ) : (
-                <>
-                  <Text style={styles.submitButtonText}>Analyze Deal</Text>
-                  <Feather name="arrow-right" size={20} color="#fff" />
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.resultContainer}>
-            <View
-              style={[styles.resultHeader, result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
-            >
-              <Text style={styles.resultHeaderText}>{result.decision}</Text>
-              <Text style={styles.confidenceText}>{result.confidence}% Confidence</Text>
-            </View>
-
-            <View style={styles.carSummary}>
-              <Text style={styles.carSummaryText}>
-                {carYear} {carMake} {carModel}
-              </Text>
-              <Text style={styles.carDetailsText}>
-                {mileage} miles · ${price}
-              </Text>
-            </View>
-
-            <Text style={styles.agentReportsTitle}>Agent Reports</Text>
-
-            {result.reports.map((report, index) => (
-              <View key={index} style={styles.reportCard}>
-                <View style={styles.reportHeader}>
-                  <Text style={styles.agentName}>{report.agentName}</Text>
-                  <View
-                    style={[
-                      styles.decisionBadge,
-                      report.decision === "GREAT" ? styles.greatDeal :
-                        report.decision === "GOOD" ? styles.goodDeal :
-                          report.decision === "FAIR" ? styles.fairDeal :
-                            report.decision === "WEAK" ? styles.weakDeal :
-                              report.decision === "AWFUL" ? styles.awfulDeal :
-                                ""
-                    ]}
-                  >
-                    <Text style={styles.decisionText}>{report.decision}</Text>
-                  </View>
-                </View>
-                <Text style={styles.reasoning}>{report.reasoning}</Text>
-              </View>
-            ))}
-
-            <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
-              <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </ScrollView>
+      <FlatList
+        data={[{ key: 'content' }]}
+        renderItem={() => renderContent()}
+        ListHeaderComponent={renderHeader}
+        keyboardShouldPersistTaps="handled"
+        removeClippedSubviews={false}
+        style={styles.container}
+      />
     </KeyboardAvoidingView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -375,7 +738,66 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
   },
+  dropdown: {
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    fontSize: 16,
+  },
+  dropdownContainer: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#ddd",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  disabledDropdown: {
+    backgroundColor: "#f5f5f5",  // Light grey background
+    opacity: 0.7,                // Reduced opacity
+    borderColor: "#e0e0e0",      // Lighter border
+  },
+  disabledText: {
+    color: "#aaa",  // Grey text color for disabled state
+  },
+  placeholder: {
+    color: "#000000",  // Regular placeholder color
+  },
+  disabledPlaceholder: {
+    color: "#bdc3c7",  // Lighter gray for disabled state
+  },
+  toggleContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: "#ddd",
+  },
+  toggleButton: {
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#f0f0f0",
+  },
+  toggleActive: {
+    backgroundColor: "#3498db",
+  },
+  toggleText: {
+    fontWeight: "bold",
+    color: "#7f8c8d",
+  },
+  toggleTextActive: {
+    fontWeight: "bold",
+    color: "#fff",
+  },
 })
 
 export default DealValuationScreen
-
