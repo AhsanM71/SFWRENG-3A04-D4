@@ -6,6 +6,7 @@ import { DealValuation, ValuationResult } from "@/types"
 import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
+import { ValuationResponse, valuationRequest } from "@/api/dealCheck"
 
 const DealValuationScreen = () => {
 
@@ -116,7 +117,7 @@ const DealValuationScreen = () => {
     };
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
 
     // Validate inputs
     if (!carMake || !carModel || !carYear || !mileage || !price) {
@@ -129,6 +130,20 @@ const DealValuationScreen = () => {
 
     // Format data to go to API
     const formattedData = formatDataForSubmission();
+
+    try{
+      const valuationResponse: ValuationResponse = await valuationRequest(
+        formattedData
+      );
+      
+      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+
+    } catch(error: any) {
+      Alert.alert("Deal valuation failed: ", error.message);
+      setIsLoading(false)
+    }
+
+    
 
     console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
