@@ -87,7 +87,7 @@ const DealValuationScreen = () => {
     const insuranceInt = parseInt(insuranceEstimate) || 0;
     const resaleInt = parseInt(resaleValueEstimate) || 0;
     
-    const token = await user?.getIdToken()
+    const token = user?.uid
 
     return {
       user_id: {
