@@ -12,5 +12,5 @@ class DealCheckBlackBoard(BlackBoard[DealCheckData]):
         self.controller: BlackBoardController[DealCheckData] = DealCheckExpertBlackBoardController(self.expertsService)
         
     async def handleRequest(self, request: DealCheckData) -> DealCheckData:
-        data: DealCheckData = await self.controller(request=request)
+        data: DealCheckData = await self.controller.handleRequest(request=request)
         return data

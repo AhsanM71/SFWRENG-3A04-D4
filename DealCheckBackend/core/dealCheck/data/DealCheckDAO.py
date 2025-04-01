@@ -1,4 +1,4 @@
-from dealCheckData.DealCheckData import DealCheckData
+from DealCheckData import DealCheckData
 from db import getCollectionRef, createDocument, getQueryResults, updateDocument, deleteDocument, getDocument
 from db import CAR_DEALCHECK_FEATURE, AsyncCollectionReference, FieldFilter, AsyncQuery
 

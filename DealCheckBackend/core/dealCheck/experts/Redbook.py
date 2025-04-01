@@ -9,8 +9,8 @@ class Redbook(Expert[DealCheckData]):
         super.__init__()
     
     async def evaluateRequest(self, request: DealCheckData) -> DealCheckData:
-        df = pd.read_csv("./redbook.csv")
-        description = request["car_details"]["description"]
+        df = pd.read_csv("./Corpus/redbook.csv")
+        description = request.getDescription()
         
         patterns = {
         "engine_volume": r"(\d+(\.\d+)?)L",
@@ -29,10 +29,10 @@ class Redbook(Expert[DealCheckData]):
                 extracted_features[key] = False if key == "leather_seats" else "petrol" if key == "fuel_type" else None
 
         filters = {
-        "Manufacturer": request["car_details"]["make"],
-        "Model": request["car_details"]["model"],
-        "Prod. year": request["car_details"]["year"],
-        "Mileage": request["car_details"]["mileage"],
+        "Manufacturer": request.getCar().getMake(),
+        "Model": request.getCar().getModel(),
+        "Prod. year": request.getCar().getYear(),
+        "Mileage": request.getCar().getMileage(),
         "Fuel type": extracted_features["fuel_type"],
         "Engine volume": extracted_features["engine_volume"],
         "Cylinders": extracted_features["cylinders"][0],
@@ -67,12 +67,31 @@ class Redbook(Expert[DealCheckData]):
         if not filtered_df.empty:
             best_match = filtered_df.iloc[0]
             price = best_match["Price"]
-            # print(f"Closest match found: {best_match['Manufacturer']} {best_match['Model']} ({best_match['Prod. year']})")
-            # print(f"Price: ${price}")
+
+            matching_attributes = sum([
+                best_match["Manufacturer"].lower() == filters["Manufacturer"].lower(),
+                best_match["Model"].lower() == filters["Model"].lower(),
+                abs(int(best_match["Prod. year"]) - filters["Prod. year"]) <= 1,
+                abs(float(best_match["Mileage"]) - filters["Mileage"]) <= 5000,
+                best_match["Fuel type"].lower() == filters["Fuel type"].lower(),
+                best_match["Engine volume"] in filters["Engine volume"],
+                float(best_match["Cylinders"]) == float(filters["Cylinders"]),
+                best_match["Leather interior"].lower() == filters["Leather interior"].lower(),
+                best_match["Gear box type"].lower() == filters["Gear box type"].lower()
+            ])
+            confidence = matching_attributes / 9
+            request.setConfidence(confidence)
+            
+            print(f"Confidence: {confidence * 100:.2f}%")
+            print(f"Closest match found: {best_match['Manufacturer']} {best_match['Model']} ({best_match['Prod. year']})")
+            print(f"Price: ${price}")
+            
         else:
             print("No similar car found in the dataset.")
-        
-        if request["pricing"]["listed_price"]  <= float(price)*1.05:
-            print("Good Deal")
+            
+        if request.getPrice()  <= float(price)*1.05:
+            request.setActual("Yes")
         else:
-            print("Bad Deal")
+            request.setActual("No")
+            
+        return request

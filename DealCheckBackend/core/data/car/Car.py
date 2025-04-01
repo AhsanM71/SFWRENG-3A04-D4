@@ -14,7 +14,7 @@ class Car(FirestoreDatabaseEntity):
             condition=data['condition'],
             accident_history=data['accident_history'],
             previous_owners=data['previous_owners'],
-            image=data['img'],
+            image=data['image'],
             description=data['descritpion']
         )
 
