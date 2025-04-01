@@ -1,2 +1,2 @@
-from DealCheckExpertsService import DealCheckExpertsService
-from Enums import DealCheckExpertType
+from .DealCheckExpertsService import DealCheckExpertsService
+from .Enums import DealCheckExpertType

@@ -1,4 +1,4 @@
-from car.Car import Car
+from core.data.car.Car import Car
 from db import createDocument, getDocument, deleteDocument, updateDocument, CARS_COLLECTION
 
 class CarDAO:
@@ -18,8 +18,8 @@ class CarDAO:
         
         # Create document in firebase
         carData: dict = car.to_dict()
+        
         data: dict = await createDocument(CARS_COLLECTION, carData)
-
         return Car.from_dict(data)
 
     async def getCar(id: str) -> Car:

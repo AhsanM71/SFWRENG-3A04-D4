@@ -47,23 +47,29 @@ def getDocumentRefPath(collection: str, id: str) -> str:
 
 async def createDocument(collection: str, data: dict) -> dict:
     '''
-    Creates a document in the firestore database given a collection name and data
+    Creates a document in the Firestore database given a collection name and data.
 
     Args:
-        collection (str): The name of the collection to add the document to
-        data (dict): The data of the new document
+        collection (str): The name of the collection to add the document to.
+        data (dict): The data of the new document.
 
     Returns:
-        str: The id of the new document
+        dict: The data of the newly created document, including its ID.
     '''
-
     collectionRef: AsyncCollectionReference = getCollectionRef(collection)
-    _, docSnap = await collectionRef.add(data)
-
-    data: dict = await resolve_references(docSnap.to_dict())
-    data['id'] = docSnap.id
-
-    return data
+    
+    # Add the document to the collection and unpack the tuple
+    timestamp, docRef = await collectionRef.add(data)
+    
+    # Fetch the document snapshot to retrieve its data
+    docSnap: DocumentSnapshot = await docRef.get()
+    if not docSnap.exists:
+        raise Exception(f"Failed to retrieve the created document in collection '{collection}'")
+    
+    # Resolve references and include the document ID
+    resolved_data: dict = await resolve_references(docSnap.to_dict())
+    resolved_data['id'] = docSnap.id
+    return resolved_data
 
 async def getDocument(collection: str, id: str) -> dict:
     '''

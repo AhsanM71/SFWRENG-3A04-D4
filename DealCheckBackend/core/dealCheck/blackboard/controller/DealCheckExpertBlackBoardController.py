@@ -1,7 +1,7 @@
 from core.blackboard import BlackBoardController
 from core.dealCheckExpertsService.DealCheckExpertsService import DealCheckExpertsService
 from core.dealCheckExpertsService.Enums import DealCheckExpertType
-from data.DealCheckData import DealCheckData
+from core.dealCheck.data.DealCheckData import DealCheckData
 
 class DealCheckExpertBlackBoardController(BlackBoardController[DealCheckData]):
     def __init__(self, expertsService: DealCheckExpertsService):

@@ -8,8 +8,6 @@ async function sendDealCheckRequest<T>(path: string, data: object): Promise<T> {
 }
 
 export type ValuationResponse = APIResponse & {
-    success: boolean;
-    msg: string;
     car_details: {
         make: string;
         model: string;
@@ -36,7 +34,7 @@ export type ValuationResponse = APIResponse & {
         resale_value: number;
     };
     answers: {
-        prediction: string;
+        predicted: string;
         actual: string;
         confidence: number;
     };

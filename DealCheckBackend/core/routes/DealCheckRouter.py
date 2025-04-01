@@ -1,8 +1,10 @@
 from flask import request, jsonify
 from core import dealcheck_blueprint
-from ..dealCheck.blackboard import DealCheckBlackBoard
-from ..dealCheck.data import DealCheckDAO, DealCheckData
-from ..data.car import CarDAO, Car
+from core.dealCheck.blackboard.DealCheckBlackBoard import DealCheckBlackBoard
+from core.dealCheck.data.DealCheckDAO import DealCheckDAO
+from core.dealCheck.data.DealCheckData import DealCheckData
+from core.data.car.CarDAO import CarDAO
+from core.data.car.Car import Car
 import asyncio
 from firebase_admin import auth
 
@@ -11,49 +13,68 @@ dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
 
 @dealcheck_blueprint.route('/dealCheck', methods=['POST'])
 async def requestDealCheck():
-    data = request.get_json()
+    data = request.get_json().get('data')
     
-    token = request.headers.get('Authorization')
-    if token and token.startswith("Bearer "):
-        token = token.split(" ")[1] 
-    else:
-        return jsonify({"success": False, "msg": "Authorization token is missing!"}), 401
+    # token = request.headers.get('Authorization')
+    # if token and token.startswith("Bearer "):
+    #     token = token.split(" ")[1] 
+    # else:
+    #     return jsonify({"success": False, "msg": "Authorization token is missing!"}), 401
 
-    try:
-        decoded_token = await asyncio.to_thread(auth.verify_id_token, id_token=token)
-        user_id = decoded_token['uid']
-    except Exception as e:
-        return jsonify({"success": False, "msg": "Invalid or expired token!"}), 401
+    # try:
+    #     decoded_token = await asyncio.to_thread(auth.verify_id_token, id_token=token)
+    #     user_id = decoded_token['uid']
+    # except Exception as e:
+    #     return jsonify({"success": False, "msg": "Invalid or expired token!"}), 401
 
     car_details: dict = data.get('car_details')
-    make: str = car_details.get('make')
-    model: str = car_details.get('model')
-    year: int = car_details.get('year')
-    trim: str = car_details.get('trim')
-    mileage: int = car_details.get('mileage')
-    condition: str = car_details.get('condition')
-    accident_history: bool = car_details.get('accident_history')
-    previous_owners: int = car_details.get('previous_owners')
-    image: str = car_details.get('image')
-    description: str = car_details.get('description')
+    make: str = car_details.get('make', 'Unknown')
+    model: str = car_details.get('model', 'Unknown')
+    year: int = car_details.get('year', 0)
+    trim: str = car_details.get('trim', 'Unknown')
+    mileage: int = car_details.get('mileage', 0)
+    condition: str = car_details.get('condition', 'Unknown')
+    accident_history: bool = car_details.get('accident_history', False)
+    previous_owners: int = car_details.get('previous_owners', 0)
+    image: str = car_details.get('image', '')
+    description: str = car_details.get('description', '')
     
     pricing: dict = data.get('pricing')
-    price: int = pricing.get('price')
+    
+    if pricing:
+        price: int = pricing.get('listed_price')
+    else:
+        price: int = 0
     
     seller_info: dict = data.get('seller_info')
-    seller_type: str = seller_info.get('seller_type')
-    warranty: str = seller_info.get('warranty')
-    inspection_completed: bool = seller_info.get('inspection_completed')
+    
+    if seller_info:
+        seller_type: str = seller_info.get('seller_type')
+        warranty: str = seller_info.get('warranty')
+        inspection_completed: bool = seller_info.get('inspection_completed')
+    else:
+        seller_type: str = 'Unknown'
+        warranty: str = 'Unknown'
+        inspection_completed: bool = False
     
     additional_info: dict = data.get('additional_info')
-    fuel_efficiency_mpg: int = additional_info.get('fuel_efficiency_mpg')
-    insurance_estimate: int = additional_info.get('insurance_estimate')
-    resale_value: int = additional_info.get('resale_value')
+    if additional_info:
+        fuel_efficiency_mpg: int = additional_info.get('fuel_efficiency_mpg')
+        insurance_estimate: int = additional_info.get('insurance_estimate')
+        resale_value: int = additional_info.get('resale_value')
+    else:
+        fuel_efficiency_mpg: int = 0
+        insurance_estimate: int = 0
+        resale_value: int = 0
     
     answers: dict = data.get('answers')
-    prediction: str = answers.get('prediction')
-    actual: str = answers.get('actual')
-    
+    if answers:
+        prediction: str = answers.get('predicted')
+        actual: str = answers.get('actual')
+        confidence: float = answers.get('confidence')
+    else:
+        actual: str = ''
+        confidence: float = 0.0
     try:
         tempCar: Car = Car(
             id=None,
@@ -70,10 +91,10 @@ async def requestDealCheck():
         )
         
         car: Car = await CarDAO.addCar(tempCar) 
-
+        
         tempDealCheckData: DealCheckData = DealCheckData(
             id=None,
-            userID=user_id,
+            userID=None,
             price=price,
             car=car,
             seller_type=seller_type,
@@ -83,12 +104,13 @@ async def requestDealCheck():
             insurance_estimate=insurance_estimate,
             resale_value=resale_value,
             prediction=prediction,
-            actual=actual
+            actual=actual,
+            confidence=confidence
         )
         
-        expertOuput: DealCheckData = dealCheckBlackBoard.handleRequest(tempDealCheckData)
+        expertOuput: DealCheckData = await dealCheckBlackBoard.handleRequest(tempDealCheckData)
+        
         dealCheckData: DealCheckData = await dealCheckDAO.addDealCheckData(expertOuput)
-
         response = jsonify({
             'success': True,
             'msg': 'DealCheck Valuation successful!',
@@ -134,7 +156,7 @@ async def requestDealCheck():
         response.status_code = 200
         return response
 
-@dealcheck_blueprint.route('/dealCheck/retrieve', methods=['POST'])
-async def getDealCheck():
-    data = request.get_json()
+# @dealcheck_blueprint.route('/dealCheck/retrieve', methods=['POST'])
+# async def getDealCheck():
+#     data = request.get_json()
     

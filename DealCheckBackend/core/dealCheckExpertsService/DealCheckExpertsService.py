@@ -1,4 +1,4 @@
-from Enums import DealCheckExpertType
+from .Enums import DealCheckExpertType
 from core.dealCheck.experts.AIAgent import AIAgent
 from core.dealCheck.experts.PointSys import PointSys
 from core.dealCheck.experts.Redbook import Redbook

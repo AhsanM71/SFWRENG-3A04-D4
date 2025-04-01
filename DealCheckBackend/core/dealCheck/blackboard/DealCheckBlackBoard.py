@@ -1,9 +1,9 @@
 from core.blackboard import BlackBoard, BlackBoardController
-from data.DealCheckData import DealCheckData
-from data.DealCheckDAO import DealCheckDAO
-from dealCheckExpertsService.DealCheckExpertsService import DealCheckExpertsService
-from controller.DealCheckExpertBlackBoardController import DealCheckExpertBlackBoardController
-
+from core.dealCheck.data.DealCheckData import DealCheckData
+from core.dealCheck.data.DealCheckDAO import DealCheckDAO
+from core.dealCheckExpertsService.DealCheckExpertsService import DealCheckExpertsService
+from core.dealCheck.blackboard.controller.DealCheckExpertBlackBoardController import DealCheckExpertBlackBoardController
+        
 class DealCheckBlackBoard(BlackBoard[DealCheckData]):
     def __init__(self, dealCheckDAO: DealCheckDAO):
         super().__init__()

@@ -6,7 +6,7 @@ import { DealValuation, ValuationResult } from "@/types"
 import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
-import { ValuationResponse, valuationRequest } from "@/api/dealCheck"
+import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
 
 const DealValuationScreen = () => {
 
@@ -145,7 +145,7 @@ const DealValuationScreen = () => {
 
     
 
-    console.log("Submitting data:", JSON.stringify(formattedData,null,2));
+    // console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
     // Simulate API call to the agents
     setTimeout(() => {

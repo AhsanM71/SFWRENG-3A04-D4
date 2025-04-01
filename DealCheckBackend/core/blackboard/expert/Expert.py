@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 T = TypeVar('T')
 
-def Expert[T](ABC):
+class Expert(Generic[T], ABC):
     def __init__(self):
         self.queue = []
 

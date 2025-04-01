@@ -9,7 +9,7 @@ class DealCheckData(FirestoreDatabaseEntity):
             id=data['id'],
             userID=data['userId'],
             price=data['listed_price'],
-            car=Car.from_dict(data['car']),
+            car=data['car'],
             seller_type=data['seller_type'],
             warranty=data['warranty'],
             inspection_completed=data['inspection_completed'],

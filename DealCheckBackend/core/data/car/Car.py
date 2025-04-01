@@ -1,5 +1,5 @@
 from __future__ import annotations
-from data import FirestoreDatabaseEntity
+from core.data.FirestoreDatabaseEntity import FirestoreDatabaseEntity
 
 class Car(FirestoreDatabaseEntity):
     @staticmethod
@@ -15,7 +15,7 @@ class Car(FirestoreDatabaseEntity):
             accident_history=data['accident_history'],
             previous_owners=data['previous_owners'],
             image=data['image'],
-            description=data['descritpion']
+            description=data['description']
         )
 
     def __init__(

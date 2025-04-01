@@ -1,6 +1,7 @@
-from DealCheckData import DealCheckData
+from core.dealCheck.data.DealCheckData import DealCheckData
 from db import getCollectionRef, createDocument, getQueryResults, updateDocument, deleteDocument, getDocument
-from db import CAR_DEALCHECK_FEATURE, AsyncCollectionReference, FieldFilter, AsyncQuery
+from db import CAR_DEALCHECK_FEATURE, AsyncCollectionReference, FieldFilter, AsyncQuery, CARS_COLLECTION
+from core.data.car.Car import Car
 
 class DealCheckDAO:
     async def getDealCheckData(id: str) -> DealCheckData:
@@ -80,7 +81,7 @@ class DealCheckDAO:
         await deleteDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
         return True
     
-    async def addDealCheckData(dealCheck: DealCheckData) -> DealCheckData:
+    async def addDealCheckData(self, dealCheck: DealCheckData) -> DealCheckData:
         '''
         Adds a car deal check valuation data document to the database
         
@@ -96,7 +97,14 @@ class DealCheckDAO:
         
         data: dict = dealCheck.to_dict()
         dealCheckData: dict = await createDocument(collection=CAR_DEALCHECK_FEATURE, data=data)
-        
+        car_ref = data.get('car')
+        if isinstance(car_ref, str):
+            car_id = car_ref.split('/')[-1] 
+            car_data = await getDocument(CARS_COLLECTION, car_id)
+            car = Car.from_dict(car_data)
+        else:
+            car = car_ref 
+        dealCheckData['car'] = car
         return DealCheckData.from_dict(dealCheckData)
     
 INSTANCE: DealCheckDAO = DealCheckDAO()
