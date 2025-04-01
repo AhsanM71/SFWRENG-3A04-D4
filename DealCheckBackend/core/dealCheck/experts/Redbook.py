@@ -4,12 +4,17 @@ from core.dealCheck.data.DealCheckData import DealCheckData
 import pandas as pd
 import re
 
-class Redbook(Expert[DealCheckData]):
-    def __init__(self):
-        pass
-    
+class Redbook(Expert[DealCheckData]):  
     async def evaluateRequest(self, request: DealCheckData) -> DealCheckData:
-        df = pd.read_csv("../DealCheckBackend/core/dealCheck/experts/Corpus/redbook.csv")
+        self.queue.append(request)
+        id: int = len(self.queue)-1
+        return await self.processRequest(id=id)
+
+    async def _processRequest(self, id: int) -> DealCheckData:
+        request: DealCheckData = self.queue[id]
+        del self.queue[id]
+
+        df = pd.read_csv("core/dealCheck/experts/Corpus/redbook.csv")
         description = request.getDescription()
         
         patterns = {
