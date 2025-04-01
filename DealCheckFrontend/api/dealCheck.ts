@@ -8,6 +8,9 @@ async function sendDealCheckRequest<T>(path: string, data: object): Promise<T> {
 }
 
 export type ValuationResponse = APIResponse & {
+    user_id: {
+        id: string;
+    };
     car_details: {
         make: string;
         model: string;

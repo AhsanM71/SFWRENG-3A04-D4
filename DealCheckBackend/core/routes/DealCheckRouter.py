@@ -13,20 +13,11 @@ dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
 
 @dealcheck_blueprint.route('/dealCheck', methods=['POST'])
 async def requestDealCheck():
-    data = request.get_json().get('data')
+    data: dict = request.get_json().get('data')
     
-    # token = request.headers.get('Authorization')
-    # if token and token.startswith("Bearer "):
-    #     token = token.split(" ")[1] 
-    # else:
-    #     return jsonify({"success": False, "msg": "Authorization token is missing!"}), 401
-
-    # try:
-    #     decoded_token = await asyncio.to_thread(auth.verify_id_token, id_token=token)
-    #     user_id = decoded_token['uid']
-    # except Exception as e:
-    #     return jsonify({"success": False, "msg": "Invalid or expired token!"}), 401
-
+    user_id: dict = data.get('user_id')
+    token = user_id.get('id')
+    
     car_details: dict = data.get('car_details')
     make: str = car_details.get('make', 'Unknown')
     model: str = car_details.get('model', 'Unknown')
@@ -92,9 +83,12 @@ async def requestDealCheck():
         
         car: Car = await CarDAO.addCar(tempCar) 
         
+        decoded_tocken = await asyncio.to_thread(auth.verify_id_token, id_token=token)
+        uID = decoded_tocken['uid']
+        
         tempDealCheckData: DealCheckData = DealCheckData(
             id=None,
-            userID=None,
+            userID=uID,
             price=price,
             car=car,
             seller_type=seller_type,
@@ -114,6 +108,9 @@ async def requestDealCheck():
         response = jsonify({
             'success': True,
             'msg': 'DealCheck Valuation successful!',
+            'user_id': {
+              'id': dealCheckData.getUserId()  
+            },
             'car_details': {
                 'make': car.getMake(),
                 'model': car.getModel(),

@@ -7,6 +7,7 @@ import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
 import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
+import { useAuth } from "@/context/AuthContext"
 
 const DealValuationScreen = () => {
 
@@ -39,6 +40,8 @@ const DealValuationScreen = () => {
   const [conditionOpen, setConditionOpen] = useState(false);
   const [fuelTypeOpen, setFuelTypeOpen] = useState(false)
   const [sellerTypeOpen, setSellerTypeOpen] = useState(false);
+
+  const { user, loading, reload } = useAuth()
 
   // Tracking car models, used in drop-down inputs
   const models = carData.find(car => car.brand === carMake)?.models || []
@@ -74,7 +77,7 @@ const DealValuationScreen = () => {
 
   }, [params.dealValuation]);
 
-  const formatDataForSubmission = () => {
+  const formatDataForSubmission = async () => {
     // Convert string values to numbers where needed
     const yearInt = parseInt(carYear) || 0;
     const mileageInt = parseInt(mileage) || 0;
@@ -84,7 +87,12 @@ const DealValuationScreen = () => {
     const insuranceInt = parseInt(insuranceEstimate) || 0;
     const resaleInt = parseInt(resaleValueEstimate) || 0;
     
+    const token = await user?.getIdToken()
+
     return {
+      user_id: {
+        id: token || ""
+      },
       car_details: {
         make: carMake,
         model: carModel,
@@ -127,9 +135,7 @@ const DealValuationScreen = () => {
 
     setIsLoading(true)
 
-
-    // Format data to go to API
-    const formattedData = formatDataForSubmission();
+    const formattedData = await formatDataForSubmission();
 
     try{
       const valuationResponse: ValuationResponse = await valuationRequest(

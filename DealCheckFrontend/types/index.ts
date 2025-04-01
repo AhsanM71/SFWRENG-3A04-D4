@@ -46,6 +46,9 @@ export type Activity = {
 }
 
 export type FormattedData = {
+  user_id: {
+    id: string;
+  };
   car_details: {
     make: string;
     model: string;
