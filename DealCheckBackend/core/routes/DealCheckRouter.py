@@ -13,6 +13,55 @@ dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
 
 @dealcheck_blueprint.route('/dealCheck', methods=['POST'])
 async def requestDealCheck():
+    '''
+    API endpoint at /val/dealCheck that performs the car deal valuation
+
+    Methods:
+        POST
+    
+    Args:
+        data (dict): The user inputted information about the car deal they wish to perform an valuation on
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            'user_id': {
+              'id': "Id of the user putting in the request" 
+            },
+            'car_details': {
+                'make': "Make of the car",
+                'model': "Model of the car",
+                'year': Year of the car,
+                'trim': "Trim level of the car",
+                'mileage': "Mileage of the car",
+                'condition': "Used/New/Salvage",
+                'accident_history': "True/False",
+                'previous_owners': Number of previous Owners,
+                'image': "Image of the car formatted in 64 bits",
+                'description': "Description of the car"
+            },
+            'pricing': {
+                'price': Price of the listed car
+            },
+            'seller_info': {
+                'seller_type': "Dealer/Private",
+                'warranty': "Type of warranties",
+                'inspection_completed': True/False
+            },
+            'additonal_info': {
+                'fuel_efficiency_mpg': "MPG of the car",
+                'insurance_estimate': "Estimated insurance cost of the car",
+                'resale_value': "Estimated resale value of car"
+            },
+            'answers': {
+                'prediction': "Yes/No (User predicition of good or bad deal)",
+                'actual': "Yes/No (Expert answer of good or bad deal)",
+                'confidence': Confidence score of expert
+            }
+        }
+    '''
     data: dict = request.get_json().get('data')
     
     user_id: dict = data.get('user_id')
@@ -153,7 +202,102 @@ async def requestDealCheck():
         response.status_code = 200
         return response
 
-# @dealcheck_blueprint.route('/dealCheck/retrieve', methods=['POST'])
-# async def getDealCheck():
-#     data = request.get_json()
+@dealcheck_blueprint.route('/dealCheck/retrieve', methods=['POST'])
+async def getDealCheck():
+    '''
+    API endpoint at /val/dealCheck/retrieve that gets a dealCheckData based on id
+
+    Methods:
+        POST
     
+    Args:
+        data (dict): The user inputted information about the car deal data valuation they want (required dealCheck_id field)
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            'car_details': {
+                'make': "Make of the car",
+                'model': "Model of the car",
+                'year': Year of the car,
+                'trim': "Trim level of the car",
+                'mileage': "Mileage of the car",
+                'condition': "Used/New/Salvage",
+                'accident_history': "True/False",
+                'previous_owners': Number of previous Owners,
+                'image': "Image of the car formatted in 64 bits",
+                'description': "Description of the car"
+            },
+            'pricing': {
+                'price': Price of the listed car
+            },
+            'seller_info': {
+                'seller_type': "Dealer/Private",
+                'warranty': "Type of warranties",
+                'inspection_completed': True/False
+            },
+            'additonal_info': {
+                'fuel_efficiency_mpg': "MPG of the car",
+                'insurance_estimate': "Estimated insurance cost of the car",
+                'resale_value': "Estimated resale value of car"
+            },
+            'answers': {
+                'prediction': "Yes/No (User predicition of good or bad deal)",
+                'actual': "Yes/No (Expert answer of good or bad deal)",
+                'confidence': Confidence score of expert
+            }
+        }
+    '''
+    data: dict = request.get_json().get('data')
+    dealCheck_id: str = data.get("dealCheck_id")
+    
+    try:
+        dealCheckData: DealCheckData = DealCheckDAO.getDealCheckData(id=dealCheck_id)
+        car: Car = dealCheckData.getCar()
+        response = jsonify({
+            'success': True,
+            'msg': 'DealCheck Valuation successful!',
+            'user_id': {
+              'id': dealCheckData.getUserId()  
+            },
+            'car_details': {
+                'make': car.getMake(),
+                'model': car.getModel(),
+                'year': car.getYear(),
+                'trim': car.getTrim(),
+                'mileage': car.getMileage(),
+                'condition': car.getCondition(),
+                'accident_history': car.getAccidentHistory(),
+                'previous_owners': car.getPreviousOwners(),
+                'image': car.getImageSource(),
+                'description': car.getDescription()
+            },
+            'pricing': {
+                'price': dealCheckData.getPrice()
+            },
+            'seller_info': {
+                'seller_type': dealCheckData.getSellerType(),
+                'warranty': dealCheckData.getWarranty(),
+                'inspection_completed': dealCheckData.getInspectionCompleted()
+            },
+            'additonal_info': {
+                'fuel_efficiency_mpg': dealCheckData.getfuelEfficiencyMpg(),
+                'insurance_estimate': dealCheckData.getInsuranceEstimate(),
+                'resale_value': dealCheckData.getResaleValue()
+            },
+            'answers': {
+                'prediction': dealCheckData.getPrediction(),
+                'actual': dealCheckData.getActual(),
+                'confidence': dealCheckData.getConfidence()
+            }
+        })
+        response.status_code = 200
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
