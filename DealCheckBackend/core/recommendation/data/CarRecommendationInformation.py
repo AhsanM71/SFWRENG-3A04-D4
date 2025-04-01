@@ -6,6 +6,7 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
     @staticmethod
     def from_dict(data: dict) -> CarRecommendationInformation:
         return CarRecommendationInformation(
+            #test
             id=data['id'],
             userId=data['userId'],
             description=data['description'],
