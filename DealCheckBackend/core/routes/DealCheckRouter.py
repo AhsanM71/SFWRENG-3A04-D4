@@ -5,8 +5,6 @@ from core.dealCheck.data.DealCheckDAO import DealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
-import asyncio
-from firebase_admin import auth
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
@@ -65,8 +63,7 @@ async def requestDealCheck():
     data: dict = request.get_json().get('data')
     
     user_id: dict = data.get('user_id')
-    token = user_id.get('id')
-    
+    uID = user_id.get('id')
     car_details: dict = data.get('car_details')
     make: str = car_details.get('make', 'Unknown')
     model: str = car_details.get('model', 'Unknown')
@@ -130,10 +127,7 @@ async def requestDealCheck():
             description=description
         )
         
-        car: Car = await CarDAO.addCar(tempCar) 
-        
-        decoded_tocken = await asyncio.to_thread(auth.verify_id_token, id_token=token)
-        uID = decoded_tocken['uid']
+        car: Car = CarDAO.addCar(tempCar)
         
         tempDealCheckData: DealCheckData = DealCheckData(
             id=None,
@@ -153,7 +147,7 @@ async def requestDealCheck():
         
         expertOuput: DealCheckData = await dealCheckBlackBoard.handleRequest(tempDealCheckData)
         
-        dealCheckData: DealCheckData = await dealCheckDAO.addDealCheckData(expertOuput)
+        dealCheckData: DealCheckData = dealCheckDAO.addDealCheckData(expertOuput)
         response = jsonify({
             'success': True,
             'msg': 'DealCheck Valuation successful!',
@@ -294,6 +288,7 @@ async def getDealCheck():
             }
         })
         response.status_code = 200
+        return response
     except Exception as e:
         response = jsonify({
             "success": False,

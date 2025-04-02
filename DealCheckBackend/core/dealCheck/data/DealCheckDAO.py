@@ -1,10 +1,9 @@
 from core.dealCheck.data.DealCheckData import DealCheckData
 from db import getCollectionRef, createDocument, getQueryResults, updateDocument, deleteDocument, getDocument
-from db import CAR_DEALCHECK_FEATURE, AsyncCollectionReference, FieldFilter, AsyncQuery, CARS_COLLECTION
-from core.data.car.Car import Car
+from db import CAR_DEALCHECK_FEATURE, CollectionReference, FieldFilter, Query
 
 class DealCheckDAO:
-    async def getDealCheckData(id: str) -> DealCheckData:
+    def getDealCheckData(id: str) -> DealCheckData:
         '''
         Gets the information of a car deal check valuation data document from the database
         
@@ -19,10 +18,10 @@ class DealCheckDAO:
             raise Exception('Missing document id!')
 
         # Get data from firestore database
-        data: dict = await getDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
+        data: dict = getDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
         return DealCheckData.from_dict(data=data)
     
-    async def getUserDealCheckData(userId: str) -> list[DealCheckData]:
+    def getUserDealCheckData(userId: str) -> list[DealCheckData]:
         '''
         Get user car deal check valuation data documents from the database
         
@@ -36,11 +35,11 @@ class DealCheckDAO:
         if not userId:
             raise Exception('Missing user ID!')
         
-        collectionRef: AsyncCollectionReference = getCollectionRef(collection=CAR_DEALCHECK_FEATURE)
-        query: AsyncQuery = collectionRef.where(filter=FieldFilter('userId', '==', userId))
+        collectionRef: CollectionReference = getCollectionRef(collection=CAR_DEALCHECK_FEATURE)
+        query: Query = collectionRef.where(filter=FieldFilter('userId', '==', userId))
         
         # Get query results and convert them to DealCheckDataObjects
-        documents: list[dict] = await getQueryResults(query)
+        documents: list[dict] = getQueryResults(query)
         return map(DealCheckData.from_dict, documents)
     
     async def updateDealCheckData(dealCheck: DealCheckData) -> DealCheckData:
@@ -61,7 +60,7 @@ class DealCheckDAO:
         data: dict = dealCheck.to_dict()
         
         # Send request to update the document in firestore database
-        updateData: dict = await updateDocument(collection=CAR_DEALCHECK_FEATURE, id=id, data=data)
+        updateData: dict = updateDocument(collection=CAR_DEALCHECK_FEATURE, id=id, data=data)
         return DealCheckData.from_dict(data=updateData)
     
     async def deleteDealCheckData(id: str) -> bool:
@@ -78,10 +77,10 @@ class DealCheckDAO:
         if not id:
             raise Exception("Missing car deal valuation data document Id!")
         
-        await deleteDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
+        deleteDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
         return True
     
-    async def addDealCheckData(self, dealCheck: DealCheckData) -> DealCheckData:
+    def addDealCheckData(self, dealCheck: DealCheckData) -> DealCheckData:
         '''
         Adds a car deal check valuation data document to the database
         
@@ -96,15 +95,7 @@ class DealCheckDAO:
             raise Exception('Missing deal check valuation data!')
         
         data: dict = dealCheck.to_dict()
-        dealCheckData: dict = await createDocument(collection=CAR_DEALCHECK_FEATURE, data=data)
-        car_ref = data.get('car')
-        if isinstance(car_ref, str):
-            car_id = car_ref.split('/')[-1] 
-            car_data = await getDocument(CARS_COLLECTION, car_id)
-            car = Car.from_dict(car_data)
-        else:
-            car = car_ref 
-        dealCheckData['car'] = car
+        dealCheckData: dict = createDocument(collection=CAR_DEALCHECK_FEATURE, data=data)
         return DealCheckData.from_dict(dealCheckData)
     
 INSTANCE: DealCheckDAO = DealCheckDAO()

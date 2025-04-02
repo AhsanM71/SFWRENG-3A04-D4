@@ -1,6 +1,6 @@
 from __future__ import annotations
 from core.data import Car, FirestoreDatabaseEntity
-from db import getDocumentRefPath, CARS_COLLECTION
+from db import getDocumentReference, CARS_COLLECTION
 
 class DealCheckData(FirestoreDatabaseEntity):
     @staticmethod
@@ -9,7 +9,7 @@ class DealCheckData(FirestoreDatabaseEntity):
             id=data['id'],
             userID=data['userId'],
             price=data['listed_price'],
-            car=data['car'],
+            car=Car.from_dict(data['car']),
             seller_type=data['seller_type'],
             warranty=data['warranty'],
             inspection_completed=data['inspection_completed'],
@@ -41,7 +41,7 @@ class DealCheckData(FirestoreDatabaseEntity):
         return {
             'userId': self.getUserId(),
             'listed_price': self.getPrice(),
-            'car': getDocumentRefPath(CARS_COLLECTION, self.car.getId()),
+            'car': getDocumentReference(CARS_COLLECTION, self.car.getId()),
             'seller_type': self.getSellerType(),
             'warranty': self.getWarranty(),
             'inspection_completed': self.getInspectionCompleted(),
