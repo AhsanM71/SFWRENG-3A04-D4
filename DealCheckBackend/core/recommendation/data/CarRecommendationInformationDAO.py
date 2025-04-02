@@ -3,7 +3,7 @@ from db import getCollectionRef, createDocument, getQueryResults, updateDocument
 from db import CAR_RECOMMENDATION_COLLECTION, AsyncCollectionReference, FieldFilter, AsyncQuery
 
 class CarRecommendationInformationDAO:
-    async def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:
+    def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:
         '''
         Gets the information of a car recommendation information document from the database
 
@@ -18,10 +18,10 @@ class CarRecommendationInformationDAO:
             raise Exception('Missing document id!')
         
         # Get data from firestore database
-        data: dict = await getDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id)
+        data: dict = getDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id)
         return CarRecommendationInformation.from_dict(data=data)
 
-    async def getUserCarRecommendationInformation(userId: str) -> list[CarRecommendationInformation]:
+    def getUserCarRecommendationInformation(userId: str) -> list[CarRecommendationInformation]:
         '''
         Get the user car recommendation information documents from the database
 
@@ -39,10 +39,10 @@ class CarRecommendationInformationDAO:
         query: AsyncQuery = collectionRef.where(filter=FieldFilter('userId', '==', userId))
 
         # Get query results and convert them to CarRecommendationInformationObjects
-        documents: list[dict] = await getQueryResults(query)
+        documents: list[dict] = getQueryResults(query)
         return map(CarRecommendationInformation.from_dict, documents)
 
-    async def updateCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def updateCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Updates the car recommendation information document in the database
 
@@ -60,10 +60,10 @@ class CarRecommendationInformationDAO:
         data: dict = carRecommendation.to_dict()
 
         # Send request to update the document in firestore database
-        updateData: dict = await updateDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id, data=data)
+        updateData: dict = updateDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id, data=data)
         return CarRecommendationInformation.from_dict(updateData)
 
-    async def deleteCarRecommendationInformation(id: str) -> bool:
+    def deleteCarRecommendationInformation(id: str) -> bool:
         '''
         Deletes a car recommendation information document from the database
 
@@ -77,10 +77,10 @@ class CarRecommendationInformationDAO:
         if not id:
             raise Exception('Car recommendation information id document missing!')
         
-        await deleteDocument(CAR_RECOMMENDATION_COLLECTION, id=id)
+        deleteDocument(CAR_RECOMMENDATION_COLLECTION, id=id)
         return True
 
-    async def addCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def addCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Adds a car recommendation information document to the database
 
@@ -96,7 +96,7 @@ class CarRecommendationInformationDAO:
         
         # Add the document in firestore database
         data: dict = carRecommendation.to_dict()
-        carRecommendationData: dict = await createDocument(CAR_RECOMMENDATION_COLLECTION, data)
+        carRecommendationData: dict = createDocument(CAR_RECOMMENDATION_COLLECTION, data)
 
         return CarRecommendationInformation.from_dict(carRecommendationData)
 

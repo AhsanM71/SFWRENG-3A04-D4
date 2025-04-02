@@ -1,8 +1,8 @@
-from car.Car import Car
+from core.data.car.Car import Car
 from db import createDocument, getDocument, deleteDocument, updateDocument, CARS_COLLECTION
 
 class CarDAO:
-    async def addCar(car: Car) -> Car:
+    def addCar(car: Car) -> Car:
         '''
         Adds a car document to the firestore database
 
@@ -18,11 +18,11 @@ class CarDAO:
         
         # Create document in firebase
         carData: dict = car.to_dict()
-        data: dict = await createDocument(CARS_COLLECTION, carData)
-
+        
+        data: dict = createDocument(CARS_COLLECTION, carData)
         return Car.from_dict(data)
 
-    async def getCar(id: str) -> Car:
+    def getCar(id: str) -> Car:
         '''
         Gets car data from the firestore database
 
@@ -37,10 +37,10 @@ class CarDAO:
             raise Exception('Car id is a required field!')
         
         # Get Car Data from firestore database
-        data: dict = await getDocument(CARS_COLLECTION, id=id)
+        data: dict = getDocument(CARS_COLLECTION, id=id)
         return Car.from_dict(data)
 
-    async def deleteCar(id: str) -> bool:
+    def deleteCar(id: str) -> bool:
         '''
         Delete a car from the firestore database
         '''
@@ -49,10 +49,10 @@ class CarDAO:
             raise Exception('Car id is a required field!')
         
         # Delete Car document from firestore
-        await deleteDocument(CARS_COLLECTION, id=id)
+        deleteDocument(CARS_COLLECTION, id=id)
         return True
 
-    async def updateCar(car: Car) -> Car:
+    def updateCar(car: Car) -> Car:
         '''
         Updates a car document in the firestore database
 
@@ -68,6 +68,6 @@ class CarDAO:
         
         # Update document in firestore database
         updatedData: dict = car.to_dict()
-        data: dict = await updateDocument(CARS_COLLECTION, car.getId(), updatedData)
+        data: dict = updateDocument(CARS_COLLECTION, car.getId(), updatedData)
 
         return Car.from_dict(data)

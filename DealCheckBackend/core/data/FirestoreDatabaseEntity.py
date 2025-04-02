@@ -4,8 +4,8 @@ from typing import TypeVar
 T = TypeVar('T')
 
 class FirestoreDatabaseEntity[T](ABC):
-    @abstractmethod
     @staticmethod
+    @abstractmethod
     def from_dict(data: dict) -> T:
         pass
 

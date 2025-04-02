@@ -1,16 +1,13 @@
 from FirebaseConfig import db
-from google.cloud.firestore_v1.async_collection import AsyncCollectionReference
-from google.cloud.firestore_v1.async_document import AsyncDocumentReference
-from google.cloud.firestore_v1.base_document import DocumentSnapshot
-from google.cloud.firestore_v1.async_query import AsyncQuery
-from firebase_admin.firestore_async import FieldFilter
+from firebase_admin.firestore import CollectionReference, DocumentReference, DocumentSnapshot, Query, FieldFilter
 
 CARS_COLLECTION = 'Cars'
 CAR_RECOMMENDATION_COLLECTION='CarRecommendationInformation'
+CAR_DEALCHECK_FEATURE = 'CarDealCheckFeature'
 
-async def resolve_references(data: dict) -> dict:
+def resolve_references(data: dict) -> dict:
     '''
-    Recursively resolves all AsyncDocumentReferences in a Firestore document
+    Recursively resolves all DocumentReferences in a Firestore document
 
     Args:
         data (dict): The dictionary data of the document
@@ -20,19 +17,19 @@ async def resolve_references(data: dict) -> dict:
     '''
 
     for key, value in data.items():
-        if isinstance(value, AsyncDocumentReference):
-            snapshot = await value.get()
+        if isinstance(value, DocumentReference):
+            snapshot = value.get()
             nested_data = snapshot.to_dict()
             nested_data['id'] = snapshot.id
             if nested_data:
-                data[key] = await resolve_references(nested_data)
+                data[key] = resolve_references(nested_data)
             else:
                 data[key] = None 
     return data
 
-def getDocumentRefPath(collection: str, id: str) -> str:
+def getDocumentReference(collection, id) -> DocumentReference:
     '''
-    Creates the path to a document that can be used as a reference in another document
+    Creates a document with the path to a document that can be used as a reference in another document
 
     Args:
         collection (str): The name of the collection
@@ -41,30 +38,33 @@ def getDocumentRefPath(collection: str, id: str) -> str:
     Returns:
         str: The reference to the document /collection/id
     '''
+    return db.collection(collection).document(id)
 
-    return '/{collection}/{id}'.format(collection=collection, id=id)
-
-async def createDocument(collection: str, data: dict) -> dict:
+def createDocument(collection: str, data: dict) -> dict:
     '''
-    Creates a document in the firestore database given a collection name and data
+    Creates a document in the Firestore database given a collection name and data.
 
     Args:
-        collection (str): The name of the collection to add the document to
-        data (dict): The data of the new document
+        collection (str): The name of the collection to add the document to.
+        data (dict): The data of the new document.
 
     Returns:
-        str: The id of the new document
+        dict: The data of the newly created document, including its ID.
     '''
+    collectionRef: CollectionReference = getCollectionRef(collection)
+    _, docRef = collectionRef.add(data)
+    
+    # Fetch the document snapshot to retrieve its data
+    docSnap: DocumentSnapshot = docRef.get()
+    if not docSnap.exists:
+        raise Exception(f"Failed to retrieve the created document in collection '{collection}'")
+    
+    # Resolve references and include the document ID
+    resolved_data: dict = resolve_references(docSnap.to_dict())
+    resolved_data['id'] = docSnap.id
+    return resolved_data
 
-    collectionRef: AsyncCollectionReference = getCollectionRef(collection)
-    _, docSnap = await collectionRef.add(data)
-
-    data: dict = await resolve_references(docSnap.to_dict())
-    data['id'] = docSnap.id
-
-    return data
-
-async def getDocument(collection: str, id: str) -> dict:
+def getDocument(collection: str, id: str) -> dict:
     '''
     Retrieves a document from a certain collection given its id
 
@@ -79,19 +79,19 @@ async def getDocument(collection: str, id: str) -> dict:
         Exception: If the document does not exist
     '''
 
-    collectionRef: AsyncCollectionReference = getCollectionRef(collection)
-    docRef: AsyncDocumentReference = collectionRef.document(id)
-    docSnap: DocumentSnapshot = await docRef.get()
+    collectionRef: CollectionReference = getCollectionRef(collection)
+    docRef: DocumentReference = collectionRef.document(id)
+    docSnap: DocumentSnapshot = docRef.get()
 
     if not docSnap.exists:
         raise Exception('Could not find a document with the reference {collection}/{id}'.format(collection=collection, id=id))
     
-    data: dict = await resolve_references(docSnap.to_dict())
+    data: dict = resolve_references(docSnap.to_dict())
     data['id'] = docSnap.id
 
     return data
 
-def getCollectionRef(collection: str) -> AsyncCollectionReference:
+def getCollectionRef(collection: str) -> CollectionReference:
     '''
     Gets a reference to a collection
 
@@ -99,12 +99,12 @@ def getCollectionRef(collection: str) -> AsyncCollectionReference:
         collection (str): The name of the collection
 
     Returns:
-        AsyncCollectionReference: The reference to the collection
+        CollectionReference: The reference to the collection
     '''
 
     return db.collection(collection)
 
-def getDocRef(collection: str, id: str) -> AsyncDocumentReference:
+def getDocRef(collection: str, id: str) -> DocumentReference:
     '''
     Gets a reference to a document given its collection and id
 
@@ -113,36 +113,36 @@ def getDocRef(collection: str, id: str) -> AsyncDocumentReference:
         id (str): The id of the document to get a reference for
 
     Returns:
-        AsyncDocumentReference: The reference to the document
+        DocumentReference: The reference to the document
     '''
 
-    collectionRef: AsyncCollectionReference = getCollectionRef(collection)
-    docRef: AsyncDocumentReference = collectionRef.document(id)
+    collectionRef: CollectionReference = getCollectionRef(collection)
+    docRef: DocumentReference = collectionRef.document(id)
     return docRef
 
-async def getQueryResults(query: AsyncQuery) -> list[any]:
+def getQueryResults(query: Query) -> list[any]:
     '''
     Gets the results of a query
 
     Args:
-        query (AsyncQuery): The query to run
+        query (Query): The query to run
 
     Returns:
         list[dict]: A list of dictionaries containing the data of each document in the format { 'id': id, ...rest of the data here }
     '''
 
-    queryResults: list[DocumentSnapshot] = await query.get()
+    queryResults: list[DocumentSnapshot] = query.get()
     
     result = []
 
     for doc in queryResults:
-        data: dict = await resolve_references(doc.to_dict())
+        data: dict = resolve_references(doc.to_dict())
         data['id'] = doc.id
         result.append(data)
 
     return result
 
-async def deleteDocument(collection: str, id: str):
+def deleteDocument(collection: str, id: str):
     '''
     Deletes a document with a certain id from a collection
 
@@ -151,10 +151,10 @@ async def deleteDocument(collection: str, id: str):
         id (str): The id of the document
     '''
 
-    docRef: AsyncDocumentReference = getDocRef(collection, id)
-    await docRef.delete()
+    docRef: DocumentReference = getDocRef(collection, id)
+    docRef.delete()
 
-async def updateDocument(collection: str, id: str, data: dict) -> dict:
+def updateDocument(collection: str, id: str, data: dict) -> dict:
     '''
     Updates a documents field given its collection and id, with the fields within the data dictionary
 
@@ -167,10 +167,10 @@ async def updateDocument(collection: str, id: str, data: dict) -> dict:
         dict: The data of the updated document in the format { 'id': id, ...rest of the data }
     '''
     
-    docRef: AsyncDocumentReference = getDocRef(collection, id)
-    _, updatedDocRef = await docRef.set(data)
+    docRef: DocumentReference = getDocRef(collection, id)
+    _, updatedDocRef = docRef.set(data)
     
-    data: dict = await resolve_references(updatedDocRef.to_dict())
+    data: dict = resolve_references(updatedDocRef.to_dict())
     data['id'] = updatedDocRef.id
 
     return data

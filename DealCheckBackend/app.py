@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_cors import CORS 
-from core import authenticaion_blueprint
+from core import authenticaion_blueprint, dealcheck_blueprint
 from dotenv import load_dotenv
 
 
@@ -15,5 +15,6 @@ if __name__ == '__main__':
     load_dotenv()
 
     app.register_blueprint(authenticaion_blueprint, url_prefix="/auth")
-
+    app.register_blueprint(dealcheck_blueprint, url_prefix='/val')
+    
     app.run(host='0.0.0.0',port=8001,debug=True)

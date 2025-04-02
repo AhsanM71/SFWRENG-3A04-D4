@@ -6,6 +6,8 @@ import { DealValuation, ValuationResult } from "@/types"
 import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
+import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
+import { useAuth } from "@/context/AuthContext"
 
 const DealValuationScreen = () => {
 
@@ -38,6 +40,8 @@ const DealValuationScreen = () => {
   const [conditionOpen, setConditionOpen] = useState(false);
   const [fuelTypeOpen, setFuelTypeOpen] = useState(false)
   const [sellerTypeOpen, setSellerTypeOpen] = useState(false);
+
+  const { user, loading, reload } = useAuth()
 
   // Tracking car models, used in drop-down inputs
   const models = carData.find(car => car.brand === carMake)?.models || []
@@ -73,7 +77,7 @@ const DealValuationScreen = () => {
 
   }, [params.dealValuation]);
 
-  const formatDataForSubmission = () => {
+  const formatDataForSubmission = async () => {
     // Convert string values to numbers where needed
     const yearInt = parseInt(carYear) || 0;
     const mileageInt = parseInt(mileage) || 0;
@@ -83,7 +87,12 @@ const DealValuationScreen = () => {
     const insuranceInt = parseInt(insuranceEstimate) || 0;
     const resaleInt = parseInt(resaleValueEstimate) || 0;
     
+    const token = user?.uid
+
     return {
+      user_id: {
+        id: token || ""
+      },
       car_details: {
         make: carMake,
         model: carModel,
@@ -116,7 +125,7 @@ const DealValuationScreen = () => {
     };
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
 
     // Validate inputs
     if (!carMake || !carModel || !carYear || !mileage || !price) {
@@ -126,11 +135,23 @@ const DealValuationScreen = () => {
 
     setIsLoading(true)
 
+    const formattedData = await formatDataForSubmission();
 
-    // Format data to go to API
-    const formattedData = formatDataForSubmission();
+    try{
+      const valuationResponse: ValuationResponse = await valuationRequest(
+        formattedData
+      );
+      
+      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
-    console.log("Submitting data:", JSON.stringify(formattedData,null,2));
+    } catch(error: any) {
+      Alert.alert("Deal valuation failed: ", error.message);
+      setIsLoading(false)
+    }
+
+    
+
+    // console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
     // Simulate API call to the agents
     setTimeout(() => {

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from core.data import Car, FirestoreDatabaseEntity
-from db import getDocumentRefPath, CARS_COLLECTION
+from db import getDocumentReference, CARS_COLLECTION
 
 class CarRecommendationInformation(FirestoreDatabaseEntity):
     @staticmethod
@@ -27,7 +27,7 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
             'userId': self.getUserId(),
             'description': self.getDescription(),
             'carRecommendation': self.getCarRecommendation(),
-            'car': getDocumentRefPath(CARS_COLLECTION, self.car.getId()),
+            'car': getDocumentReference(CARS_COLLECTION, self.car.getId()),
             'depricationCurveSrc': self.getDepricationCurveSrc()
         }
 
