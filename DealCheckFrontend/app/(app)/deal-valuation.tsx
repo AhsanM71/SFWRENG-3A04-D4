@@ -9,10 +9,12 @@ import carData from "../../assets/data/car-list.json"
 import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
 import { useAuth } from "@/context/AuthContext"
 import * as ImagePicker from "expo-image-picker"
+import * as FileSystem from "expo-file-system";
 
 const DealValuationScreen = () => {
 
   // State variables to track form inputs
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [image, setImage] = useState<string | null>(null);
   const [carMake, setCarMake] = useState("")
   const [carModel, setCarModel] = useState("")
@@ -79,6 +81,17 @@ const DealValuationScreen = () => {
 
   }, [params.dealValuation]);
 
+  const convertImageToBase64 = async (uri: string) => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64;
+    } catch (error) {
+      console.error("Error converting image to Base64:", error);
+    }
+  };
+
   const pickImage = async (fromCamera: boolean) => {
     const permissionResult = fromCamera
       ? await ImagePicker.requestCameraPermissionsAsync()
@@ -104,7 +117,10 @@ const DealValuationScreen = () => {
       });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      const uri = result.assets[0]?.uri ?? null;
+      setImage(uri);
+      const base64 = await convertImageToBase64(uri) ?? null;
+      setImageBase64(base64);
     }
   };
 
@@ -133,7 +149,7 @@ const DealValuationScreen = () => {
         condition: carCondition,
         accident_history: accidentHistory,
         previous_owners: ownersInt,
-        image: null,
+        image: imageBase64,
         description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
       },
       pricing: {
@@ -173,14 +189,12 @@ const DealValuationScreen = () => {
         formattedData
       );
       
-      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+      // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
     } catch(error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
       setIsLoading(false)
     }
-
-    
 
     // console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
@@ -317,7 +331,7 @@ const DealValuationScreen = () => {
 
       {/* Picture Input */}
       <View style={styles.imageInputContainer}>
-        <Text style={styles.label}>Picture*</Text>
+        <Text style={styles.label}>Picture (Optional)</Text>
         <TouchableOpacity style={styles.button} onPress={() => pickImage(true)}>
           <Text style={styles.buttonText}>📷 Take a Picture</Text>
         </TouchableOpacity>
