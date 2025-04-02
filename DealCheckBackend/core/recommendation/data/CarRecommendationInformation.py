@@ -11,16 +11,16 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
             description=data['description'],
             carRecommendation=data['carRecommendation'],
             car=Car.from_dict(data['car']),
-            depricationCurveSrc=data['depricationCurveSrc']
+            depricationCurveImg=data['depricationCurveImg']
         )
 
-    def __init__(self, id: str, userId: str, description: str, carRecommendation: str, car: Car, depricationCurveSrc: str):
+    def __init__(self, id: str, userId: str, description: str, carRecommendation: str, car: Car, depricationCurveImg: str):
         self.id = id
         self.userId = userId
         self.description = description
         self.carRecommendation = carRecommendation
         self.car = car
-        self.depricationCurveSrc = depricationCurveSrc
+        self.depricationCurveImg = depricationCurveImg
 
     def to_dict(self) -> dict:
         return {
@@ -28,7 +28,7 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
             'description': self.getDescription(),
             'carRecommendation': self.getCarRecommendation(),
             'car': getDocumentReference(CARS_COLLECTION, self.car.getId()),
-            'depricationCurveSrc': self.getDepricationCurveSrc()
+            'depricationCurveImg': self.getDepricationCurveImg()
         }
 
     def getId(self) -> str:
@@ -46,5 +46,5 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
     def getCar(self) -> str:
         return self.car
     
-    def getDepricationCurveSrc(self) -> str:
-        return self.depricationCurveSrc
+    def getDepricationCurveImg(self) -> str:
+        return self.depricationCurveImg
