@@ -18,7 +18,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/blackCar.png",
         "backgroundColor": "#F9F9F9"
-      }
+      },
+      "package": "com.x3a04.dealcheck"
     },
     "web": {
       "favicon": "./assets/images/whiteCar.png"

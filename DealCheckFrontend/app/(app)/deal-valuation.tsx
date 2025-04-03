@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { View, SafeAreaView, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, FlatList } from "react-native"
+import { View, SafeAreaView, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, FlatList, Image } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockValuationResults } from "@/constants"
 import { DealValuation, ValuationResult } from "@/types"
@@ -8,17 +8,21 @@ import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
 import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
 import { useAuth } from "@/context/AuthContext"
+import * as ImagePicker from "expo-image-picker"
+import * as FileSystem from "expo-file-system";
 
 const DealValuationScreen = () => {
 
   // State variables to track form inputs
+  const [imageBase64, setImageBase64] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(null);
   const [carMake, setCarMake] = useState("")
   const [carModel, setCarModel] = useState("")
   const [carTrim, setCarTrim] = useState("")
   const [carCondition, setCarCondition] = useState("Used")
   const [previousOwners, setPreviousOwners] = useState("1")
   const [sellerType, setSellerType] = useState("Dealer")
-  const [warranty,setWarranty] = useState("")
+  const [warranty, setWarranty] = useState("")
   const [carYear, setCarYear] = useState("")
   const [mileage, setMileage] = useState("")
   const [price, setPrice] = useState("")
@@ -33,7 +37,7 @@ const DealValuationScreen = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<null | ValuationResult>(null)
   const params = useLocalSearchParams()
-  
+
   // Further boolean variables to track drop-down inputs
   const [carMakeOpen, setCarMakeOpen] = useState(false);
   const [carModelOpen, setCarModelOpen] = useState(false);
@@ -57,7 +61,7 @@ const DealValuationScreen = () => {
       fuelType: "gasoline",
       result: null,
     };
-  
+
     if (typeof params.dealValuation === "string") {
       try {
         parsedValuation = JSON.parse(params.dealValuation);
@@ -65,7 +69,7 @@ const DealValuationScreen = () => {
         console.error("Failed to parse deal valuation:", error);
       }
     }
-  
+
     setCarMake(parsedValuation.carMake);
     setCarModel(parsedValuation.carModel);
     setCarYear(parsedValuation.carYear);
@@ -77,7 +81,50 @@ const DealValuationScreen = () => {
 
   }, [params.dealValuation]);
 
-  const formatDataForSubmission = async () => {
+  const convertImageToBase64 = async (uri: string) => {
+    try {
+      const base64 = await FileSystem.readAsStringAsync(uri, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      return base64;
+    } catch (error) {
+      console.error("Error converting image to Base64:", error);
+    }
+  };
+
+  const pickImage = async (fromCamera: boolean) => {
+    const permissionResult = fromCamera
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.status !== "granted") {
+      Alert.alert("Permission Denied", "You need to grant permissions.");
+      return;
+    }
+
+    const result = fromCamera
+      ? await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      })
+      : await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+    if (!result.canceled) {
+      const uri = result.assets[0]?.uri ?? null;
+      setImage(uri);
+      const base64 = await convertImageToBase64(uri) ?? null;
+      setImageBase64(base64);
+    }
+  };
+
+  const formatDataForSubmission = () => {
     // Convert string values to numbers where needed
     const yearInt = parseInt(carYear) || 0;
     const mileageInt = parseInt(mileage) || 0;
@@ -102,7 +149,7 @@ const DealValuationScreen = () => {
         condition: carCondition,
         accident_history: accidentHistory,
         previous_owners: ownersInt,
-        image: null,
+        image: imageBase64,
         description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
       },
       pricing: {
@@ -142,14 +189,12 @@ const DealValuationScreen = () => {
         formattedData
       );
       
-      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+      // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
     } catch(error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
       setIsLoading(false)
     }
-
-    
 
     // console.log("Submitting data:", JSON.stringify(formattedData,null,2));
 
@@ -186,7 +231,7 @@ const DealValuationScreen = () => {
     { label: "Used", value: "Used" },
     { label: "Salvage", value: "Salvage" },
   ];
-  
+
   const sellerTypeOptions = [
     { label: "Dealer", value: "Dealer" },
     { label: "Private", value: "Private" },
@@ -220,7 +265,7 @@ const DealValuationScreen = () => {
     setFuelTypeOpen(false);
     setSellerTypeOpen(false);
   };
-  
+
   const onSellerTypeOpen = () => {
     setCarMakeOpen(false);
     setCarModelOpen(false);
@@ -284,6 +329,20 @@ const DealValuationScreen = () => {
         />
       </View>
 
+      {/* Picture Input */}
+      <View style={styles.imageInputContainer}>
+        <Text style={styles.label}>Picture (Optional)</Text>
+        <TouchableOpacity style={styles.button} onPress={() => pickImage(true)}>
+          <Text style={styles.buttonText}>📷 Take a Picture</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => pickImage(false)}>
+          <Text style={styles.buttonText}>🖼️ Pick from Gallery</Text>
+        </TouchableOpacity>
+        <View style={styles.imageContainer}>
+          {image && <Image source={{ uri: image }} style={styles.image} />}
+        </View>
+      </View>
+
       {/* Year Input */}
       <View style={[styles.inputGroup, { marginTop: carModelOpen ? 100 : 15 }]}>
         <Text style={styles.label}>Year*</Text>
@@ -319,7 +378,7 @@ const DealValuationScreen = () => {
           keyboardType="number-pad"
         />
       </View>
-      
+
       {/* Fuel Type Input */}
       <View style={styles.inputGroup}>
         <Text style={styles.label}>Fuel Type</Text>
@@ -377,8 +436,8 @@ const DealValuationScreen = () => {
         <Text style={styles.label}>Accident History</Text>
         <View style={styles.toggleContainer}>
           <Text>Has Accident History?</Text>
-          <TouchableOpacity 
-            style={[styles.toggleButton, accidentHistory ? styles.toggleActive : {}]} 
+          <TouchableOpacity
+            style={[styles.toggleButton, accidentHistory ? styles.toggleActive : {}]}
             onPress={() => setAccidentHistory(!accidentHistory)}
           >
             <Text style={accidentHistory ? styles.toggleTextActive : styles.toggleText}>
@@ -436,8 +495,8 @@ const DealValuationScreen = () => {
         <Text style={styles.label}>Inspection Status</Text>
         <View style={styles.toggleContainer}>
           <Text>Inspection Completed?</Text>
-          <TouchableOpacity 
-            style={[styles.toggleButton, inspectionCompleted ? styles.toggleActive : {}]} 
+          <TouchableOpacity
+            style={[styles.toggleButton, inspectionCompleted ? styles.toggleActive : {}]}
             onPress={() => setInspectionCompleted(!inspectionCompleted)}
           >
             <Text style={inspectionCompleted ? styles.toggleTextActive : styles.toggleText}>
@@ -637,7 +696,7 @@ const styles = StyleSheet.create({
   },
   submitButton: {
     backgroundColor: "#3498db",
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 15,
     flexDirection: "row",
     alignItems: "center",
@@ -818,6 +877,39 @@ const styles = StyleSheet.create({
   toggleTextActive: {
     fontWeight: "bold",
     color: "#fff",
+  },
+  button: {
+    backgroundColor: "#3498db",
+    padding: 12,
+    borderRadius: 10,
+    marginVertical: 8,
+    width: "100%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  image: {
+    width: 200,
+    height: 200,
+    marginTop: 20,
+    borderRadius: 10,
+  },
+  imageInputContainer: {
+    width: "100%",
+    marginBottom: 15,
+  },
+  imageContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
   },
 })
 
