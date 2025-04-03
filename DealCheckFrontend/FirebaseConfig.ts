@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import { getDownloadURL, getStorage, ref } from "firebase/storage";
 import { getAnalytics } from "firebase/analytics";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 // TODO: Add SDKs for Firebase products that you want to use
@@ -20,9 +21,21 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 export const analytics = getAnalytics(app);
+export const storage = getStorage(app);
 export const auth = initializeAuth(
     app,
     {
         persistence: getReactNativePersistence(ReactNativeAsyncStorage)
     }
 );
+
+/**
+ * A method that gets the download url of an image from firebase storage to display
+ * @param fileName The name of the file in firebase storage
+ * @returns The download URL of the image
+ */
+export async function getStorageImgDownloadURL(fileName: string): Promise<string> {
+  const imageRef = ref(storage, fileName);
+  const url = await getDownloadURL(imageRef);
+  return url
+}
