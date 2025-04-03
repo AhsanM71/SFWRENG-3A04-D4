@@ -167,7 +167,7 @@ const DealValuationScreen = () => {
         accident_history: accidentHistory,
         previous_owners: ownersInt,
         image: imageBase64,
-        description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+        description: carCondition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
       },
       pricing: {
         listed_price: priceInt
