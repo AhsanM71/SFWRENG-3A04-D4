@@ -124,13 +124,13 @@ const DealValuationScreen = () => {
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 1,
+        quality: 0.3,
       })
       : await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
-        quality: 1,
+        quality: 0.3,
       });
 
     if (!result.canceled) {
@@ -167,7 +167,7 @@ const DealValuationScreen = () => {
         accident_history: accidentHistory,
         previous_owners: ownersInt,
         image: imageBase64,
-        description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+        description: carCondition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
       },
       pricing: {
         listed_price: priceInt
@@ -206,7 +206,7 @@ const DealValuationScreen = () => {
         formattedData
       );
       
-      // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
     } catch(error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
