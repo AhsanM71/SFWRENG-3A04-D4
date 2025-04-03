@@ -7,4 +7,5 @@ class CarRecommendationBlackBoardController(BlackBoardController[CarRecommendati
         self.carRecommendationExpert: Expert[CarRecommendationInformation] = carRecommendationExpert
     
     async def handleRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
-        pass
+        data: CarRecommendationInformation = await self.carRecommendationExpert.evaluateRequest(request=request)
+        return data

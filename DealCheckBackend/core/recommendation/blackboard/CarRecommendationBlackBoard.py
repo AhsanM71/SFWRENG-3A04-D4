@@ -12,4 +12,5 @@ class CarRecommendationBlackBoard(BlackBoard[CarRecommendationInformation]):
         self.dao: CarRecommendationInformationDAO = dao
 
     async def handleRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
-        pass
+        data: CarRecommendationInformation = await self.controller.handleRequest(request=request)
+        return data
