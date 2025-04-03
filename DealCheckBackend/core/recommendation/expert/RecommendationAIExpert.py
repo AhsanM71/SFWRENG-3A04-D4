@@ -22,6 +22,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         pass
 
     async def _generateDepricationCurve(self, car: Car) -> str:
+        generation_config, safety_settings = self._config_model()
         year = car.getYear()
         make = car.getMake()
         model = car.getModel()
@@ -43,41 +44,18 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         plt.legend()
         plt.savefig('{self._IMAGE_PATH}')"""
 
-        generation_config = {
-            "max_output_tokens": 8192,
-            "temperature": 1,
-            "top_p": 0.95,
-        }
-
-        safety_settings = [
-            SafetySetting(
-                category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                threshold=SafetySetting.HarmBlockThreshold.OFF
-            ),
-            SafetySetting(
-                category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                threshold=SafetySetting.HarmBlockThreshold.OFF
-            ),
-            SafetySetting(
-                category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                threshold=SafetySetting.HarmBlockThreshold.OFF
-            ),
-            SafetySetting(
-                category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
-                threshold=SafetySetting.HarmBlockThreshold.OFF
-            ),
-        ]
         vertexai.init(
             project="dealcheck",
             location="us-central1",
             api_endpoint="us-central1-aiplatform.googleapis.com"
         )
+        
         model = GenerativeModel(
             "gemini-1.5-pro-001",
         )
+        
         chat = model.start_chat()
         model_output = chat.send_message([deprecationCurvePrompt], generation_config=generation_config, safety_settings=safety_settings)
-        print(model_output)
         program = self._get_text(model_output)
         exec(program)
         
@@ -105,3 +83,30 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
                     return "No content attribute found in the candidate."
             else:
                 return "No candidates found."
+        
+    def _config_model():
+        generation_config = {
+        "max_output_tokens": 8192,
+        "temperature": 1,
+        "top_p": 0.95,
+        }
+
+        safety_settings = [
+            SafetySetting(
+                category=SafetySetting.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=SafetySetting.HarmBlockThreshold.OFF
+            ),
+            SafetySetting(
+                category=SafetySetting.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=SafetySetting.HarmBlockThreshold.OFF
+            ),
+            SafetySetting(
+                category=SafetySetting.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=SafetySetting.HarmBlockThreshold.OFF
+            ),
+            SafetySetting(
+                category=SafetySetting.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=SafetySetting.HarmBlockThreshold.OFF
+            ),
+        ]
+        return generation_config, safety_settings
