@@ -15,7 +15,8 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         with open(self._IMAGE_PATH, "rb") as image_file:
             base64_string = base64.b64encode(image_file.read()).decode("utf-8")
             
-        uploadImage(self._IMAGE_PATH, base64_string)
+        image = uploadImage(self._IMAGE_PATH, base64_string)
+        CarRecommendationInformation.setDepricationCurveImg(image)
 
     async def _generateScenarioBasedRecommendation(info: CarRecommendationInformation) -> CarRecommendationInformation:
         pass

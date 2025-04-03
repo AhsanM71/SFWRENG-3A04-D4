@@ -48,3 +48,6 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
     
     def getDepricationCurveImg(self) -> str:
         return self.depricationCurveImg
+    
+    def setDepricationCurveImg(self, depricationCurveImg: str):
+        self.depricationCurveImg = depricationCurveImg
