@@ -5,9 +5,11 @@ from core.dealCheck.data.DealCheckDAO import DealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
+from bucket import uploadImage
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
+IMAGE_PATH = "decoded_image.jpg"
 
 @dealcheck_blueprint.route('/dealCheck', methods=['POST'])
 async def requestDealCheck():
@@ -74,6 +76,10 @@ async def requestDealCheck():
     accident_history: bool = car_details.get('accident_history', False)
     previous_owners: int = car_details.get('previous_owners', 0)
     image: str = car_details.get('image', '')
+    
+    if image:
+        image = await uploadImage(IMAGE_PATH, image)
+    
     description: str = car_details.get('description', '')
     
     pricing: dict = data.get('pricing')
@@ -128,7 +134,6 @@ async def requestDealCheck():
         )
         
         car: Car = CarDAO.addCar(tempCar)
-        
         tempDealCheckData: DealCheckData = DealCheckData(
             id=None,
             userID=uID,
