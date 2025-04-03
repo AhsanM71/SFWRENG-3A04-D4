@@ -8,6 +8,7 @@ import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
 import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
 import { useAuth } from "@/context/AuthContext"
+import { parse } from "@babel/core"
 import * as ImagePicker from "expo-image-picker"
 import * as FileSystem from "expo-file-system";
 
@@ -31,8 +32,8 @@ const DealValuationScreen = () => {
   const [fuelEfficiencyMpg, setFuelEfficiencyMpg] = useState("")
   const [insuranceEstimate, setInsuranceEstimate] = useState("")
   const [resaleValueEstimate, setResaleValueEstimate] = useState("")
-  const [userGuess, setUserGuess] = useState("0");
-  const [condition, setCondition] = useState("")
+  const [userGuess, setUserGuess] = useState(false);
+  const [description, setDescription] = useState("")
   const [fuelType, setFuelType] = useState("gasoline")
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<null | ValuationResult>(null)
@@ -54,10 +55,19 @@ const DealValuationScreen = () => {
     let parsedValuation = {
       carMake: "",
       carModel: "",
+      carTrim: "",
+      carCondition: "Used",
+      sellerType: "Dealer",
       carYear: "",
       mileage: "",
       price: "",
-      condition: "",
+      acidentHistory: false,
+      inspectionCompleted: false,
+      fuelEfficiencyMpg: "",
+      insuranceEstimate: "",
+      resaleValueEstimate: "",
+      userGuess: false,
+      description: "",
       fuelType: "gasoline",
       result: null,
     };
@@ -72,10 +82,17 @@ const DealValuationScreen = () => {
 
     setCarMake(parsedValuation.carMake);
     setCarModel(parsedValuation.carModel);
+    setCarMake(parsedValuation.carModel);
+    setCarCondition(parsedValuation.carCondition);
+    setSellerType(parsedValuation.sellerType);
     setCarYear(parsedValuation.carYear);
     setMileage(parsedValuation.mileage);
     setPrice(parsedValuation.price);
-    setCondition(parsedValuation.condition);
+    setAccidentHistory(parsedValuation.acidentHistory);
+    setFuelEfficiencyMpg(parsedValuation.fuelEfficiencyMpg);
+    setResaleValueEstimate(parsedValuation.resaleValueEstimate);
+    setUserGuess(parsedValuation.userGuess);
+    setDescription(parsedValuation.description);
     setResult(parsedValuation.result);
     setFuelType(parsedValuation.fuelType);
 
@@ -210,11 +227,22 @@ const DealValuationScreen = () => {
   const resetForm = () => {
     setCarMake("")
     setCarModel("")
+    setCarTrim("")
+    setCarCondition("Used")
+    setPreviousOwners("1")
+    setSellerType("Dealer")
+    setWarranty("")
     setCarYear("")
     setMileage("")
     setPrice("")
-    setCondition("")
+    setAccidentHistory(false)
+    setInspectionCompleted(false)
+    setFuelEfficiencyMpg("")
+    setInsuranceEstimate("")
+    setUserGuess(false)
+    setDescription("")
     setFuelType("gasoline")
+    setResaleValueEstimate("");
     setResult(null)
   }
 
@@ -423,8 +451,8 @@ const DealValuationScreen = () => {
         <Text style={styles.label}>Condition (Optional)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
-          value={condition}
-          onChangeText={setCondition}
+          value={description}
+          onChangeText={setDescription}
           placeholder="Add further description..."
           multiline
           numberOfLines={4}
@@ -544,14 +572,18 @@ const DealValuationScreen = () => {
 
       {/* User Estimate of Deal Rating */}
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>User Estimate</Text>
-        <TextInput
-          style={styles.input}
-          value={userGuess}
-          onChangeText={setUserGuess}
-          placeholder="1-100"
-          keyboardType="number-pad"
-        />
+        <Text style={styles.label}>User Guess</Text>
+        <View style={styles.toggleContainer}>
+          <Text>Is this a good deal?</Text>
+          <TouchableOpacity 
+            style={[styles.toggleButton, userGuess ? styles.toggleActive : {}]} 
+            onPress={() => setUserGuess(!userGuess)}
+          >
+            <Text style={userGuess ? styles.toggleTextActive : styles.toggleText}>
+              {userGuess ? "Yes" : "No"}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Submit Form Button */}
