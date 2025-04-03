@@ -167,7 +167,7 @@ const DealValuationScreen = () => {
         accident_history: accidentHistory,
         previous_owners: ownersInt,
         image: imageBase64,
-        description: condition || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+        description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
       },
       pricing: {
         listed_price: priceInt
@@ -200,7 +200,8 @@ const DealValuationScreen = () => {
     setIsLoading(true)
 
     const formattedData = await formatDataForSubmission();
-
+    console.log(JSON.stringify(formattedData));
+    
     try{
       const valuationResponse: ValuationResponse = await valuationRequest(
         formattedData
