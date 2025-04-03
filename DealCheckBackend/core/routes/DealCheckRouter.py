@@ -60,7 +60,7 @@ async def requestDealCheck():
             }
         }
     '''
-    data: dict = request.get_json().get('data')
+    data: dict = request.get_json()
     
     user_id: dict = data.get('user_id')
     uID = user_id.get('id')
@@ -244,7 +244,7 @@ async def getDealCheck():
             }
         }
     '''
-    data: dict = request.get_json().get('data')
+    data: dict = request.get_json()
     dealCheck_id: str = data.get("dealCheck_id")
     
     try:
