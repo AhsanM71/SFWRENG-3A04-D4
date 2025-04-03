@@ -44,6 +44,6 @@ export type ValuationResponse = APIResponse & {
 };
 
 export async function valuationRequest(data: FormattedData): Promise<ValuationResponse> {
-    const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck', { data });
+    const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck', data);
     return valuationData;
 }
