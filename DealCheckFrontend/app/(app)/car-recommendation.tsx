@@ -54,7 +54,7 @@ const CarRecommendationScreen = () => {
         condition: carCondition,
         accident_history: accidentHistory,
         previous_owners: ownersInt,
-        image: imageBase64,
+        image: null,
         description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`,
         pros: listOfPros,
         cons: listOfCons,
@@ -71,18 +71,18 @@ const CarRecommendationScreen = () => {
     setIsLoading(true)
 
     const formattedData = await formatDataForSubmission();
-    
-    try{
-          const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
-            formattedData
-          );
+
+    // try{
+    //       const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
+    //         formattedData
+    //       );
           
-          // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+    //       // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
     
-        } catch(error: any) {
-          Alert.alert("Deal valuation failed: ", error.message);
-          setIsLoading(false)
-        }
+    //     } catch(error: any) {
+    //       Alert.alert("Deal valuation failed: ", error.message);
+    //       setIsLoading(false)
+    //     }
 
     // Simulate API call to the recommendation agents
     setTimeout(() => {
