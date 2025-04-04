@@ -64,7 +64,7 @@ async def requestCarRecommendation():
                 'user_preferences': recommendationData.getDescription()
             },
             'answers': {
-                'recommendation_info': recommendationData.getRecommendationInfo(),
+                'recommendation_info': recommendationData.getCarRecommendation(),
                 'pros': recommendationData.getPros(),
                 'cons': recommendationData.getCons()
             }

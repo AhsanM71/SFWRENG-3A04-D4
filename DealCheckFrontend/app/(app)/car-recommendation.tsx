@@ -1,15 +1,18 @@
 import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TextInput, Alert, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { carImages, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
+import { useAuth } from "@/context/AuthContext"
+import { carRecommendRequest, CarRecommendResponse } from "@/api/carRecommend"
 
 const CarRecommendationScreen = () => {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
   const params = useLocalSearchParams()
+  const { user, loading, reload } = useAuth()
 
   useEffect(() => {
     let parsedRecommendations: Array<Recommendation> | null = null;
@@ -24,14 +27,62 @@ const CarRecommendationScreen = () => {
   
     setRecommendations(parsedRecommendations);
   }, []);
-  
 
-  const handleSubmit = () => {
+  const formatDataForSubmission = () => {
+    // Convert string values to numbers where needed
+    const yearInt = parseInt(carYear) || 0;
+    const mileageInt = parseInt(mileage) || 0;
+    const priceInt = parseInt(price) || 0;
+    const ownersInt = parseInt(previousOwners) || 1;
+    
+    const token = user?.uid
+
+    return {
+      user_id: {
+        id: token || ""
+      },
+      description: {
+        user_preferences: userInput
+      },
+      recommendation: {
+        price: price,
+        make: carMake,
+        model: carModel,
+        year: yearInt,
+        trim: carTrim,
+        mileage: mileageInt,
+        condition: carCondition,
+        accident_history: accidentHistory,
+        previous_owners: ownersInt,
+        image: imageBase64,
+        description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`,
+        pros: listOfPros,
+        cons: listOfCons,
+        overall_description: overallDescription,
+      }
+    };
+  };
+  
+  const handleSubmit = async () => {
     if (!description) {
       return
     }
 
     setIsLoading(true)
+
+    const formattedData = await formatDataForSubmission();
+    
+    try{
+          const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
+            formattedData
+          );
+          
+          // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+    
+        } catch(error: any) {
+          Alert.alert("Deal valuation failed: ", error.message);
+          setIsLoading(false)
+        }
 
     // Simulate API call to the recommendation agents
     setTimeout(() => {
