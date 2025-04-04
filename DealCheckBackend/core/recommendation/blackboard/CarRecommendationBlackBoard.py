@@ -1,8 +1,8 @@
 from core.blackboard import BlackBoard, BlackBoardController, Expert
-from data.CarRecommendationInformation import CarRecommendationInformation
-from data.CarRecommendationInformationDAO import CarRecommendationInformationDAO
-from expert.RecommendationAIExpert import RecommendationAIExpert
-from controller.CarRecommendationBlackBoardController import CarRecommendationBlackBoardController
+from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
+from core.recommendation.data.CarRecommendationInformationDAO import CarRecommendationInformationDAO
+from core.recommendation.expert.RecommendationAIExpert import RecommendationAIExpert
+from core.recommendation.blackboard.controller.CarRecommendationBlackBoardController import CarRecommendationBlackBoardController
 
 class CarRecommendationBlackBoard(BlackBoard[CarRecommendationInformation]):
     def __init__(self, dao: CarRecommendationInformationDAO):

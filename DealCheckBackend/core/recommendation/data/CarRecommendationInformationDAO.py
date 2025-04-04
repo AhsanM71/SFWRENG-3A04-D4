@@ -1,6 +1,6 @@
-from CarRecommendationInformation import CarRecommendationInformation
+from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 from db import getCollectionRef, createDocument, getQueryResults, updateDocument, deleteDocument, getDocument
-from db import CAR_RECOMMENDATION_COLLECTION, AsyncCollectionReference, FieldFilter, AsyncQuery
+from db import CAR_RECOMMENDATION_COLLECTION, CollectionReference, FieldFilter,Query
 
 class CarRecommendationInformationDAO:
     def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:

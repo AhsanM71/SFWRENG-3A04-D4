@@ -6,9 +6,7 @@ import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
 
 const CarRecommendationScreen = () => {
-  const [budget, setBudget] = useState("")
-  const [purpose, setPurpose] = useState("")
-  const [preferences, setPreferences] = useState("")
+  const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
   const params = useLocalSearchParams()
@@ -29,7 +27,7 @@ const CarRecommendationScreen = () => {
   
 
   const handleSubmit = () => {
-    if (!budget || !purpose) {
+    if (!description) {
       return
     }
 
@@ -45,9 +43,7 @@ const CarRecommendationScreen = () => {
   }
 
   const resetForm = () => {
-    setBudget("")
-    setPurpose("")
-    setPreferences("")
+    setDescription("")
     setRecommendations(null)
   }
 
@@ -65,35 +61,13 @@ const CarRecommendationScreen = () => {
         {!recommendations ? (
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Budget*</Text>
+              <Text style={styles.label}>Description*</Text>
               <TextInput
                 style={styles.input}
-                value={budget}
-                onChangeText={setBudget}
-                placeholder="e.g., $25,000"
+                value={description}
+                onChangeText={setDescription}
+                placeholder="e.g. budget, purpose, preferences, etc."
                 keyboardType="number-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Primary Purpose*</Text>
-              <TextInput
-                style={styles.input}
-                value={purpose}
-                onChangeText={setPurpose}
-                placeholder="e.g., Family car, commuting, off-road"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Additional Preferences (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={preferences}
-                onChangeText={setPreferences}
-                placeholder="e.g., Fuel efficiency, safety features, tech features, etc."
-                multiline
-                numberOfLines={4}
               />
             </View>
 
