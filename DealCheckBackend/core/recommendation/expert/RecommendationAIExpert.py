@@ -3,7 +3,7 @@ import vertexai
 import re
 import json
 from vertexai.generative_models import GenerativeModel, SafetySetting, Part
-from blackboard import Expert
+from core.blackboard.expert.Expert import Expert
 from core.data import Car
 from ..data.CarRecommendationInformation import CarRecommendationInformation
 from bucket import uploadImageWithDeletion

@@ -1,5 +1,5 @@
 from core.blackboard import BlackBoardController, Expert
-from data.CarRecommendationInformation import CarRecommendationInformation
+from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 
 class CarRecommendationBlackBoardController(BlackBoardController[CarRecommendationInformation]):
     def __init__(self, carRecommendationExpert: Expert[CarRecommendationInformation]):
