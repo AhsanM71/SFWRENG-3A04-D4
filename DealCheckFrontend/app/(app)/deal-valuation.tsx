@@ -167,7 +167,7 @@ const DealValuationScreen = () => {
         accident_history: accidentHistory,
         previous_owners: ownersInt,
         image: imageBase64,
-        description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+        description: description
       },
       pricing: {
         listed_price: priceInt
@@ -226,7 +226,7 @@ const DealValuationScreen = () => {
         // Mock result from the 3 agents
         setResult(result)
         
-      }, 2000)
+      }, 10000)
 
     } catch(error: any) {
       Alert.alert("Deal valuation failed: ", error.message);

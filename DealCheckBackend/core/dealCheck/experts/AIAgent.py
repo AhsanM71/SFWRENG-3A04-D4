@@ -3,8 +3,9 @@ from core.dealCheck.data.DealCheckData import DealCheckData
 from google import genai
 from google.genai import types
 import re
-import asyncio
-from bucket import uploadImage # Import the uploadImage function
+import base64
+from bucket import delete_img
+import binascii
 
 class AIAgent(Expert[DealCheckData]):
 
@@ -29,7 +30,7 @@ class AIAgent(Expert[DealCheckData]):
         X should be a prediction (YES or NO) that the following information constitutes a good car deal.
         Y is your confidence on a scale of 1-100 that you are correct on X.
         Aim to be confident, but do not falsify data.
-        Finally, rationale should be your reasoning that you are correct.
+        Finally, rationale should be your reasoning that you are correct. Include a comment regarding the image of the vehicle if it is present, inside the rationale section.
 
         Here is your data:
         - Car: {request.car.getMake()} {request.car.getModel()}, {request.car.getYear()}
@@ -45,22 +46,12 @@ class AIAgent(Expert[DealCheckData]):
         - Resale Value: {request.resale_value} CAD
         - Asking Price: {request.price} CAD
         """
+        # Setup image
+        encoded_image = base64.b64encode(open("./core/dealCheck/experts/saved_car.jpeg", "rb").read()).decode('utf-8')
+        delete_img("./core/dealCheck/experts/saved_car.jpeg")
+        image1 = types.Part.from_bytes(data=base64.b64decode(encoded_image), mime_type="image/jpeg")
         
-        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt_text)])]
-
-        # Add image if available
-        if request.image_base64:
-            try:
-                # Upload the image to Firebase Storage
-                image_filename = await uploadImage(request.image_base64)
-                # Modify prompt to include image information.
-                prompt_text += f"\n\nAnalyze the provided image (filename: {image_filename}) in conjunction with the text data to determine the car's condition and any relevant details."
-                contents[0].parts[0].text = prompt_text
-            except Exception as e:
-                print(f"Error processing image: {e}")
-                request.confidence = 0
-                request.actual = "NO%Unable to process image."
-                return request
+        contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt_text),image1])]
 
         # Setup AI request
         client = genai.Client(vertexai=True, project="dealcheck", location="global")

@@ -16,10 +16,11 @@ class DealCheckExpertBlackBoardController(BlackBoardController[DealCheckData]):
         elif request.getImage() is None and request.getDescription():
             data: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.REDBOOK_EXPERT, request=request)
         else:
-            dataPoint: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.POINT_ALGORITHM_EXPERT, request=request)
-            dataAI: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.AI_EXPERT, request=request)
-            dataRedbook: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.REDBOOK_EXPERT, request=request)
-            data: DealCheckData = await self._analyze_result(dataPoint, dataAI, dataRedbook)
+            data: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.AI_EXPERT, request=request)
+            #dataPoint: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.POINT_ALGORITHM_EXPERT, request=request)
+            #dataAI: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.AI_EXPERT, request=request)
+            #dataRedbook: DealCheckData = await self.expertsService.getExpertResponse(expert=DealCheckExpertType.REDBOOK_EXPERT, request=request)
+            #data: DealCheckData = await self._analyze_result(dataPoint, dataAI, dataRedbook)
         return data
         
     async def _analyze_result(self, dataPoint: DealCheckData, dataAI: DealCheckData, dataRedbook: DealCheckData) -> DealCheckData:
