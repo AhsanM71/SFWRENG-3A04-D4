@@ -19,14 +19,21 @@ export type DealValuation = {
 }
 
 export type Recommendation = {
-  make: string
-  model: string
-  year: string
-  price: string
-  image: string
-  description: string
-  pros: string[]
-  cons: string[]
+  price: number;
+  make: string;
+  model: string;
+  year: number;
+  trim: string;
+  mileage: number;
+  condition: string;
+  accident_history: string;
+  previous_owners: number;
+  image: string | null;
+  description: string;
+  pros: string[];
+  cons: string[];
+  overall_description: string;
+  depreciationCurveSrc: string;
 }
 
 export type DepreciationCurve = {
@@ -43,39 +50,4 @@ export type Activity = {
   date: string
   description: string
   data: ActivityData
-}
-
-export type FormattedData = {
-  user_id: {
-    id: string;
-  };
-  car_details: {
-    make: string;
-    model: string;
-    year: number;
-    trim: string;
-    mileage: number;
-    condition: string;
-    accident_history: boolean;
-    previous_owners: number;
-    image: string | null;
-    description: string;
-  };
-  pricing: {
-    listed_price: number;
-  };
-  seller_info: {
-    seller_type: string;
-    warranty: string;
-    inspection_completed: boolean;
-  };
-  additional_factors: {
-    fuel_efficiency_mpg: number;
-    insurance_estimate: number;
-    resale_value_estimate: number;
-  };
-  answers: {
-    predicted: string;
-    actual: string;
-  };
 }

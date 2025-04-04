@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, ScrollView, TextInput, Alert, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
-import { carImages, mockRecommendations } from "@/constants"
+import { carImages, mockDepreciationCurve, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
 import { useAuth } from "@/context/AuthContext"
@@ -11,12 +11,37 @@ const CarRecommendationScreen = () => {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
+  const [userInput, setUserInput] = useState("");
+
+  const [carYear, setCarYear] = useState("");
+  const [mileage, setCarMileage] = useState("");
+  const [previousOwners, setPreviousOwners] = useState("");
+  const [price, setPrice] = useState("");
+  const [carMake, setCarMake] = useState("");
+  const [carModel, setCarModel] = useState("");
+  const [carTrim, setCarTrim] = useState("");
+  const [carCondition, setCarCondition] = useState("");
+  const [accidentHistory, setAccidentHistory] = useState("");
+  const [listOfPros, setListOfPros] = useState([]);
+  const [listOfCons, setListOfCons] = useState([]);
+  const [overallDescription, setOverallDescription] = useState("");
+  const [depreciationCurveSrc, setDepreciationCurveSrc] = useState("");
+
   const params = useLocalSearchParams()
   const { user, loading, reload } = useAuth()
 
+  const [expandedItems, setExpandedItems] = useState<{ [key: number]: boolean }>({})
+
+  const toggleExpand = (id: number) => {
+    setExpandedItems((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
+
   useEffect(() => {
     let parsedRecommendations: Array<Recommendation> | null = null;
-  
+
     if (params?.recommendations && typeof params.recommendations === "string") {
       try {
         parsedRecommendations = JSON.parse(params.recommendations);
@@ -24,7 +49,7 @@ const CarRecommendationScreen = () => {
         console.error("Failed to parse recommendations:", error);
       }
     }
-  
+
     setRecommendations(parsedRecommendations);
   }, []);
 
@@ -34,7 +59,7 @@ const CarRecommendationScreen = () => {
     const mileageInt = parseInt(mileage) || 0;
     const priceInt = parseInt(price) || 0;
     const ownersInt = parseInt(previousOwners) || 1;
-    
+
     const token = user?.uid
 
     return {
@@ -45,7 +70,7 @@ const CarRecommendationScreen = () => {
         user_preferences: userInput
       },
       recommendation: {
-        price: price,
+        price: priceInt,
         make: carMake,
         model: carModel,
         year: yearInt,
@@ -59,10 +84,11 @@ const CarRecommendationScreen = () => {
         pros: listOfPros,
         cons: listOfCons,
         overall_description: overallDescription,
+        depreciationCurveSrc: depreciationCurveSrc,
       }
     };
   };
-  
+
   const handleSubmit = async () => {
     if (!description) {
       return
@@ -70,19 +96,18 @@ const CarRecommendationScreen = () => {
 
     setIsLoading(true)
 
-    const formattedData = await formatDataForSubmission();
-
-    // try{
-    //       const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
-    //         formattedData
-    //       );
-          
-    //       // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
-    
-    //     } catch(error: any) {
-    //       Alert.alert("Deal valuation failed: ", error.message);
-    //       setIsLoading(false)
-    //     }
+    // const formattedData = await formatDataForSubmission();
+    // try {
+    //   const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
+    //     formattedData
+    //   );
+    //   console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+    //   setRecommendations([carRecommendResponse.recommendation])
+    // } catch (error: any) {
+    //   Alert.alert("Deal valuation failed: ", error.message);
+    // } finally {
+    //   setIsLoading(false)
+    // }
 
     // Simulate API call to the recommendation agents
     setTimeout(() => {
@@ -94,9 +119,23 @@ const CarRecommendationScreen = () => {
   }
 
   const resetForm = () => {
-    setDescription("")
-    setRecommendations(null)
-  }
+    setRecommendations(null);
+    setUserInput("");
+    setCarYear("");
+    setCarMileage("");
+    setPreviousOwners("");
+    setPrice("");
+    setCarMake("");
+    setCarModel("");
+    setCarTrim("");
+    setCarCondition("");
+    setAccidentHistory("");
+    setListOfPros([]);
+    setListOfCons([]);
+    setOverallDescription("");
+    setDepreciationCurveSrc("");
+    setExpandedItems({});
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
@@ -114,11 +153,11 @@ const CarRecommendationScreen = () => {
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Description*</Text>
               <TextInput
-                style={styles.input}
+                style={[styles.input]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="e.g. budget, purpose, preferences, etc."
-                keyboardType="number-pad"
+                multiline={true}
               />
             </View>
 
@@ -139,8 +178,9 @@ const CarRecommendationScreen = () => {
 
             {recommendations.map((car, index) => (
               <View key={index} style={styles.carCard}>
-                <Image source={carImages[car.image] || { uri: "https://via.placeholder.com/300x200" }} style={styles.carImage} />
-
+                <View style={styles.carImageContainer}>
+                  <Image source={car.image ? carImages[car.image] : { uri: "https://via.placeholder.com/300x200" }} style={styles.carImage} />
+                </View>
                 <View style={styles.carInfo}>
                   <Text style={styles.carTitle}>
                     {car.year} {car.make} {car.model}
@@ -169,10 +209,17 @@ const CarRecommendationScreen = () => {
                       ))}
                     </View>
                   </View>
-
-                  <TouchableOpacity style={styles.findDealsButton}>
-                    <Text style={styles.findDealsButtonText}>Find Deals</Text>
+                  <Text style={styles.rationale}>Rationale</Text>
+                  <TouchableOpacity style={styles.rationaleContainer} onPress={() => toggleExpand(index)}>
+                    <Text style={styles.carDescription} numberOfLines={expandedItems[index] ? 0 : 3}>{car.overall_description}</Text>
+                    <Text style={styles.showMoreText}>
+                      {expandedItems[index] ? 'Show Less' : 'Show More'}
+                    </Text>
                   </TouchableOpacity>
+                  <Text style={styles.rationale}>Depreciation Curve</Text>
+                  <View style={styles.carImageContainer}>
+                    <Image source={mockDepreciationCurve} style={styles.carImage} />
+                  </View>
                 </View>
               </View>
             ))}
@@ -228,6 +275,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     fontSize: 16,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   textArea: {
     height: 100,
@@ -264,6 +313,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#eee",
+  },
+  carImageContainer: {
+    padding: 15
   },
   carImage: {
     width: "100%",
@@ -340,6 +392,20 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  rationale: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginTop: 16,
+  },
+  rationaleContainer: {
+    marginBottom: 15,
+  },
+  showMoreText: {
+    color: '#3498db',
+    fontSize: 14,
+    marginTop: 5,
   },
 })
 
