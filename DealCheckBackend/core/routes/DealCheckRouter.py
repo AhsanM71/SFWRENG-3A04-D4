@@ -5,7 +5,7 @@ from core.dealCheck.data.DealCheckDAO import DealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
-from bucket import uploadImage
+from bucket import uploadImage, uploadImageWithDeletion
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
@@ -78,7 +78,7 @@ async def requestDealCheck():
     image: str = car_details.get('image', '')
     
     if image:
-        image = await uploadImage(IMAGE_PATH, image)
+        image = await uploadImageWithDeletion(IMAGE_PATH, image)
     
     description: str = car_details.get('description', '')
     
