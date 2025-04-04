@@ -3,6 +3,7 @@ import vertexai
 import re
 import json
 import asyncio
+import tempfile
 import subprocess
 from vertexai.generative_models import GenerativeModel, SafetySetting, Part
 from core.blackboard.expert.Expert import Expert
@@ -17,15 +18,9 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
     _IMAGE_PATH = "decoded_image.jpg"
     async def evaluateRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
         request: CarRecommendationInformation = await self._generateScenarioBasedRecommendation(request)
-        
-        await self._generateDepricationCurve(request.getCar())
-        
-        with open(self._IMAGE_PATH, "rb") as image_file:
-            base64_string = base64.b64encode(image_file.read()).decode("utf-8")
-            
-        image = await uploadImageWithDeletion(self._IMAGE_PATH, base64_string)
+        image: str = await self._generateDepricationCurve(request.getCar())
         request.setDepricationCurveImg(image)
-        
+
         return request
 
     async def _generateScenarioBasedRecommendation(self, info: CarRecommendationInformation) -> CarRecommendationInformation:
@@ -125,11 +120,11 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         model_output = chat.send_message([deprecationCurvePrompt], generation_config=generation_config, safety_settings=safety_settings)
         program = self._get_text(model_output)
         
-        script_path = "generated_depreciation_curve.py"
-        with open(script_path, "w") as script_file:
-            script_file.write(program)
+        script_path = ""
+        with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as temp_script:
+            script_path = temp_script.name
+            temp_script.write(program.encode("utf-8"))
 
-        # Execute the script using subprocess
         try:
             result = await asyncio.to_thread(
                 subprocess.run,
@@ -138,11 +133,14 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
                 text=True,
                 check=True
             )
-            print("Script Output:", result.stdout)
-            print("Script Errors:", result.stderr)
+            with open(self._IMAGE_PATH, "rb") as image_file:
+                base64_string = base64.b64encode(image_file.read()).decode("utf-8")
+
+            image = await uploadImageWithDeletion(self._IMAGE_PATH, base64_string)
         except subprocess.CalledProcessError as e:
             print("Error executing the script:", e.stderr)
-            raise e
+        
+        return image
         
     def _get_text(self, model_output):
             candidates = model_output.candidates

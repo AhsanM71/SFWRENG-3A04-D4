@@ -82,7 +82,8 @@ async def requestCarRecommendation():
                 'description': recommendationData.getCar().getDescription(),
                 'pros': recommendationData.getPros(),
                 'cons': recommendationData.getCons(),
-                'overall_description': recommendationData.getCarRecommendation()
+                'overall_description': recommendationData.getCarRecommendation(),
+                'depreciationCurveSrc': recommendationData.getDepricationCurveImg()
             }
         })
         response.status_code = 200
@@ -94,7 +95,6 @@ async def requestCarRecommendation():
             "msg": str(e)
         })
         response.status_code = 200
-        raise(e)
         return response
 
 @carrecommendation_blueprint.route('/carRecommendation/retrieve', methods=['POST'])
