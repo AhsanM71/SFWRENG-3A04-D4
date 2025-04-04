@@ -80,7 +80,7 @@ class CarRecommendationInformationDAO:
         deleteDocument(CAR_RECOMMENDATION_COLLECTION, id=id)
         return True
 
-    def addCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def addCarRecommendationInformation(self, carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Adds a car recommendation information document to the database
 

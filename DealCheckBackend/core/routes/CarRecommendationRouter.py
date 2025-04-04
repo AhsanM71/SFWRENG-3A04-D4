@@ -42,13 +42,18 @@ async def requestCarRecommendation():
     uID = user_id.get('id')
     description: dict = data.get('description')
     user_preferences = description.get('user_preferences')
-   
 
     try:
         tempRecommendationInfo: CarRecommendationInformation = CarRecommendationInformation(
             id=None,
-            userID=uID,
-            user_preferences=user_preferences
+            userId=uID,
+            description=user_preferences,
+            carRecommendation=None,
+            car=None,
+            depricationCurveImg=None,
+            price=None,
+            pros=None,
+            cons=None
         )
         
         expertOutput: CarRecommendationInformation = await carRecommendBlackBoard.handleRequest(tempRecommendationInfo)
@@ -63,10 +68,21 @@ async def requestCarRecommendation():
             'description': {
                 'user_preferences': recommendationData.getDescription()
             },
-            'answers': {
-                'recommendation_info': recommendationData.getCarRecommendation(),
+            'recommendation': {
+                'price': recommendationData.getPrice(),
+                'make': recommendationData.getCar().getMake(),
+                'model': recommendationData.getCar().getModel(),
+                'year': recommendationData.getCar().getYear(),
+                'trim': recommendationData.getCar().getTrim(),
+                'mileage': recommendationData.getCar().getMileage(),
+                'condition': recommendationData.getCar().getCondition(),
+                'accident_history': recommendationData.getCar().getAccidentHistory(),
+                'previous_owners': recommendationData.getCar().getPreviousOwners(),
+                'image': recommendationData.getCar().getImageSource(),
+                'description': recommendationData.getCar().getDescription(),
                 'pros': recommendationData.getPros(),
-                'cons': recommendationData.getCons()
+                'cons': recommendationData.getCons(),
+                'overall_description': recommendationData.getCarRecommendation()
             }
         })
         response.status_code = 200
@@ -78,6 +94,7 @@ async def requestCarRecommendation():
             "msg": str(e)
         })
         response.status_code = 200
+        raise(e)
         return response
 
 @carrecommendation_blueprint.route('/carRecommendation/retrieve', methods=['POST'])

@@ -2,9 +2,12 @@ import base64
 import vertexai
 import re
 import json
+import asyncio
+import subprocess
 from vertexai.generative_models import GenerativeModel, SafetySetting, Part
 from core.blackboard.expert.Expert import Expert
-from core.data import Car
+from core.data.car.CarDAO import CarDAO
+from core.data.car.Car import Car
 from ..data.CarRecommendationInformation import CarRecommendationInformation
 from bucket import uploadImageWithDeletion
 from google import genai
@@ -13,18 +16,19 @@ from google.genai import types
 class RecommendationAIExpert(Expert[CarRecommendationInformation]):
     _IMAGE_PATH = "decoded_image.jpg"
     async def evaluateRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
+        request: CarRecommendationInformation = await self._generateScenarioBasedRecommendation(request)
+        
         await self._generateDepricationCurve(request.getCar())
         
         with open(self._IMAGE_PATH, "rb") as image_file:
             base64_string = base64.b64encode(image_file.read()).decode("utf-8")
             
-        image = uploadImageWithDeletion(self._IMAGE_PATH, base64_string)
+        image = await uploadImageWithDeletion(self._IMAGE_PATH, base64_string)
         request.setDepricationCurveImg(image)
         
-        request: CarRecommendationInformation = await self._generateScenarioBasedRecommendation(request)
         return request
 
-    async def _generateScenarioBasedRecommendation(info: CarRecommendationInformation) -> CarRecommendationInformation:
+    async def _generateScenarioBasedRecommendation(self, info: CarRecommendationInformation) -> CarRecommendationInformation:
         client = genai.Client(
         vertexai=True,
         project="dealcheck",
@@ -75,6 +79,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
             print("Failed to parse JSON:", e)
             
         car: Car = Car.from_dict(data.get("recommendation"))
+        car: Car = CarDAO.addCar(car)
         
         info.setCarRecommendation(data["recommendation"]["overall_description"])
         info.setCar(car)
@@ -119,17 +124,35 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         chat = model.start_chat()
         model_output = chat.send_message([deprecationCurvePrompt], generation_config=generation_config, safety_settings=safety_settings)
         program = self._get_text(model_output)
-        exec(program)
         
-    def _get_text(model_output):
+        script_path = "generated_depreciation_curve.py"
+        with open(script_path, "w") as script_file:
+            script_file.write(program)
+
+        # Execute the script using subprocess
+        try:
+            result = await asyncio.to_thread(
+                subprocess.run,
+                ["python", script_path],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            print("Script Output:", result.stdout)
+            print("Script Errors:", result.stderr)
+        except subprocess.CalledProcessError as e:
+            print("Error executing the script:", e.stderr)
+            raise e
+        
+    def _get_text(self, model_output):
             candidates = model_output.candidates
             if candidates:
-                print("First candidate:", candidates[0])
+                # print("First candidate:", candidates[0])
                 candidate = candidates[0]
 
                 if hasattr(candidate, 'content'):
                     content = candidate.content
-                    print("Content:", content) 
+                    # print("Content:", content) 
 
                     if hasattr(content, 'parts'):
                         input_string = content.parts[0].text 
@@ -146,7 +169,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
             else:
                 return "No candidates found."
         
-    def _config_model():
+    def _config_model(self):
         generation_config = {
         "max_output_tokens": 8192,
         "temperature": 1,

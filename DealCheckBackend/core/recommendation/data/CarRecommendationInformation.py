@@ -59,7 +59,7 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
         return self.depricationCurveImg
     
     def getPrice(self) -> int:
-        return self.car.getPrice()
+        return self.price
     
     def getPros(self) -> list[str]:
         self.pros

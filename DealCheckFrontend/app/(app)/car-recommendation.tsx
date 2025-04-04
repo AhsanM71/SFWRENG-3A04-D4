@@ -96,18 +96,18 @@ const CarRecommendationScreen = () => {
 
     setIsLoading(true)
 
-    // const formattedData = await formatDataForSubmission();
-    // try {
-    //   const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
-    //     formattedData
-    //   );
-    //   console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
-    //   setRecommendations([carRecommendResponse.recommendation])
-    // } catch (error: any) {
-    //   Alert.alert("Deal valuation failed: ", error.message);
-    // } finally {
-    //   setIsLoading(false)
-    // }
+    const formattedData = await formatDataForSubmission();
+    try {
+      const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
+        formattedData
+      );
+      console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+      setRecommendations([carRecommendResponse.recommendation])
+    } catch (error: any) {
+      Alert.alert("Deal valuation failed: ", error.message);
+    } finally {
+      setIsLoading(false)
+    }
 
     // Simulate API call to the recommendation agents
     setTimeout(() => {
