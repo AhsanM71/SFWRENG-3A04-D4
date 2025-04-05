@@ -3,7 +3,7 @@ from db import getCollectionRef, createDocument, getQueryResults, updateDocument
 from db import CAR_DEALCHECK_FEATURE, CollectionReference, FieldFilter, Query
 
 class DealCheckDAO:
-    def getDealCheckData(id: str) -> DealCheckData:
+    def getDealCheckData(self, id: str) -> DealCheckData:
         '''
         Gets the information of a car deal check valuation data document from the database
         
@@ -21,7 +21,7 @@ class DealCheckDAO:
         data: dict = getDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
         return DealCheckData.from_dict(data=data)
     
-    def getUserDealCheckData(userId: str) -> list[DealCheckData]:
+    def getUserDealCheckData(self, userId: str) -> list[DealCheckData]:
         '''
         Get user car deal check valuation data documents from the database
         
@@ -42,7 +42,7 @@ class DealCheckDAO:
         documents: list[dict] = getQueryResults(query)
         return map(DealCheckData.from_dict, documents)
     
-    async def updateDealCheckData(dealCheck: DealCheckData) -> DealCheckData:
+    async def updateDealCheckData(self, dealCheck: DealCheckData) -> DealCheckData:
         '''
         Updates the information of a car deal check valuation data document in the database
         
@@ -63,7 +63,7 @@ class DealCheckDAO:
         updateData: dict = updateDocument(collection=CAR_DEALCHECK_FEATURE, id=id, data=data)
         return DealCheckData.from_dict(data=updateData)
     
-    async def deleteDealCheckData(id: str) -> bool:
+    async def deleteDealCheckData(self, id: str) -> bool:
         '''
         Deletes a car deal check valuation data document from the database
         

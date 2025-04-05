@@ -3,7 +3,7 @@ from db import getCollectionRef, createDocument, getQueryResults, updateDocument
 from db import CAR_RECOMMENDATION_COLLECTION, CollectionReference, FieldFilter,Query
 
 class CarRecommendationInformationDAO:
-    def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:
+    def getCarRecommendationInformation(self, id: str) -> CarRecommendationInformation:
         '''
         Gets the information of a car recommendation information document from the database
 
@@ -21,7 +21,7 @@ class CarRecommendationInformationDAO:
         data: dict = getDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id)
         return CarRecommendationInformation.from_dict(data=data)
 
-    def getUserCarRecommendationInformation(userId: str) -> list[CarRecommendationInformation]:
+    def getUserCarRecommendationInformation(self, userId: str) -> list[CarRecommendationInformation]:
         '''
         Get the user car recommendation information documents from the database
 
@@ -35,14 +35,14 @@ class CarRecommendationInformationDAO:
         if not userId:
             raise Exception('Missing user ID!')
 
-        collectionRef: AsyncCollectionReference = getCollectionRef(collection=CAR_RECOMMENDATION_COLLECTION)
-        query: AsyncQuery = collectionRef.where(filter=FieldFilter('userId', '==', userId))
+        collectionRef: CollectionReference = getCollectionRef(collection=CAR_RECOMMENDATION_COLLECTION)
+        query: Query = collectionRef.where(filter=FieldFilter('userId', '==', userId))
 
         # Get query results and convert them to CarRecommendationInformationObjects
         documents: list[dict] = getQueryResults(query)
         return map(CarRecommendationInformation.from_dict, documents)
 
-    def updateCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def updateCarRecommendationInformation(self, carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Updates the car recommendation information document in the database
 
@@ -63,7 +63,7 @@ class CarRecommendationInformationDAO:
         updateData: dict = updateDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id, data=data)
         return CarRecommendationInformation.from_dict(updateData)
 
-    def deleteCarRecommendationInformation(id: str) -> bool:
+    def deleteCarRecommendationInformation(self, id: str) -> bool:
         '''
         Deletes a car recommendation information document from the database
 
