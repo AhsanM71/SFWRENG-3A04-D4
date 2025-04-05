@@ -105,7 +105,7 @@ class DealCheckData(FirestoreDatabaseEntity):
     def getRationale(self) -> str:
         return self.rationale
     
-    def setRationale(self, rationale: str) -> None:
+    def setRationale(self, rationale: str):
         self.rationale = rationale
     
     def getConfidence(self) -> float:
