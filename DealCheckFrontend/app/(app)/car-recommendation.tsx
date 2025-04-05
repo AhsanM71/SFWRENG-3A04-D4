@@ -11,7 +11,6 @@ const CarRecommendationScreen = () => {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
-  const [userInput, setUserInput] = useState("");
 
   const [carYear, setCarYear] = useState("");
   const [mileage, setCarMileage] = useState("");
@@ -67,7 +66,7 @@ const CarRecommendationScreen = () => {
         id: token || ""
       },
       description: {
-        user_preferences: userInput
+        user_preferences: description
       },
       recommendation: {
         price: priceInt,
@@ -120,7 +119,6 @@ const CarRecommendationScreen = () => {
 
   const resetForm = () => {
     setRecommendations(null);
-    setUserInput("");
     setCarYear("");
     setCarMileage("");
     setPreviousOwners("");
