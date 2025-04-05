@@ -71,10 +71,8 @@ class Redbook(Expert[DealCheckData]):
             filtered_df = df[
                 (df["Manufacturer"].str.lower() == filters["Manufacturer"].lower()) &
                 (df["Model"].str.lower() == filters["Model"].lower()) &
-                (df["Prod. year"].astype(int) >= filters["Prod. year"] - 1) &
-                (df["Prod. year"].astype(int) <= filters["Prod. year"] + 1) &
-                (df["Fuel type"].str.lower() == filters["Fuel type"].lower()) &
-                (df["Engine volume"].str.contains(filters["Engine volume"], na=False))
+                (df["Prod. year"].astype(int) >= filters["Prod. year"] - 5) &
+                (df["Prod. year"].astype(int) <= filters["Prod. year"] + 5)
             ]
         
         if not filtered_df.empty:
@@ -88,21 +86,18 @@ class Redbook(Expert[DealCheckData]):
             matching_attributes = sum([
                 best_match["Manufacturer"].lower() == filters["Manufacturer"].lower(),
                 best_match["Model"].lower() == filters["Model"].lower(),
-                abs(int(best_match["Prod. year"]) - filters["Prod. year"]) <= 1,
-                abs(mileage - filters["Mileage"]) <= 5000,  # Use numeric mileage here
+                abs(int(best_match["Prod. year"]) - filters["Prod. year"]) <= 5,
+                abs(mileage - filters["Mileage"]) <= 10000,  # Use numeric mileage here
                 best_match["Fuel type"].lower() == filters["Fuel type"].lower(),
                 best_match["Engine volume"] in filters["Engine volume"],
                 float(best_match["Cylinders"]) == float(filters["Cylinders"]),
                 best_match["Leather interior"].lower() == filters["Leather interior"].lower(),
                 best_match["Gear box type"].lower() == filters["Gear box type"].lower()
             ])
-            confidence = matching_attributes / 9
-            print(confidence)
-            request.setConfidence(confidence)
-
-            # print(f"Confidence: {confidence * 100:.2f}%")
-            # print(f"Closest match found: {best_match['Manufacturer']} {best_match['Model']} ({best_match['Prod. year']})")
-            # print(f"Price: ${price}")
+            confidence = (matching_attributes / 9)*100
+            format_confidence = round(confidence, 2)
+            request.setConfidence(format_confidence)
+            
             if request.getPrice() <= float(price) * 1.05:
                 request.setActual("Yes")
             else:
