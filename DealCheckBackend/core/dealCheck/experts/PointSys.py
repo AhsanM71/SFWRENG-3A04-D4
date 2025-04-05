@@ -144,6 +144,7 @@ class PointSys(Expert[DealCheckData]):
         rationale += f"- Fuel Efficiency: {max(0, filters['Fuel Efficiency'] - 10)} points (rewarding higher mpg)\n" if "Fuel Efficiency" in filters else ""
         rationale += f"- Insurance Estimate: {max(0, 500 - int(filters['Insurance Estimate'])) // 10} points (rewarding lower insurance cost)\n" if "Insurance Estimate" in filters else ""
         request.setRationale(rationale)
+        request.setExpertUsed("point_system")
         return request
 
 

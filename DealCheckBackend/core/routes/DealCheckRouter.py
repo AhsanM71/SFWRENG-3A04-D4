@@ -155,7 +155,8 @@ async def requestDealCheck():
             prediction=prediction,
             actual=actual,
             rationale=rationale,
-            confidence=confidence
+            confidence=confidence,
+            expertUsed=None
         )
         
         expertOuput: DealCheckData = await dealCheckBlackBoard.handleRequest(tempDealCheckData)
@@ -200,7 +201,8 @@ async def requestDealCheck():
                 'prediction': dealCheckData.getPrediction(),
                 'actual': dealCheckData.getActual(),
                 'rationale': dealCheckData.getRationale(),
-                'confidence': dealCheckData.getConfidence()
+                'confidence': dealCheckData.getConfidence(),
+                'expert': dealCheckData.getExpertUsed()
             }
         })
         response.status_code = 200

@@ -91,5 +91,5 @@ class AIAgent(Expert[DealCheckData]):
             request.confidence = 0
             request.actual = "NO"
             request.setRationale("Unable to make decision.")
-
+        request.setExpertUsed("ai_agent")
         return request

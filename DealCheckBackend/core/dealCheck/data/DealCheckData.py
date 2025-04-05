@@ -19,12 +19,13 @@ class DealCheckData(FirestoreDatabaseEntity):
             prediction=data['predicted'],
             actual=data['actual'],
             rationale=data['rationale'],
-            confidence=data['confidence']       
+            confidence=data['confidence'],
+            expertUsed=data['expert_used']      
         )
     
     def __init__(self, id: str, userID: str, price: int, car: Car, seller_type: str, warranty: str, inspection_completed: bool, 
                  fuel_efficiency_mpg: str, insurance_estimate: str, resale_value: str, prediction: str, actual: str, rationale: str, 
-                 confidence: float):
+                 confidence: float, expertUsed: str):
         self.id = id
         self.userId = userID
         self.price = price
@@ -39,6 +40,7 @@ class DealCheckData(FirestoreDatabaseEntity):
         self.actual = actual
         self.rationale = rationale
         self.confidence = confidence
+        self.expertUsed = expertUsed
     
     def to_dict(self):
         return {
@@ -54,7 +56,8 @@ class DealCheckData(FirestoreDatabaseEntity):
             'predicted': self.getPrediction(),
             'actual': self.getActual(),
             'rationale': self.getRationale(),
-            'confidence': self.getConfidence()
+            'confidence': self.getConfidence(),
+            'expert_used': self.getExpertUsed()
         }
     
     def getId(self) -> str:
@@ -113,4 +116,9 @@ class DealCheckData(FirestoreDatabaseEntity):
         
     def setConfidence(self, confidence: float):
         self.confidence = confidence
-        
+    
+    def getExpertUsed(self) -> str:
+        return self.expertUsed
+
+    def setExpertUsed(self, expertUsed: str):
+        self.expertUsed = expertUsed

@@ -75,6 +75,7 @@ export type ValuationResponse = APIResponse & {
     actual: string;
     confidence: number;
     rationale: string;
+    expert: string;
   };
 };
 

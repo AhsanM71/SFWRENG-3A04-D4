@@ -127,4 +127,5 @@ class Redbook(Expert[DealCheckData]):
             print("No similar car found in the dataset.")
             request.setRationale("No similar car found in the dataset. Unable to determine if the deal is good or bad.")
         request.setRationale(rationale)
+        request.setExpertUsed("redbook")
         return request
