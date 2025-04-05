@@ -5,7 +5,7 @@ from core.dealCheck.data.DealCheckDAO import DealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
-from bucket import uploadImage, uploadImageWithDeletion
+from bucket import uploadImageWithDeletion, decode_img, uploadImage
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
@@ -76,7 +76,8 @@ async def requestDealCheck():
     accident_history: bool = car_details.get('accident_history', False)
     previous_owners: int = car_details.get('previous_owners', 0)
     image: str = car_details.get('image', '')
-    
+    decode_img("./core/dealCheck/experts/saved_car.jpeg",image)
+
     if image:
         image = await uploadImageWithDeletion(IMAGE_PATH, image)
     
