@@ -119,9 +119,11 @@ async def requestDealCheck():
     if answers:
         prediction: str = answers.get('predicted')
         actual: str = answers.get('actual')
+        rationale: str = answers.get('rationale')
         confidence: float = answers.get('confidence')
     else:
         actual: str = ''
+        rationale: str = ''
         confidence: float = 0.0
     try:
         tempCar: Car = Car(
@@ -152,6 +154,7 @@ async def requestDealCheck():
             resale_value=resale_value,
             prediction=prediction,
             actual=actual,
+            rationale=rationale,
             confidence=confidence
         )
         
@@ -196,6 +199,7 @@ async def requestDealCheck():
             'answers': {
                 'prediction': dealCheckData.getPrediction(),
                 'actual': dealCheckData.getActual(),
+                'rationale': dealCheckData.getRationale(),
                 'confidence': dealCheckData.getConfidence()
             }
         })

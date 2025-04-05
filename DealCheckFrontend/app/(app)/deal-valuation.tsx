@@ -212,15 +212,15 @@ const DealValuationScreen = () => {
       setTimeout(() => {
         setIsLoading(false)
         const result: ValuationResult = {
-          decision: valuationResponse.answers.actual.split("%")[0] === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
+          decision: valuationResponse.answers.actual === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
           confidence: valuationResponse.answers.confidence,
           reports: [{
             agentName: "AI Agent",
-            decision: (valuationResponse.answers.actual.split("%")[0] === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
-            (valuationResponse.answers.actual.split("%")[0] === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
-            (valuationResponse.answers.actual.split("%")[0] === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
-            (valuationResponse.answers.actual.split("%")[0] === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
-            reasoning: valuationResponse.answers.actual.split("%")[1]
+            decision: (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
+            (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
+            (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
+            (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
+            reasoning: valuationResponse.answers.rationale
           }]
         };
         // Mock result from the 3 agents

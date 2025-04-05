@@ -17,12 +17,14 @@ class DealCheckData(FirestoreDatabaseEntity):
             insurance_estimate=data['insurance_estimate'],
             resale_value=data['resale_value'],
             prediction=data['predicted'],
-            actual=data['actual'],    
+            actual=data['actual'],
+            rationale=data['rationale'],
             confidence=data['confidence']       
         )
     
     def __init__(self, id: str, userID: str, price: int, car: Car, seller_type: str, warranty: str, inspection_completed: bool, 
-                 fuel_efficiency_mpg: str, insurance_estimate: str, resale_value: str, prediction: str, actual: str, confidence: float):
+                 fuel_efficiency_mpg: str, insurance_estimate: str, resale_value: str, prediction: str, actual: str, rationale: str, 
+                 confidence: float):
         self.id = id
         self.userId = userID
         self.price = price
@@ -35,6 +37,7 @@ class DealCheckData(FirestoreDatabaseEntity):
         self.resale_value = resale_value
         self.prediction = prediction
         self.actual = actual
+        self.rationale = rationale
         self.confidence = confidence
     
     def to_dict(self):
@@ -50,6 +53,7 @@ class DealCheckData(FirestoreDatabaseEntity):
             'resale_value': self.getResaleValue(),
             'predicted': self.getPrediction(),
             'actual': self.getActual(),
+            'rationale': self.getRationale(),
             'confidence': self.getConfidence()
         }
     
@@ -94,6 +98,12 @@ class DealCheckData(FirestoreDatabaseEntity):
     
     def getActual(self) -> str:
         return self.actual
+    
+    def getRationale(self) -> str:
+        return self.rationale
+    
+    def setRationale(self, rationale: str) -> None:
+        self.rationale = rationale
     
     def getConfidence(self) -> float:
         return self.confidence

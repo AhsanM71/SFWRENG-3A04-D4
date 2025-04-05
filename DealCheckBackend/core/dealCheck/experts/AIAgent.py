@@ -85,9 +85,11 @@ class AIAgent(Expert[DealCheckData]):
             confidence = int(match.group(2))
             rationale = match.group(3)
             request.confidence = confidence
-            request.actual = f"{prediction}%{rationale}"
+            request.actual = prediction
+            request.setRationale(rationale)
         else:
             request.confidence = 0
-            request.actual = "NO%Unable to make decision."
+            request.actual = "NO"
+            request.setRationale("Unable to make decision.")
 
         return request
