@@ -6,6 +6,7 @@ import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
 import { useAuth } from "@/context/AuthContext"
 import { carRecommendRequest, CarRecommendResponse } from "@/api/carRecommend"
+import { getStorageImgDownloadURL } from "@/FirebaseConfig"
 
 const CarRecommendationScreen = () => {
   const [description, setDescription] = useState("")
@@ -24,7 +25,10 @@ const CarRecommendationScreen = () => {
   const [listOfPros, setListOfPros] = useState([]);
   const [listOfCons, setListOfCons] = useState([]);
   const [overallDescription, setOverallDescription] = useState("");
+
   const [depreciationCurveSrc, setDepreciationCurveSrc] = useState("");
+  const [depreciationCurve, setDepreciationCurve] = useState("");
+
 
   const params = useLocalSearchParams()
   const { user, loading, reload } = useAuth()
@@ -100,7 +104,9 @@ const CarRecommendationScreen = () => {
       const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
         formattedData
       );
-      console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+      // console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+      const depreciationCurveURI = await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc)
+      setDepreciationCurve(depreciationCurveURI)
       setRecommendations([carRecommendResponse.recommendation])
     } catch (error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
@@ -108,13 +114,13 @@ const CarRecommendationScreen = () => {
       setIsLoading(false)
     }
 
-    // Simulate API call to the recommendation agents
-    setTimeout(() => {
-      setIsLoading(false)
+    // // Simulate API call to the recommendation agents
+    // setTimeout(() => {
+    //   setIsLoading(false)
 
-      // Mock recommendations
-      setRecommendations(mockRecommendations)
-    }, 2000)
+    //   // Mock recommendations
+    //   setRecommendations(mockRecommendations)
+    // }, 2000)
   }
 
   const resetForm = () => {
@@ -133,6 +139,7 @@ const CarRecommendationScreen = () => {
     setOverallDescription("");
     setDepreciationCurveSrc("");
     setExpandedItems({});
+    setDepreciationCurve("");
   };
 
   return (
@@ -215,8 +222,8 @@ const CarRecommendationScreen = () => {
                     </Text>
                   </TouchableOpacity>
                   <Text style={styles.rationale}>Depreciation Curve</Text>
-                  <View style={styles.carImageContainer}>
-                    <Image source={mockDepreciationCurve} style={styles.carImage} />
+                  <View style={styles.depreciationCurveContainer}>
+                    <Image source={{ uri: depreciationCurve }} style={styles.depreciationCurve} />
                   </View>
                 </View>
               </View>
@@ -404,6 +411,13 @@ const styles = StyleSheet.create({
     color: '#3498db',
     fontSize: 14,
     marginTop: 5,
+  },
+  depreciationCurveContainer: {
+    padding: 15
+  },
+  depreciationCurve: {
+    width: "100%",
+    height: 180
   },
 })
 
