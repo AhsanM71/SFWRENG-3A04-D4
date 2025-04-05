@@ -29,6 +29,9 @@ const CarRecommendationScreen = () => {
   const [depreciationCurveSrc, setDepreciationCurveSrc] = useState("");
   const [depreciationCurve, setDepreciationCurve] = useState("");
 
+  const [carRecommendationSrc, setCarRecommendationSrc] = useState("");
+  const [carRecommendation, setCarRecommendation] = useState("");
+
 
   const params = useLocalSearchParams()
   const { user, loading, reload } = useAuth()
@@ -82,7 +85,7 @@ const CarRecommendationScreen = () => {
         condition: carCondition,
         accident_history: accidentHistory,
         previous_owners: ownersInt,
-        image: null,
+        image: carRecommendationSrc,
         description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`,
         pros: listOfPros,
         cons: listOfCons,
@@ -106,7 +109,9 @@ const CarRecommendationScreen = () => {
       );
       // console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
       const depreciationCurveURI = await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc)
+      const carRecommendationURI = carRecommendResponse.recommendation.image ? await getStorageImgDownloadURL(carRecommendResponse.recommendation.image) : "";
       setDepreciationCurve(depreciationCurveURI)
+      setCarRecommendation(carRecommendationURI)
       setRecommendations([carRecommendResponse.recommendation])
     } catch (error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
@@ -140,6 +145,8 @@ const CarRecommendationScreen = () => {
     setDepreciationCurveSrc("");
     setExpandedItems({});
     setDepreciationCurve("");
+    setCarRecommendation("");
+    setCarRecommendationSrc("");
   };
 
   return (
@@ -184,7 +191,7 @@ const CarRecommendationScreen = () => {
             {recommendations.map((car, index) => (
               <View key={index} style={styles.carCard}>
                 <View style={styles.carImageContainer}>
-                  <Image source={car.image ? carImages[car.image] : { uri: "https://via.placeholder.com/300x200" }} style={styles.carImage} />
+                  <Image source={{ uri: carRecommendation }} style={styles.carImage} />
                 </View>
                 <View style={styles.carInfo}>
                   <Text style={styles.carTitle}>
