@@ -1,6 +1,6 @@
 from core.data.car.Car import Car
 from vertexai.preview.vision_models import ImageGenerationModel
-from bucket import uploadImage, _delete_img
+from bucket import uploadImage, delete_img
 import vertexai
 import asyncio
 import os
@@ -36,6 +36,6 @@ async def generateCarImg(car: Car):
     print(f"Image saved at: {path}")
 
     imgName: str = await uploadImage(path)
-    _delete_img(path)
+    delete_img(path)
 
     return imgName
