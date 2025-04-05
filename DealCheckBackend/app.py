@@ -11,9 +11,10 @@ if __name__ == '__main__':
 
     # Import firebase config so the firebase admin sdk is setup wherever imported.
     import FirebaseConfig
-    from core import authenticaion_blueprint, dealcheck_blueprint
+    from core import authenticaion_blueprint, dealcheck_blueprint, carrecommendation_blueprint
 
     app.register_blueprint(authenticaion_blueprint, url_prefix="/auth")
     app.register_blueprint(dealcheck_blueprint, url_prefix='/val')
+    app.register_blueprint(carrecommendation_blueprint, url_prefix='/recommend')
     
     app.run(host='0.0.0.0',port=8001,debug=True)

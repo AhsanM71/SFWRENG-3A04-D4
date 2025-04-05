@@ -1,6 +1,6 @@
-from CarRecommendationInformation import CarRecommendationInformation
+from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 from db import getCollectionRef, createDocument, getQueryResults, updateDocument, deleteDocument, getDocument
-from db import CAR_RECOMMENDATION_COLLECTION, AsyncCollectionReference, FieldFilter, AsyncQuery
+from db import CAR_RECOMMENDATION_COLLECTION, CollectionReference, FieldFilter,Query
 
 class CarRecommendationInformationDAO:
     def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:
@@ -80,7 +80,7 @@ class CarRecommendationInformationDAO:
         deleteDocument(CAR_RECOMMENDATION_COLLECTION, id=id)
         return True
 
-    def addCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def addCarRecommendationInformation(self, carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Adds a car recommendation information document to the database
 

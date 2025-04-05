@@ -9,6 +9,10 @@ export const dealCheckAPI = axios.create({
     baseURL: API_URL
 });
 
+export const carRecommendationAPI = axios.create({
+    baseURL: API_URL
+});
+
 export type APIResponse = {
     success: boolean,
     msg: string

@@ -3,6 +3,8 @@ from vertexai.preview.vision_models import ImageGenerationModel
 from bucket import uploadImage, _delete_img
 import vertexai
 import asyncio
+import os
+from uuid import uuid4
 
 vertexai.init(project="dealcheck", location="us-central1")
 
@@ -26,9 +28,13 @@ async def generateCarImg(car: Car):
         safety_filter_level="",
         add_watermark=True,
     )
+    
+    file_name = f"car_{uuid4().hex}.png"
+    path: str = os.path.join('./', file_name)
 
-    path: str = './car'
     images[0].save(path)
+    print(f"Image saved at: {path}")
+
     imgName: str = await uploadImage(path)
     _delete_img(path)
 

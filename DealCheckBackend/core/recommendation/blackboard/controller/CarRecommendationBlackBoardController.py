@@ -1,5 +1,5 @@
 from core.blackboard import BlackBoardController, Expert
-from data.CarRecommendationInformation import CarRecommendationInformation
+from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 
 class CarRecommendationBlackBoardController(BlackBoardController[CarRecommendationInformation]):
     def __init__(self, carRecommendationExpert: Expert[CarRecommendationInformation]):
@@ -7,4 +7,5 @@ class CarRecommendationBlackBoardController(BlackBoardController[CarRecommendati
         self.carRecommendationExpert: Expert[CarRecommendationInformation] = carRecommendationExpert
     
     async def handleRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
-        pass
+        data: CarRecommendationInformation = await self.carRecommendationExpert.evaluateRequest(request=request)
+        return data

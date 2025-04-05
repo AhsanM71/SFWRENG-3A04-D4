@@ -11,16 +11,22 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
             description=data['description'],
             carRecommendation=data['carRecommendation'],
             car=Car.from_dict(data['car']),
-            depricationCurveSrc=data['depricationCurveSrc']
+            depricationCurveImg=data['depricationCurveImg'],
+            price=data['price'],
+            pros=data['pros'],
+            cons=data['cons']
         )
 
-    def __init__(self, id: str, userId: str, description: str, carRecommendation: str, car: Car, depricationCurveSrc: str):
+    def __init__(self, id: str, userId: str, description: str, carRecommendation: str, car: Car, depricationCurveImg: str, price: int, pros: list[str], cons: list[str]):
         self.id = id
         self.userId = userId
         self.description = description
         self.carRecommendation = carRecommendation
         self.car = car
-        self.depricationCurveSrc = depricationCurveSrc
+        self.depricationCurveImg = depricationCurveImg
+        self.price = price
+        self.pros = pros
+        self.cons = cons
 
     def to_dict(self) -> dict:
         return {
@@ -28,7 +34,10 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
             'description': self.getDescription(),
             'carRecommendation': self.getCarRecommendation(),
             'car': getDocumentReference(CARS_COLLECTION, self.car.getId()),
-            'depricationCurveSrc': self.getDepricationCurveSrc()
+            'depricationCurveImg': self.getDepricationCurveImg(),
+            'price': self.getPrice(),
+            'pros': self.getPros(),
+            'cons':self.getCons()
         }
 
     def getId(self) -> str:
@@ -46,5 +55,32 @@ class CarRecommendationInformation(FirestoreDatabaseEntity):
     def getCar(self) -> str:
         return self.car
     
-    def getDepricationCurveSrc(self) -> str:
-        return self.depricationCurveSrc
+    def getDepricationCurveImg(self) -> str:
+        return self.depricationCurveImg
+    
+    def getPrice(self) -> int:
+        return self.price
+    
+    def getPros(self) -> list[str]:
+        return self.pros
+        
+    def getCons(self) -> list[str]:
+        return self.cons
+    
+    def setDepricationCurveImg(self, depricationCurveImg: str):
+        self.depricationCurveImg = depricationCurveImg
+    
+    def setPros(self, pros: list[str]):
+        self.pros = pros
+    
+    def setCons(self, cons: list[str]):
+        self.cons = cons
+    
+    def setCarRecommendation(self, carRecommendation: str):
+        self.carRecommendation = carRecommendation
+    
+    def setCar(self, car: Car):
+        self.car = car
+    
+    def setPrice(self, price: int):
+        self.price = price

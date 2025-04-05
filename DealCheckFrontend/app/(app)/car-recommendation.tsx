@@ -1,21 +1,53 @@
 import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
+import { View, Text, StyleSheet, ScrollView, TextInput, Alert, TouchableOpacity, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from "react-native"
 import { Feather } from "@expo/vector-icons"
-import { carImages, mockRecommendations } from "@/constants"
+import { carImages, mockDepreciationCurve, mockRecommendations } from "@/constants"
 import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
+import { useAuth } from "@/context/AuthContext"
+import { carRecommendRequest, CarRecommendResponse } from "@/api/carRecommend"
+import { getStorageImgDownloadURL } from "@/FirebaseConfig"
 
 const CarRecommendationScreen = () => {
-  const [budget, setBudget] = useState("")
-  const [purpose, setPurpose] = useState("")
-  const [preferences, setPreferences] = useState("")
+  const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [recommendations, setRecommendations] = useState<null | Array<Recommendation>>(null)
+
+  const [carYear, setCarYear] = useState("");
+  const [mileage, setCarMileage] = useState("");
+  const [previousOwners, setPreviousOwners] = useState("");
+  const [price, setPrice] = useState("");
+  const [carMake, setCarMake] = useState("");
+  const [carModel, setCarModel] = useState("");
+  const [carTrim, setCarTrim] = useState("");
+  const [carCondition, setCarCondition] = useState("");
+  const [accidentHistory, setAccidentHistory] = useState("");
+  const [listOfPros, setListOfPros] = useState([]);
+  const [listOfCons, setListOfCons] = useState([]);
+  const [overallDescription, setOverallDescription] = useState("");
+
+  const [depreciationCurveSrc, setDepreciationCurveSrc] = useState("");
+  const [depreciationCurve, setDepreciationCurve] = useState("");
+
+  const [carRecommendationSrc, setCarRecommendationSrc] = useState("");
+  const [carRecommendation, setCarRecommendation] = useState("");
+
+
   const params = useLocalSearchParams()
+  const { user, loading, reload } = useAuth()
+
+  const [expandedItems, setExpandedItems] = useState<{ [key: number]: boolean }>({})
+
+  const toggleExpand = (id: number) => {
+    setExpandedItems((prevState) => ({
+      ...prevState,
+      [id]: !prevState[id],
+    }));
+  };
 
   useEffect(() => {
     let parsedRecommendations: Array<Recommendation> | null = null;
-  
+
     if (params?.recommendations && typeof params.recommendations === "string") {
       try {
         parsedRecommendations = JSON.parse(params.recommendations);
@@ -23,33 +55,99 @@ const CarRecommendationScreen = () => {
         console.error("Failed to parse recommendations:", error);
       }
     }
-  
+
     setRecommendations(parsedRecommendations);
   }, []);
-  
 
-  const handleSubmit = () => {
-    if (!budget || !purpose) {
+  const formatDataForSubmission = () => {
+    // Convert string values to numbers where needed
+    const yearInt = parseInt(carYear) || 0;
+    const mileageInt = parseInt(mileage) || 0;
+    const priceInt = parseInt(price) || 0;
+    const ownersInt = parseInt(previousOwners) || 1;
+
+    const token = user?.uid
+
+    return {
+      user_id: {
+        id: token || ""
+      },
+      description: {
+        user_preferences: description
+      },
+      recommendation: {
+        price: priceInt,
+        make: carMake,
+        model: carModel,
+        year: yearInt,
+        trim: carTrim,
+        mileage: mileageInt,
+        condition: carCondition,
+        accident_history: accidentHistory,
+        previous_owners: ownersInt,
+        image: carRecommendationSrc,
+        description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`,
+        pros: listOfPros,
+        cons: listOfCons,
+        overall_description: overallDescription,
+        depreciationCurveSrc: depreciationCurveSrc,
+      }
+    };
+  };
+
+  const handleSubmit = async () => {
+    if (!description) {
       return
     }
 
     setIsLoading(true)
 
-    // Simulate API call to the recommendation agents
-    setTimeout(() => {
+    const formattedData = await formatDataForSubmission();
+    try {
+      const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
+        formattedData
+      );
+      // console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+      const depreciationCurveURI = await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc)
+      const carRecommendationURI = carRecommendResponse.recommendation.image ? await getStorageImgDownloadURL(carRecommendResponse.recommendation.image) : "";
+      setDepreciationCurve(depreciationCurveURI)
+      setCarRecommendation(carRecommendationURI)
+      setRecommendations([carRecommendResponse.recommendation])
+    } catch (error: any) {
+      Alert.alert("Deal valuation failed: ", error.message);
+    } finally {
       setIsLoading(false)
+    }
 
-      // Mock recommendations
-      setRecommendations(mockRecommendations)
-    }, 2000)
+    // // Simulate API call to the recommendation agents
+    // setTimeout(() => {
+    //   setIsLoading(false)
+
+    //   // Mock recommendations
+    //   setRecommendations(mockRecommendations)
+    // }, 2000)
   }
 
   const resetForm = () => {
-    setBudget("")
-    setPurpose("")
-    setPreferences("")
-    setRecommendations(null)
-  }
+    setRecommendations(null);
+    setCarYear("");
+    setCarMileage("");
+    setPreviousOwners("");
+    setPrice("");
+    setCarMake("");
+    setCarModel("");
+    setCarTrim("");
+    setCarCondition("");
+    setAccidentHistory("");
+    setListOfPros([]);
+    setListOfCons([]);
+    setOverallDescription("");
+    setDepreciationCurveSrc("");
+    setExpandedItems({});
+    setDepreciationCurve("");
+    setCarRecommendation("");
+    setCarRecommendationSrc("");
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.container}>
@@ -65,35 +163,13 @@ const CarRecommendationScreen = () => {
         {!recommendations ? (
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Budget*</Text>
+              <Text style={styles.label}>Description*</Text>
               <TextInput
-                style={styles.input}
-                value={budget}
-                onChangeText={setBudget}
-                placeholder="e.g., $25,000"
-                keyboardType="number-pad"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Primary Purpose*</Text>
-              <TextInput
-                style={styles.input}
-                value={purpose}
-                onChangeText={setPurpose}
-                placeholder="e.g., Family car, commuting, off-road"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Additional Preferences (Optional)</Text>
-              <TextInput
-                style={[styles.input, styles.textArea]}
-                value={preferences}
-                onChangeText={setPreferences}
-                placeholder="e.g., Fuel efficiency, safety features, tech features, etc."
-                multiline
-                numberOfLines={4}
+                style={[styles.input]}
+                value={description}
+                onChangeText={setDescription}
+                placeholder="e.g. budget, purpose, preferences, etc."
+                multiline={true}
               />
             </View>
 
@@ -114,8 +190,9 @@ const CarRecommendationScreen = () => {
 
             {recommendations.map((car, index) => (
               <View key={index} style={styles.carCard}>
-                <Image source={carImages[car.image] || { uri: "https://via.placeholder.com/300x200" }} style={styles.carImage} />
-
+                <View style={styles.carImageContainer}>
+                  <Image source={{ uri: carRecommendation }} style={styles.carImage} />
+                </View>
                 <View style={styles.carInfo}>
                   <Text style={styles.carTitle}>
                     {car.year} {car.make} {car.model}
@@ -144,10 +221,17 @@ const CarRecommendationScreen = () => {
                       ))}
                     </View>
                   </View>
-
-                  <TouchableOpacity style={styles.findDealsButton}>
-                    <Text style={styles.findDealsButtonText}>Find Deals</Text>
+                  <Text style={styles.rationale}>Rationale</Text>
+                  <TouchableOpacity style={styles.rationaleContainer} onPress={() => toggleExpand(index)}>
+                    <Text style={styles.carDescription} numberOfLines={expandedItems[index] ? 0 : 3}>{car.overall_description}</Text>
+                    <Text style={styles.showMoreText}>
+                      {expandedItems[index] ? 'Show Less' : 'Show More'}
+                    </Text>
                   </TouchableOpacity>
+                  <Text style={styles.rationale}>Depreciation Curve</Text>
+                  <View style={styles.depreciationCurveContainer}>
+                    <Image source={{ uri: depreciationCurve }} style={styles.depreciationCurve} />
+                  </View>
                 </View>
               </View>
             ))}
@@ -203,6 +287,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ddd",
     fontSize: 16,
+    minHeight: 100,
+    textAlignVertical: 'top',
   },
   textArea: {
     height: 100,
@@ -239,6 +325,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderWidth: 1,
     borderColor: "#eee",
+  },
+  carImageContainer: {
+    padding: 15
   },
   carImage: {
     width: "100%",
@@ -315,6 +404,27 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  rationale: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#2c3e50",
+    marginTop: 16,
+  },
+  rationaleContainer: {
+    marginBottom: 15,
+  },
+  showMoreText: {
+    color: '#3498db',
+    fontSize: 14,
+    marginTop: 5,
+  },
+  depreciationCurveContainer: {
+    padding: 15
+  },
+  depreciationCurve: {
+    width: "100%",
+    height: 180
   },
 })
 

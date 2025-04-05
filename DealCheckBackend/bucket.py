@@ -27,7 +27,7 @@ async def uploadImage(filePath: str) -> str:
     await asyncio.to_thread(blob.upload_from_filename, filename=filePath, content_type=contentType)
     # The name of the file in firebase storage
     return randName
-
+    
 async def uploadImageWithDeletion(filePath: str, image: str) -> str:
     '''
     Uploads an image from the disk to firebase storage
