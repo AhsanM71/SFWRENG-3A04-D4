@@ -6,6 +6,7 @@ from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
 from bucket import uploadImageWithDeletion, decode_img, uploadImage
+from core.ai import CarImgGeneratorAI
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
@@ -75,13 +76,16 @@ async def requestDealCheck():
     condition: str = car_details.get('condition', 'Unknown')
     accident_history: bool = car_details.get('accident_history', False)
     previous_owners: int = car_details.get('previous_owners', 0)
-    image: str = car_details.get('image', '')
-    decode_img("./core/dealCheck/experts/saved_car.jpeg",image)
-
+    image: str = car_details.get('image', None)
+    
     if image:
+        decode_img("./core/dealCheck/experts/saved_car.jpeg",image)
         image = await uploadImageWithDeletion(IMAGE_PATH, image)
     
-    description: str = car_details.get('description', '')
+    description: str = car_details.get('description')
+    
+    if description == "":
+        description = None
     
     pricing: dict = data.get('pricing')
     
@@ -154,6 +158,10 @@ async def requestDealCheck():
         expertOuput: DealCheckData = await dealCheckBlackBoard.handleRequest(tempDealCheckData)
         
         dealCheckData: DealCheckData = dealCheckDAO.addDealCheckData(expertOuput)
+        if dealCheckData.getCar().getImageSource() is None:
+            image: str = await CarImgGeneratorAI.generateCarImg(dealCheckData.getCar())
+            dealCheckData.getCar().setImage(image)
+
         response = jsonify({
             'success': True,
             'msg': 'DealCheck Valuation successful!',

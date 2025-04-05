@@ -7,9 +7,9 @@ class PointSys(Expert[DealCheckData]):
     async def evaluateRequest(self, request: DealCheckData) -> DealCheckData:
         self.queue.append(request)
         id: int = len(self.queue) - 1
-        return await self._processRequest(id=id)
+        return await self._process_request(id=id)
 
-    def process_request(self, id: str) -> DealCheckData:
+    async def _process_request(self, id: str) -> DealCheckData:
         request: DealCheckData = self.queue[id]
         del self.queue[id]
 

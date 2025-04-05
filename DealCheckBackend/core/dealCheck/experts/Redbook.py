@@ -97,6 +97,7 @@ class Redbook(Expert[DealCheckData]):
                 best_match["Gear box type"].lower() == filters["Gear box type"].lower()
             ])
             confidence = matching_attributes / 9
+            print(confidence)
             request.setConfidence(confidence)
 
             # print(f"Confidence: {confidence * 100:.2f}%")
