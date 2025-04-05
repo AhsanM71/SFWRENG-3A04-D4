@@ -18,7 +18,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
     _IMAGE_PATH = "decoded_image.jpg"
     async def evaluateRequest(self, request: CarRecommendationInformation) -> CarRecommendationInformation:
         request: CarRecommendationInformation = await self._generateScenarioBasedRecommendation(request)
-        image: str = await self._generateDepricationCurve(request.getCar())
+        image: str = await self._generateDepricationCurve(request.getCar(), request.getPrice())
         request.setDepricationCurveImg(image)
 
         return request
@@ -50,7 +50,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
             pros (List of advantages)
             cons (List of disadvantages)
             overall_description (A brief explanation of why this car is a good recommendation for my needs)
-            Return the response in a structured JSON format.""")
+            Return the response in a structured JSON format Wrap the entire output in an outer body called recommendation.""")
         
         model = "gemini-2.0-flash-001"
         contents = [
@@ -83,13 +83,13 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         info.setCons(data["recommendation"]["cons"])
         return info        
 
-    async def _generateDepricationCurve(self, car: Car) -> str:
+    async def _generateDepricationCurve(self, car: Car, price: int) -> str:
         generation_config, safety_settings = self._config_model()
         year = car.getYear()
         make = car.getMake()
         model = car.getModel()
         
-        deprecationCurvePrompt = f"""Write a Python script to generate and save a depreciation curve using plt.savefig for the {year} {make} {model} using Matplotlib. Choose logical X and Y values. Don't use plt.show() and ensure the path where the image is saved is \"{self._IMAGE_PATH}\" Example:
+        deprecationCurvePrompt = f"""Write a Python script to generate and save a depreciation curve using plt.savefig for the {year} {make} {model} using Matplotlib with starting price of {price}. Think step by step when generating the python code for the depreciation curve, a hypercar and doesn't depreciate like normal cars (sometimes it even appreciates). Choose logical X and Y values. Don't use plt.show() and ensure the path where the image is saved is \"{self._IMAGE_PATH}\" Example:
         import numpy as np
         import matplotlib.pyplot as plt
 
