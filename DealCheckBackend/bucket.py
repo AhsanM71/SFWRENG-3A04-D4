@@ -25,7 +25,6 @@ async def uploadImage(filePath: str) -> str:
 
     # Asynchronously upload the file to firebase storage
     await asyncio.to_thread(blob.upload_from_filename, filename=filePath, content_type=contentType)
-
     # The name of the file in firebase storage
     return randName
 

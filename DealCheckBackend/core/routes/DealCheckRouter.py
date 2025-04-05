@@ -5,7 +5,7 @@ from core.dealCheck.data.DealCheckDAO import DealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
 from core.data.car.CarDAO import CarDAO
 from core.data.car.Car import Car
-from bucket import uploadImageWithDeletion, decode_img
+from bucket import uploadImageWithDeletion, decode_img, uploadImage
 
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)

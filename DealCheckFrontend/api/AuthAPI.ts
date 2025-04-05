@@ -1,7 +1,7 @@
 import { APIResponse, dealCheckAPI } from "@/api/API";
 
 async function sendAuthRequest<T>(path: string, data: object): Promise<T> {
-    const response = await dealCheckAPI.post<T>(path, data);
+    const response = await dealCheckAPI.post<T>('/auth'+path, data);
     const responseData: T = response.data;
     return responseData;
 }
@@ -18,7 +18,7 @@ export type LoginResponse = APIResponse & {
  * @returns The response of the login API request
  */
 export async function loginRequest(email: string, password: string): Promise<LoginResponse> {
-    const login: LoginResponse = await sendAuthRequest<LoginResponse>('/auth/login', { email: email, password: password });
+    const login: LoginResponse = await sendAuthRequest<LoginResponse>('/login', { email: email, password: password });
     return login;
 }
 
@@ -36,7 +36,7 @@ export type RegistrationResponse = APIResponse & {
  * @returns The registration API response
  */
 export async function registrationRequest(email: string, password: string, username: string, phoneNumber: string): Promise<RegistrationResponse> {
-    const signup: RegistrationResponse = await sendAuthRequest<RegistrationResponse>('/auth/signup', {
+    const signup: RegistrationResponse = await sendAuthRequest<RegistrationResponse>('/signup', {
         username: username,
         email: email,
         password: password,
@@ -53,7 +53,7 @@ export type LogoutResponse = APIResponse;
  * @returns The response of the logout API request
  */
 export async function logoutRequest(token: string | undefined): Promise<LogoutResponse> {
-    const logout: LogoutResponse = await sendAuthRequest<LogoutResponse>('/auth/logout', { token: token });
+    const logout: LogoutResponse = await sendAuthRequest<LogoutResponse>('/logout', { token: token });
     return logout
 }
 
@@ -76,7 +76,7 @@ export async function editRequest(token: string | undefined, username: string, e
     if(!password)
         password = 'N/A___INAPPLICABLE';
 
-    const edit: EditAccountResponse = await sendAuthRequest<EditAccountResponse>('/auth/account/edit', {
+    const edit: EditAccountResponse = await sendAuthRequest<EditAccountResponse>('/account/edit', {
         token: token,
         username: username,
         email: email,
