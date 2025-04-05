@@ -27,7 +27,7 @@ async def uploadImage(filePath: str) -> str:
     await asyncio.to_thread(blob.upload_from_filename, filename=filePath, content_type=contentType)
     # The name of the file in firebase storage
     return randName
-        
+    
 async def uploadImageWithDeletion(filePath: str, image: str) -> str:
     '''
     Uploads an image from the disk to firebase storage
@@ -38,7 +38,7 @@ async def uploadImageWithDeletion(filePath: str, image: str) -> str:
     Returns:
         str: The name of the file in firebase storage, which can be used to generate a download url
     '''
-    _decode_img(filePath, image)
+    decode_img(filePath, image)
     randName = uuid4().hex
     blob = bucket.blob(randName)
 
@@ -49,14 +49,14 @@ async def uploadImageWithDeletion(filePath: str, image: str) -> str:
 
     # Asynchronously upload the file to firebase storage
     await asyncio.to_thread(blob.upload_from_filename, filename=filePath, content_type=contentType)
-    _delete_img(filePath)
+    delete_img(filePath)
     # The name of the file in firebase storage
     return randName
 
-def _decode_img(path: str, base64_string: str):
+def decode_img(path: str, base64_string: str):
     with open(path, "wb") as out_file:
         out_file.write(base64.b64decode(base64_string))
 
-def _delete_img(path):
+def delete_img(path):
     if os.path.exists(path):
         os.remove(path)

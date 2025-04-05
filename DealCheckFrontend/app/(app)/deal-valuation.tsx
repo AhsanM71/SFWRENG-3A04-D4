@@ -167,7 +167,7 @@ const DealValuationScreen = () => {
         accident_history: accidentHistory,
         previous_owners: ownersInt,
         image: imageBase64,
-        description: description || `${yearInt} ${carMake} ${carModel} ${carTrim} with ${mileageInt} miles`
+        description: description
       },
       pricing: {
         listed_price: priceInt
@@ -207,22 +207,31 @@ const DealValuationScreen = () => {
         formattedData
       );
       
-      // console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
+
+      setTimeout(() => {
+        setIsLoading(false)
+        const result: ValuationResult = {
+          decision: valuationResponse.answers.actual.split("%")[0] === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
+          confidence: valuationResponse.answers.confidence,
+          reports: [{
+            agentName: "AI Agent",
+            decision: (valuationResponse.answers.actual.split("%")[0] === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
+            (valuationResponse.answers.actual.split("%")[0] === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
+            (valuationResponse.answers.actual.split("%")[0] === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
+            (valuationResponse.answers.actual.split("%")[0] === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
+            reasoning: valuationResponse.answers.actual.split("%")[1]
+          }]
+        };
+        // Mock result from the 3 agents
+        setResult(result)
+        
+      }, 10000)
 
     } catch(error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
       setIsLoading(false)
     }
-
-    // console.log("Submitting data:", JSON.stringify(formattedData,null,2));
-
-    // Simulate API call to the agents
-    setTimeout(() => {
-      setIsLoading(false)
-
-      // Mock result from the 3 agents
-      setResult(mockValuationResults[0])
-    }, 2000)
   }
 
   const resetForm = () => {
@@ -449,7 +458,7 @@ const DealValuationScreen = () => {
 
       {/* Description Input */}
       <View style={[styles.inputGroup, { marginTop: fuelTypeOpen ? 100 : 15 }]}>
-        <Text style={styles.label}>Condition (Optional)</Text>
+        <Text style={styles.label}>Description (Optional)</Text>
         <TextInput
           style={[styles.input, styles.textArea]}
           value={description}

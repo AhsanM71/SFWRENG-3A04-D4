@@ -28,7 +28,7 @@ async def generateCarImg(car: Car):
         safety_filter_level="",
         add_watermark=True,
     )
-
+    
     file_name = f"car_{uuid4().hex}.png"
     path: str = os.path.join('./', file_name)
 
@@ -36,7 +36,6 @@ async def generateCarImg(car: Car):
     print(f"Image saved at: {path}")
 
     imgName: str = await uploadImage(path)
-
     _delete_img(path)
 
     return imgName
