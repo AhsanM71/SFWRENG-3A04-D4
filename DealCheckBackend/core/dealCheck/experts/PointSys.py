@@ -115,8 +115,9 @@ class PointSys(Expert[DealCheckData]):
             pass
 
         # Confidence score (how many fields were successfully extracted)
-        confidence = successfully_extracted / total_fields
-        request.setConfidence(confidence)
+        confidence = (successfully_extracted / total_fields)*100
+        format_confidence = round(confidence, 2)
+        request.setConfidence(format_confidence)
 
         # Final classification (Yes/No based on score)
         if score >= 70:
