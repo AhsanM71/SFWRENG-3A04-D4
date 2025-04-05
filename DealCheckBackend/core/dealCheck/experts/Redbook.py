@@ -16,7 +16,7 @@ class Redbook(Expert[DealCheckData]):
 
         df = pd.read_csv("core/dealCheck/experts/Corpus/redbook.csv")
         description = request.getDescription()
-        
+
         patterns = {
         "engine_volume": r"(\d+(\.\d+)?)L",
         "cylinders": r"(\d+)-cylinder",
@@ -100,9 +100,31 @@ class Redbook(Expert[DealCheckData]):
             
             if request.getPrice() <= float(price) * 1.05:
                 request.setActual("Yes")
+                deal_status = "good"
             else:
                 request.setActual("No")
+                deal_status = "bad"
             
+            # Generate rationale
+            rationale = f"The deal is considered {deal_status} because:\n"
+            rationale += f"- Confidence score: {format_confidence}%\n"
+            rationale += f"- The closest match in the dataset is a {best_match['Prod. year']} {best_match['Manufacturer']} {best_match['Model']} priced at ${price}.\n"
+            rationale += f"- Your car's mileage ({filters['Mileage']} km) is {'close to' if abs(mileage - filters['Mileage']) <= 10000 else 'different from'} the matched car's mileage ({mileage} km).\n"
+            rationale += f"- Your car's price (${request.getPrice()}) is {'within' if request.getPrice() <= float(price) * 1.05 else 'above'} 5% of the matched car's price.\n"
+
+            # Add details about matching attributes
+            rationale += "Matching attributes:\n"
+            rationale += f"- Manufacturer: {'Matched' if best_match['Manufacturer'].lower() == filters['Manufacturer'].lower() else 'Not Matched'}\n"
+            rationale += f"- Model: {'Matched' if best_match['Model'].lower() == filters['Model'].lower() else 'Not Matched'}\n"
+            rationale += f"- Production Year: {'Matched' if abs(int(best_match['Prod. year']) - filters['Prod. year']) <= 5 else 'Not Matched'}\n"
+            rationale += f"- Mileage: {'Matched' if abs(mileage - filters['Mileage']) <= 10000 else 'Not Matched'}\n"
+            rationale += f"- Fuel Type: {'Matched' if best_match['Fuel type'].lower() == filters['Fuel type'].lower() else 'Not Matched'}\n"
+            rationale += f"- Engine Volume: {'Matched' if best_match['Engine volume'] in filters['Engine volume'] else 'Not Matched'}\n"
+            rationale += f"- Cylinders: {'Matched' if float(best_match['Cylinders']) == float(filters['Cylinders']) else 'Not Matched'}\n"
+            rationale += f"- Leather Interior: {'Matched' if best_match['Leather interior'].lower() == filters['Leather interior'].lower() else 'Not Matched'}\n"
+            rationale += f"- Gearbox Type: {'Matched' if best_match['Gear box type'].lower() == filters['Gear box type'].lower() else 'Not Matched'}\n"
         else:
             print("No similar car found in the dataset.")
+            request.setRationale("No similar car found in the dataset. Unable to determine if the deal is good or bad.")
+        request.setRationale(rationale)
         return request
