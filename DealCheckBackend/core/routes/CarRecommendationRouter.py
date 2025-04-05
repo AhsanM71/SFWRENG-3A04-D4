@@ -3,6 +3,7 @@ from core import carrecommendation_blueprint
 from core.recommendation.blackboard.CarRecommendationBlackBoard import CarRecommendationBlackBoard
 from core.recommendation.data.CarRecommendationInformationDAO import CarRecommendationInformationDAO
 from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
+from core.ai import CarImgGeneratorAI
 
 carRecommendDAO: CarRecommendationInformationDAO = CarRecommendationInformationDAO()
 carRecommendBlackBoard: CarRecommendationBlackBoard = CarRecommendationBlackBoard(carRecommendDAO)
@@ -59,6 +60,11 @@ async def requestCarRecommendation():
         expertOutput: CarRecommendationInformation = await carRecommendBlackBoard.handleRequest(tempRecommendationInfo)
         
         recommendationData: CarRecommendationInformation = carRecommendDAO.addCarRecommendationInformation(expertOutput)
+        
+        if recommendationData.getCar().getImageSource() is None:
+            image: str = await CarImgGeneratorAI.generateCarImg(recommendationData.getCar())
+            recommendationData.getCar().setImage(image)
+            
         response = jsonify({
             'success': True,
             'msg': 'Car Recommendation successful!',

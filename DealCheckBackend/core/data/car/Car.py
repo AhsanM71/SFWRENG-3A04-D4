@@ -90,3 +90,6 @@ class Car(FirestoreDatabaseEntity):
     
     def getDescription(self) -> str:
         return self.description
+    
+    def setImage(self, image: str):
+        self.image = image

@@ -67,7 +67,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
 
         try:
             data = json.loads(cleaned_output)
-            data["recommendation"]["image"] = ""
+            data["recommendation"]["image"] = None
             data["recommendation"]["id"] = None
             json.dumps(data)
         except json.JSONDecodeError as e:
