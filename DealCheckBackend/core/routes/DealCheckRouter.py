@@ -8,6 +8,7 @@ from core.data.car.Car import Car
 from bucket import uploadImageWithDeletion, decode_img, uploadImage
 from core.ai import CarImgGeneratorAI
 
+carDAO: CarDAO = CarDAO()
 dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
 IMAGE_PATH = "decoded_image.jpg"
@@ -140,7 +141,7 @@ async def requestDealCheck():
             description=description
         )
         
-        car: Car = CarDAO.addCar(tempCar)
+        car: Car = carDAO.addCar(tempCar)
         tempDealCheckData: DealCheckData = DealCheckData(
             id=None,
             userID=uID,
@@ -162,9 +163,11 @@ async def requestDealCheck():
         expertOuput: DealCheckData = await dealCheckBlackBoard.handleRequest(tempDealCheckData)
         
         dealCheckData: DealCheckData = dealCheckDAO.addDealCheckData(expertOuput)
-        if dealCheckData.getCar().getImageSource() is None:
-            image: str = await CarImgGeneratorAI.generateCarImg(dealCheckData.getCar())
-            dealCheckData.getCar().setImage(image)
+        car: Car = dealCheckData.getCar()
+        if car.getImageSource() is None:
+            image: str = await CarImgGeneratorAI.generateCarImg(car)
+            car.setImage(image)
+            car: Car = carDAO.updateCar(car)
 
         response = jsonify({
             'success': True,

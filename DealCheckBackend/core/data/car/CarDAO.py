@@ -2,7 +2,7 @@ from core.data.car.Car import Car
 from db import createDocument, getDocument, deleteDocument, updateDocument, CARS_COLLECTION
 
 class CarDAO:
-    def addCar(car: Car) -> Car:
+    def addCar(self, car: Car) -> Car:
         '''
         Adds a car document to the firestore database
 
@@ -52,7 +52,7 @@ class CarDAO:
         deleteDocument(CARS_COLLECTION, id=id)
         return True
 
-    def updateCar(car: Car) -> Car:
+    def updateCar(self, car: Car) -> Car:
         '''
         Updates a car document in the firestore database
 

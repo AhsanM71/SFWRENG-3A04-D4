@@ -13,7 +13,7 @@ class Redbook(Expert[DealCheckData]):
     async def _processRequest(self, id: int) -> DealCheckData:
         request: DealCheckData = self.queue[id]
         del self.queue[id]
-
+        rationale = ""
         df = pd.read_csv("core/dealCheck/experts/Corpus/redbook.csv")
         description = request.getDescription()
 
