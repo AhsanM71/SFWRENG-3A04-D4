@@ -42,7 +42,7 @@ class DealCheckDAO:
         documents: list[dict] = getQueryResults(query)
         return map(DealCheckData.from_dict, documents)
     
-    async def updateDealCheckData(dealCheck: DealCheckData) -> DealCheckData:
+    async def updateDealCheckData(self, dealCheck: DealCheckData) -> DealCheckData:
         '''
         Updates the information of a car deal check valuation data document in the database
         
@@ -63,7 +63,7 @@ class DealCheckDAO:
         updateData: dict = updateDocument(collection=CAR_DEALCHECK_FEATURE, id=id, data=data)
         return DealCheckData.from_dict(data=updateData)
     
-    async def deleteDealCheckData(id: str) -> bool:
+    async def deleteDealCheckData(self, id: str) -> bool:
         '''
         Deletes a car deal check valuation data document from the database
         

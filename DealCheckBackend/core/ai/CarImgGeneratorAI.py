@@ -36,7 +36,7 @@ async def generateCarImg(car: Car):
         add_watermark=True,
     )
 
-    path: str = './car'
+    path: str = './car.png'
     images[0].save(path)
     imgName: str = await uploadImage(path)
     delete_img(path)

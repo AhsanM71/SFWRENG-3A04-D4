@@ -163,9 +163,10 @@ def updateDocument(collection: str, id: str, data: dict) -> dict:
     '''
     
     docRef: DocumentReference = getDocRef(collection, id)
-    _, updatedDocRef = docRef.set(data)
+    docRef.set(data, merge=True)
+    updated_doc = docRef.get()
     
-    data: dict = resolve_references(updatedDocRef.to_dict())
-    data['id'] = updatedDocRef.id
+    data: dict = resolve_references(updated_doc.to_dict())
+    data['id'] = updated_doc.id
 
     return data

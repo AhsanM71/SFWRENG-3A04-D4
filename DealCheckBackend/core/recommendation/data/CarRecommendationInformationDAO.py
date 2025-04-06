@@ -42,7 +42,7 @@ class CarRecommendationInformationDAO:
         documents: list[dict] = getQueryResults(query)
         return map(CarRecommendationInformation.from_dict, documents)
 
-    def updateCarRecommendationInformation(carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
+    def updateCarRecommendationInformation(self, carRecommendation: CarRecommendationInformation) -> CarRecommendationInformation:
         '''
         Updates the car recommendation information document in the database
 
@@ -63,7 +63,7 @@ class CarRecommendationInformationDAO:
         updateData: dict = updateDocument(collection=CAR_RECOMMENDATION_COLLECTION, id=id, data=data)
         return CarRecommendationInformation.from_dict(updateData)
 
-    def deleteCarRecommendationInformation(id: str) -> bool:
+    def deleteCarRecommendationInformation(self, id: str) -> bool:
         '''
         Deletes a car recommendation information document from the database
 

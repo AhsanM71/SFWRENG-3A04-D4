@@ -5,6 +5,7 @@ import json
 import asyncio
 import tempfile
 import subprocess
+from core.data.car.CarDAO import INSTANCE as carDAO
 from vertexai.generative_models import GenerativeModel, SafetySetting, Part
 from core.blackboard.expert.Expert import Expert
 from core.data.car.CarDAO import CarDAO
@@ -73,7 +74,7 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
             print("Failed to parse JSON:", e)
             
         car: Car = Car.from_dict(data.get("recommendation"))
-        car: Car = CarDAO.addCar(car)
+        car: Car = carDAO.addCar(car)
         
         info.setCarRecommendation(data["recommendation"]["overall_description"])
         info.setCar(car)

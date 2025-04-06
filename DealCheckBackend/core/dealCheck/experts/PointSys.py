@@ -12,7 +12,7 @@ class PointSys(Expert[DealCheckData]):
     async def _process_request(self, id: str) -> DealCheckData:
         request: DealCheckData = self.queue[id]
         del self.queue[id]
-
+        rationale = ""
         car = request.getCar()
 
         # Extract car details directly from the `DealCheckData` object
@@ -128,21 +128,35 @@ class PointSys(Expert[DealCheckData]):
             deal_status = "bad"
         
         # Generate rationale
-        rationale = f"The deal is considered {deal_status} because:\n"
+        rationale = "A total score above 70, combined with a high confidence rating, generally indicates a good deal.\n\n"
+
+        rationale += f"The is {deal_status} deal because:\n"
         rationale += f"- Confidence score: {format_confidence}%\n"
-        rationale += f"- Total score: {score} (threshold for a good deal is 70)\n"
+        rationale += f"- Total score: {score}\n\n"
 
         # Add details about how each field contributed to the score
         rationale += "Score breakdown:\n"
-        rationale += f"- Production Year: {max(0, 2025 - int(filters['Prod. year']))} points (rewarding newer cars)\n" if "Prod. year" in filters else ""
-        rationale += f"- Mileage: {max(0, 50_000 - int(filters['Mileage'])) // 1_000} points (rewarding lower mileage)\n" if "Mileage" in filters else ""
-        rationale += f"- Condition: {'10 points (new)' if filters['Condition'].lower() == 'new' else '5 points (used)' if filters['Condition'].lower() == 'used' else '-5 points (salvage)'}\n" if "Condition" in filters else ""
-        rationale += f"- Previous Owners: {max(0, 3 - int(filters['Previous Owners'])) * 5} points (rewarding fewer owners)\n" if "Previous Owners" in filters else ""
-        rationale += f"- Seller Type: {'5 points (dealer)' if filters['Seller Type'].lower() == 'dealer' else '2 points (private)'}\n" if "Seller Type" in filters else ""
-        rationale += f"- Accident History: {'-10 points (accident reported)' if filters['Accident History'] == 'yes' else '0 points (no accident)'}\n" if "Accident History" in filters else ""
-        rationale += f"- Inspection Completed: {'5 points (inspection completed)' if filters['Inspection Completed'] == 'yes' else '0 points (no inspection)'}\n" if "Inspection Completed" in filters else ""
-        rationale += f"- Fuel Efficiency: {max(0, filters['Fuel Efficiency'] - 10)} points (rewarding higher mpg)\n" if "Fuel Efficiency" in filters else ""
-        rationale += f"- Insurance Estimate: {max(0, 500 - int(filters['Insurance Estimate'])) // 10} points (rewarding lower insurance cost)\n" if "Insurance Estimate" in filters else ""
+        rationale += f"- Production Year: {max(0, 2025 - int(filters['Prod. year']))} points\n" if "Prod. year" in filters else ""
+        rationale += f"- Mileage: {max(0, 50_000 - int(filters['Mileage'])) // 1_000} points\n" if "Mileage" in filters else ""
+        rationale += f"- Condition: {'10 points' if filters['Condition'].lower() == 'new' else '5 points' if filters['Condition'].lower() == 'used' else '-5 points'}\n" if "Condition" in filters else ""
+        rationale += f"- Previous Owners: {max(0, 3 - int(filters['Previous Owners'])) * 5} points\n" if "Previous Owners" in filters else ""
+        rationale += f"- Seller Type: {'5 points' if filters['Seller Type'].lower() == 'dealer' else '2 points'}\n" if "Seller Type" in filters else ""
+        rationale += f"- Accident History: {'-10 points' if filters['Accident History'] == 'yes' else '0 points'}\n" if "Accident History" in filters else ""
+        rationale += f"- Inspection Completed: {'5 points' if filters['Inspection Completed'] == 'yes' else '0 points'}\n" if "Inspection Completed" in filters else ""
+        rationale += f"- Fuel Efficiency: {max(0, filters['Fuel Efficiency'] - 10)} points\n" if "Fuel Efficiency" in filters else ""
+        rationale += f"- Insurance Estimate: {max(0, 500 - int(filters['Insurance Estimate'])) // 10} points\n" if "Insurance Estimate" in filters else ""
+
+        rationale += "\nScoring formula details:\n"
+        rationale += "- Newer cars are more desirable.\n      Score = 2025 - production year\n"
+        rationale += "- Lower mileage means less wear.\n      Score = (50,000 - mileage) ÷ 1,000\n"
+        rationale += "- Better condition better score.\n      New = 10 pts\n      Used = 5 pts\n      Salvage = -5 pts\n"
+        rationale += "- Fewer owners implies better care.\n      Score = (3 - number of owners) × 5\n"
+        rationale += "- Dealers add trust.\n      Dealer = 5 pts\n      Private = 2 pts\n"
+        rationale += "- Accidents reduce value.\n      Yes = -10 pts\n      No = 0 pts\n"
+        rationale += "- Inspections ensure transparency.\n      Yes = 5 pts\n      No = 0 pts\n"
+        rationale += "- Higher fuel efficiency is better.\n      Score = fuel efficiency - 10\n"
+        rationale += "- Lower insurance estimate is better.\n      Score = (500 - estimate) ÷ 10"
+
         request.setRationale(rationale)
         request.setExpertUsed("point_system")
         return request

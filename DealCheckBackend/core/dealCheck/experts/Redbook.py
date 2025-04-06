@@ -13,7 +13,7 @@ class Redbook(Expert[DealCheckData]):
     async def _processRequest(self, id: int) -> DealCheckData:
         request: DealCheckData = self.queue[id]
         del self.queue[id]
-
+        rationale = ""
         df = pd.read_csv("core/dealCheck/experts/Corpus/redbook.csv")
         description = request.getDescription()
 
@@ -106,11 +106,12 @@ class Redbook(Expert[DealCheckData]):
                 deal_status = "bad"
             
             # Generate rationale
-            rationale = f"The deal is considered {deal_status} because:\n"
+            rationale = "A price within 5% of comparable vehicles in our database, along with a high confidence score, generally signifies a good deal.\n\n"
+            rationale += f"This a {deal_status} deal because:\n"
             rationale += f"- Confidence score: {format_confidence}%\n"
             rationale += f"- The closest match in the dataset is a {best_match['Prod. year']} {best_match['Manufacturer']} {best_match['Model']} priced at ${price}.\n"
             rationale += f"- Your car's mileage ({filters['Mileage']} km) is {'close to' if abs(mileage - filters['Mileage']) <= 10000 else 'different from'} the matched car's mileage ({mileage} km).\n"
-            rationale += f"- Your car's price (${request.getPrice()}) is {'within' if request.getPrice() <= float(price) * 1.05 else 'above'} 5% of the matched car's price.\n"
+            rationale += f"- Your car's price (${request.getPrice()}) is {'within' if request.getPrice() <= float(price) * 1.05 else 'above'} 5% of the matched car's price.\n\n"
 
             # Add details about matching attributes
             rationale += "Matching attributes:\n"
@@ -122,10 +123,10 @@ class Redbook(Expert[DealCheckData]):
             rationale += f"- Engine Volume: {'Matched' if best_match['Engine volume'] in filters['Engine volume'] else 'Not Matched'}\n"
             rationale += f"- Cylinders: {'Matched' if float(best_match['Cylinders']) == float(filters['Cylinders']) else 'Not Matched'}\n"
             rationale += f"- Leather Interior: {'Matched' if best_match['Leather interior'].lower() == filters['Leather interior'].lower() else 'Not Matched'}\n"
-            rationale += f"- Gearbox Type: {'Matched' if best_match['Gear box type'].lower() == filters['Gear box type'].lower() else 'Not Matched'}\n"
+            rationale += f"- Gearbox Type: {'Matched' if best_match['Gear box type'].lower() == filters['Gear box type'].lower() else 'Not Matched'}"
         else:
             print("No similar car found in the dataset.")
-            request.setRationale("No similar car found in the dataset. Unable to determine if the deal is good or bad.")
+            rationale = "No similar car found in the dataset. Unable to determine if the deal is good or bad."
         request.setRationale(rationale)
         request.setExpertUsed("redbook")
         return request
