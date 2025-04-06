@@ -1,15 +1,13 @@
 from flask import request, jsonify
 from core import dealcheck_blueprint
 from core.dealCheck.blackboard.DealCheckBlackBoard import DealCheckBlackBoard
-from core.dealCheck.data.DealCheckDAO import DealCheckDAO
+from core.dealCheck.data.DealCheckDAO import INSTANCE as dealCheckDAO
 from core.dealCheck.data.DealCheckData import DealCheckData
-from core.data.car.CarDAO import CarDAO
+from core.data.car.CarDAO import INSTANCE as carDAO
 from core.data.car.Car import Car
 from bucket import uploadImageWithDeletion, decode_img, uploadImage
 from core.ai import CarImgGeneratorAI
 
-carDAO: CarDAO = CarDAO()
-dealCheckDAO: DealCheckDAO = DealCheckDAO()
 dealCheckBlackBoard: DealCheckBlackBoard = DealCheckBlackBoard(dealCheckDAO)
 IMAGE_PATH = "decoded_image.jpg"
 
@@ -271,7 +269,7 @@ async def getDealCheck():
     dealCheck_id: str = data.get("dealCheck_id")
     
     try:
-        dealCheckData: DealCheckData = DealCheckDAO.getDealCheckData(id=dealCheck_id)
+        dealCheckData: DealCheckData = dealCheckDAO.getDealCheckData(id=dealCheck_id)
         car: Car = dealCheckData.getCar()
         response = jsonify({
             'success': True,

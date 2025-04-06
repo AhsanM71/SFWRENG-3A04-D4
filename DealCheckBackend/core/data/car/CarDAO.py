@@ -71,3 +71,5 @@ class CarDAO:
         data: dict = updateDocument(CARS_COLLECTION, car.getId(), updatedData)
 
         return Car.from_dict(data)
+
+INSTANCE = CarDAO()
