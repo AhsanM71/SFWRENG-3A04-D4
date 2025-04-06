@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "expo-router"
 import { valuationRetrieval } from "@/api/dealCheck"
 import { recommendationRetrieval } from "@/api/carRecommend"
+import { getStorageImgDownloadURL } from "@/FirebaseConfig"
 
 type RecentsProps = {
   mode?: "home" | "curve"

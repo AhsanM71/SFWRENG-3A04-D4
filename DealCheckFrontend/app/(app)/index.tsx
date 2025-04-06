@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert } from "react-native"
+import { useEffect, useState, useCallback } from "react"
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert } from "react-native"
+import { useFocusEffect } from "@react-navigation/native"
 import { Feather } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
-import { menuItems, mockActivities, mockRecommendations, mockValuations } from "@/constants"
+import { menuItems, mockActivities, mockDepreciationCurve, mockRecommendations, mockValuations } from "@/constants"
 import { DealValuation, Recommendation } from "@/types"
 import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "expo-router"
@@ -11,11 +12,13 @@ import { valuationRetrieval, ValuationResponse } from "@/api/dealCheck"
 import { signOut } from "firebase/auth"
 import { auth } from "@/FirebaseConfig"
 import { CarRecommendResponse, recommendationRetrieval } from "@/api/carRecommend"
-import Recents from "./recents"
 
 const HomeScreen = () => {
   const { user, loading } = useAuth()
   const router = useRouter()
+  const [dealActivities, setDealActivities] = useState<any[]>([])
+  const [recActivities, setRecActivities] = useState<any[]>([])
+  const [fetching, setFetching] = useState(true)
 
   const handleLogout = async () => {
     try {
@@ -32,6 +35,55 @@ const HomeScreen = () => {
       Alert.alert("Logout Failed: ", error.message);
     }
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchValuations = async () => {
+        setDealActivities([]);
+        setRecActivities([]);
+        setFetching(true);
+  
+        const token = user?.uid;
+  
+        const input_data = {
+          user_id: token || ""
+        };
+  
+        try {
+  
+          const valuations = await valuationRetrieval(input_data);
+          const recommendations = await recommendationRetrieval(input_data);
+  
+          //@ts-ignore
+          const valuationActivities = valuations.deal_checks.map((deal: any, index: number) => ({
+            id: `valuation-${index}`,
+            type: "Deal Valuation",
+            description: `${deal.car_details.year} ${deal.car_details.make} ${deal.car_details.model} - $${deal.pricing.price}`,
+            decision: deal.answers.actual,
+          }));
+  
+          //@ts-ignore
+          const recommendationActivities = recommendations.recommendations.map((rec: any, index: number) => ({
+            id: `recommendation-${index}`,
+            type: "Recommendation",
+            description: `${rec.carInfo.year} ${rec.carInfo.make} ${rec.carInfo.model} - $${rec.carInfo.price}`,
+            decision: "Yes",
+            curveImg: rec.depreciation_info.curveImg
+          }));
+  
+          setDealActivities(valuationActivities);
+          setRecActivities(recommendationActivities);
+  
+        } catch (error: any) {
+          Alert.alert("Deal valuation failed", error.message);
+        } finally {
+          setFetching(false);
+        }
+      };
+  
+      fetchValuations();
+    }, [user?.uid]) 
+  );
   
   return (
     <SafeAreaView style={styles.container}>
@@ -62,7 +114,83 @@ const HomeScreen = () => {
           ))}
         </View>
         <Text style={styles.sectionTitle}>Recent Activity</Text>
-        <Recents mode="home" ></Recents>
+        <View style={styles.recentActivityContainer}>
+        {fetching ? (
+          <ActivityIndicator color="#000" style={styles.loading} />
+        ) : dealActivities.length === 0 && recActivities.length === 0 ? (
+          <Text style={styles.activityDate}>No recent activity.</Text>
+        ) : (
+          <>
+            {/* Deal Valuations */}
+            {dealActivities.map((activity) => (
+              <View key={activity.id} style={styles.activityCard}>
+                <View style={styles.activityHeader}>
+                  <Text style={styles.activityTitle}>{activity.type}</Text>
+                </View>
+                <Text style={styles.activityDescription}>{activity.description}</Text>
+                <View style={styles.activityResult}>
+                  <Text
+                    style={[
+                      styles.activityStatus,
+                      activity.decision === "Yes"
+                        ? styles.recommended
+                        : activity.decision === "No"
+                          ? styles.notRecommended
+                          : styles.neutral
+                    ]}
+                  >
+                    {activity.decision === "Yes" ? "RECOMMENDED" : "NOT RECOMMENDED"}
+                  </Text>
+                    <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "/deal-valuation",
+                        params: { recommendation: JSON.stringify(mockValuations[activity.id]) } 
+                      })
+                    }
+                  >
+                    <Text style={styles.viewDetails}>View Details →</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+    
+            {/* Recommendations */}
+            {recActivities.map((activity) => (
+              <View key={activity.id} style={styles.activityCard}>
+                <View style={styles.activityHeader}>
+                  <Text style={styles.activityTitle}>{activity.type}</Text>
+                </View>
+                <Text style={styles.activityDescription}>{activity.description}</Text>
+                <View style={styles.activityResult}>
+                  <Text
+                    style={[
+                      styles.activityStatus,
+                      activity.decision === "Yes"
+                        ? styles.recommended
+                        : activity.decision === "No"
+                          ? styles.notRecommended
+                          : styles.neutral
+                    ]}
+                  >
+                    {activity.decision === "Yes" ? "RECOMMENDED" : "NOT RECOMMENDED"}
+                  </Text>
+                    <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "car-recommendation",
+                        params: { recommendation: JSON.stringify(mockValuations[activity.id]) }
+                      })
+                    }
+                    >
+                    <Text style={styles.viewDetails}>View Details →</Text>
+                  </TouchableOpacity> 
+                </View>
+              </View>
+            ))}
+          </>
+        )}
+      </View>
       </ScrollView>
     </SafeAreaView>
   )
@@ -88,6 +216,11 @@ const styles = StyleSheet.create({
   },
   logoutButton: {
     padding: 10,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   contentContainer: {
     flex: 1,
@@ -136,13 +269,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   recentActivityContainer: {
-    marginTop: 25,
+    marginTop: 15,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#2d3436",
-    marginBottom: 10,
+    marginBottom: 5,
   },
   activityCard: {
     backgroundColor: "#fff",

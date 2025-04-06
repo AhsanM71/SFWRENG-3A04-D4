@@ -13,7 +13,7 @@ carRecommendBlackBoard: CarRecommendationBlackBoard = CarRecommendationBlackBoar
 @carrecommendation_blueprint.route('/carRecommendation', methods=['POST'])
 async def requestCarRecommendation():
     '''
-    API endpoint at /recommend/carRecommendation that performs car recommendations
+    API endpoint at /rec/carRecommendation that performs car recommendations
 
     Methods:
         POST
@@ -238,4 +238,72 @@ async def getUserDealChecks():
         response.status_code = 200
         return response
 
+@carrecommendation_blueprint.route('/carRecommendation/curve', methods=['POST'])
+async def requestCarDepreciationCurve():
+    '''
+    API endpoint at /rec/carRecommendation/curve that returns car recommendation curves
 
+    Methods:
+        POST
+    
+    Args:
+        data (dict): The user inputted information regarding the vehicle
+
+    Return:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Error/Success Message",
+            'user_id': {
+              'id': "Id of the user putting in the request" 
+            },
+            'description': {
+                'user_preferences': "User preferences for the car"
+            },
+            'answers': {
+                'recommendation_info': "Recommended car details",
+                'pros': "Pros of the recommendation",
+                'cons': "Cons of the recommendation"
+            }
+        }
+    '''
+    data: dict = request.get_json()
+    
+    user_id: dict = data.get('user_id')
+    uID = user_id.get('id')
+    description: dict = data.get('car')
+    year = description.get('year')
+    model = description.get('model')
+    make = description.get('make')
+    price = description.get('price')
+
+    try:
+        
+        image: str = await CarImgGeneratorAI.generateDepricationCurve(year,make,model,price)
+            
+        response = jsonify({
+            'success': True,
+            'msg': 'Car Recommendation successful!',
+            'user_id': {
+              'id': uID
+            },
+            'car': {
+                'make': make,
+                'model': model,
+                'year': year,
+                'price': price
+            },
+            'depreciation': {
+                'depreciationCurveSrc': image
+            }
+        })
+        response.status_code = 200
+
+        return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
