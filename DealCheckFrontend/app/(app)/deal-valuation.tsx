@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext"
 import { parse } from "@babel/core"
 import * as ImagePicker from "expo-image-picker"
 import * as FileSystem from "expo-file-system";
+import { getStorageImgDownloadURL } from "@/FirebaseConfig"
 
 const DealValuationScreen = () => {
 
@@ -150,7 +151,7 @@ const DealValuationScreen = () => {
     const fuelEffInt = parseInt(fuelEfficiencyMpg) || 0;
     const insuranceInt = parseInt(insuranceEstimate) || 0;
     const resaleInt = parseInt(resaleValueEstimate) || 0;
-    
+
     const token = user?.uid
 
     return {
@@ -177,18 +178,18 @@ const DealValuationScreen = () => {
         warranty: warranty || "None",
         inspection_completed: inspectionCompleted
       },
-      additional_factors: {
+      additional_info: {
         fuel_efficiency_mpg: fuelEffInt,
         insurance_estimate: insuranceInt,
         resale_value_estimate: resaleInt
       },
       answers: {
-        predicted: "Yes", // This would be set based on user input
-        actual: ""      // This would be set based on agent analysis
+        predicted: userGuess ? "Yes" : "No",
+        actual: ""
       }
     };
   };
-  
+
   const handleSubmit = async () => {
 
     // Validate inputs
@@ -201,37 +202,46 @@ const DealValuationScreen = () => {
 
     const formattedData = await formatDataForSubmission();
     console.log(JSON.stringify(formattedData));
-    
-    try{
+
+    try {
       const valuationResponse: ValuationResponse = await valuationRequest(
         formattedData
       );
-      
+
       console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
-      setTimeout(() => {
-        setIsLoading(false)
-        const result: ValuationResult = {
-          decision: valuationResponse.answers.actual === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
-          confidence: valuationResponse.answers.confidence,
-          reports: [{
-            agentName: "AI Agent",
-            decision: (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
-            (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
-            (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
-            (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
-            reasoning: valuationResponse.answers.rationale
-          }]
-        };
-        // Mock result from the 3 agents
-        setResult(result)
-        
-      }, 10000)
+      const answer = valuationResponse.answers.actual.toUpperCase();
+      const reasoning = valuationResponse.answers.rationale;
+      const confidence = valuationResponse.answers.confidence;
+      const carImageURI = valuationResponse.car_details.image ? await getStorageImgDownloadURL(valuationResponse.car_details.image) : "";
+      const expertUsed = valuationResponse.answers.expert;
 
-    } catch(error: any) {
+      const valuationResult: ValuationResult = {
+        decision: answer === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
+        confidence: confidence,
+        image: carImageURI,
+        reports: [{
+          agent: expertUsed === "point_system" ? "Point System Expert" : expertUsed === "redbook" ? "Redbook API Expert" : expertUsed === "ai_agent" ? "AI Expert": "",
+          decision: (answer === "NO" && confidence > 90) ? "AWFUL" :
+            (answer === "NO" && confidence > 60) ? "WEAK" :
+              (answer === "YES" && confidence < 50) ? "FAIR" :
+                (answer === "YES" && confidence > 50 && confidence < 90) ? "GOOD" : "GREAT",
+          reasoning: reasoning,
+        }]
+      };
+      setResult(valuationResult);
+
+    } catch (error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
+    } finally {
       setIsLoading(false)
     }
+
+    // // Simulate car valuation and use mock data
+    // setTimeout(() => {
+    //   setIsLoading(false)
+    //   setResult(result)
+    // }, 10000)
   }
 
   const resetForm = () => {
@@ -253,6 +263,8 @@ const DealValuationScreen = () => {
     setDescription("")
     setFuelType("gasoline")
     setResaleValueEstimate("");
+    setImage(null);
+    setImageBase64(null);
     setResult(null)
   }
 
@@ -585,8 +597,8 @@ const DealValuationScreen = () => {
         <Text style={styles.label}>User Guess</Text>
         <View style={styles.toggleContainer}>
           <Text>Is this a good deal?</Text>
-          <TouchableOpacity 
-            style={[styles.toggleButton, userGuess ? styles.toggleActive : {}]} 
+          <TouchableOpacity
+            style={[styles.toggleButton, userGuess ? styles.toggleActive : {}]}
             onPress={() => setUserGuess(!userGuess)}
           >
             <Text style={userGuess ? styles.toggleTextActive : styles.toggleText}>
@@ -629,12 +641,18 @@ const DealValuationScreen = () => {
         </Text>
       </View>
 
+      {result?.image &&
+        <View style={styles.carImageContainer}>
+          <Image source={{ uri: result.image }} style={styles.carImage} />
+        </View>
+      }
+
       <Text style={styles.agentReportsTitle}>Agent Reports</Text>
 
       {result?.reports.map((report, index) => (
         <View key={index} style={styles.reportCard}>
           <View style={styles.reportHeader}>
-            <Text style={styles.agentName}>{report.agentName}</Text>
+            <Text style={styles.agentName}>{report.agent}</Text>
             <View
               style={[
                 styles.decisionBadge,
@@ -952,6 +970,17 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+  },
+  carImageContainer: {
+    padding: 15,
+    backgroundColor: "#FFF",
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  carImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 8,
   },
 })
 

@@ -30,7 +30,7 @@ export type ValuationRequest = {
     warranty: string;
     inspection_completed: boolean;
   };
-  additional_factors: {
+  additional_info: {
     fuel_efficiency_mpg: number;
     insurance_estimate: number;
     resale_value_estimate: number;

@@ -108,12 +108,11 @@ async def requestDealCheck():
     if additional_info:
         fuel_efficiency_mpg: int = additional_info.get('fuel_efficiency_mpg')
         insurance_estimate: int = additional_info.get('insurance_estimate')
-        resale_value: int = additional_info.get('resale_value')
+        resale_value: int = additional_info.get('resale_value_estimate')
     else:
         fuel_efficiency_mpg: int = 0
         insurance_estimate: int = 0
         resale_value: int = 0
-    
     answers: dict = data.get('answers')
     if answers:
         prediction: str = answers.get('predicted')
@@ -193,7 +192,7 @@ async def requestDealCheck():
                 'warranty': dealCheckData.getWarranty(),
                 'inspection_completed': dealCheckData.getInspectionCompleted()
             },
-            'additonal_info': {
+            'additional_info': {
                 'fuel_efficiency_mpg': dealCheckData.getfuelEfficiencyMpg(),
                 'insurance_estimate': dealCheckData.getInsuranceEstimate(),
                 'resale_value': dealCheckData.getResaleValue()
@@ -297,7 +296,7 @@ async def getDealCheck():
                 'warranty': dealCheckData.getWarranty(),
                 'inspection_completed': dealCheckData.getInspectionCompleted()
             },
-            'additonal_info': {
+            'additional_info': {
                 'fuel_efficiency_mpg': dealCheckData.getfuelEfficiencyMpg(),
                 'insurance_estimate': dealCheckData.getInsuranceEstimate(),
                 'resale_value': dealCheckData.getResaleValue()
