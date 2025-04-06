@@ -12,9 +12,9 @@ export type ValuationResult = {
 export type DealValuation = {
   carMake: string
   carModel: string
-  carYear: string
-  mileage: string
-  price: string
+  carYear: number
+  mileage: number
+  price: number
   condition: string
   result: ValuationResult
 }

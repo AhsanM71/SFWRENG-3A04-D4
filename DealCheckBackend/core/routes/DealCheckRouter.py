@@ -304,7 +304,9 @@ async def getDealCheck():
             'answers': {
                 'prediction': dealCheckData.getPrediction(),
                 'actual': dealCheckData.getActual(),
-                'confidence': dealCheckData.getConfidence()
+                'rationale': dealCheckData.getRationale(),
+                'confidence': dealCheckData.getConfidence(),
+                'expert': dealCheckData.getExpertUsed()
             }
         })
         response.status_code = 200

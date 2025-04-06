@@ -37,7 +37,7 @@ const DealValuationScreen = () => {
   const [description, setDescription] = useState("")
   const [fuelType, setFuelType] = useState("gasoline")
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<null | ValuationResult>(null)
+  const [result, setResult] = useState<null | DealValuation>(null)
   const params = useLocalSearchParams()
 
   // Further boolean variables to track drop-down inputs
@@ -60,26 +60,39 @@ const DealValuationScreen = () => {
           const valuationResponse: ValuationResponse = await valuationRetrieve({
             doc_id: params.docid as string
           });
-          setTimeout(() => {
-            const setValuationResult = async () => {
-              const result: ValuationResult = {
-                decision: valuationResponse.answers.actual === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
-                confidence: valuationResponse.answers.confidence,
-                reports: [{
-                  agent: "AI Agent",
-                  decision: (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
-                  (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
-                  (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
-                  (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
-                  reasoning: valuationResponse.answers.rationale
-                }],
-                image: await getStorageImgDownloadURL(valuationResponse.car_details.image)
-              };
-              setResult(result)
-            }
 
-            setValuationResult()
-          }, 10000)
+          const expertUsed = valuationResponse.answers.expert.split(',')[0]
+
+          const setValuationResult = async () => {
+            const result: ValuationResult = {
+              decision: valuationResponse.answers.actual === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
+              confidence: valuationResponse.answers.confidence,
+              reports: [{
+                agent: expertUsed === "point_system" ? "Point System Expert" : expertUsed === "redbook" ? "Redbook API Expert" : expertUsed === "ai_agent" ? "AI Expert": "",
+                decision: (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
+                (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
+                (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
+                (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
+                reasoning: valuationResponse.answers.rationale
+              }],
+              image: await getStorageImgDownloadURL(valuationResponse.car_details.image)
+            };
+
+            const dealValuation: DealValuation = {
+              carMake: valuationResponse.car_details.make,
+              carModel: valuationResponse.car_details.model,
+              carYear: valuationResponse.car_details.year,
+              mileage: valuationResponse.car_details.mileage,
+              price: valuationResponse.pricing.price,
+              condition: valuationResponse.car_details.condition,
+              result: result
+            };
+
+            console.log(valuationResponse);
+            setResult(dealValuation)
+          }
+
+          setValuationResult()
         } catch (error) {
           console.error("Error retrieving car recommendation:", error);
         }
@@ -220,7 +233,17 @@ const DealValuationScreen = () => {
           reasoning: reasoning,
         }]
       };
-      setResult(valuationResult);
+
+      const dealValuation: DealValuation = {
+        carMake: valuationResponse.car_details.make,
+        carModel: valuationResponse.car_details.model,
+        carYear: valuationResponse.car_details.year,
+        mileage: valuationResponse.car_details.mileage,
+        price: valuationResponse.pricing.price,
+        condition: valuationResponse.car_details.condition,
+        result: valuationResult
+      };
+      setResult(dealValuation);
 
     } catch (error: any) {
       Alert.alert("Deal valuation failed: ", error.message);
@@ -617,30 +640,30 @@ const DealValuationScreen = () => {
   const renderResultElements = () => (
     <View style={styles.resultContainer}>
       <View
-        style={[styles.resultHeader, result?.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
+        style={[styles.resultHeader, result?.result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
       >
-        <Text style={styles.resultHeaderText}>{result?.decision}</Text>
-        <Text style={styles.confidenceText}>{result?.confidence}% Confidence</Text>
+        <Text style={styles.resultHeaderText}>{result?.result.decision}</Text>
+        <Text style={styles.confidenceText}>{result?.result.confidence}% Confidence</Text>
       </View>
 
       <View style={styles.carSummary}>
         <Text style={styles.carSummaryText}>
-          {carYear} {carMake} {carModel}
+          {result?.carYear} {result?.carMake} {result?.carModel}
         </Text>
         <Text style={styles.carDetailsText}>
-          {mileage} miles · ${price}
+          {result?.mileage} miles · ${result?.price}
         </Text>
       </View>
 
-      {result?.image &&
+      {result?.result.image &&
         <View style={styles.carImageContainer}>
-          <Image source={{ uri: result.image }} style={styles.carImage} />
+          <Image source={{ uri: result.result.image }} style={styles.carImage} />
         </View>
       }
 
       <Text style={styles.agentReportsTitle}>Agent Reports</Text>
 
-      {result?.reports.map((report, index) => (
+      {result?.result.reports.map((report, index) => (
         <View key={index} style={styles.reportCard}>
           <View style={styles.reportHeader}>
             <Text style={styles.agentName}>{report.agent}</Text>
