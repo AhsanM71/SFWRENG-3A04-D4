@@ -135,10 +135,8 @@ const DepreciationCurveScreen = () => {
         setCarYear(year);
         setDepDesc(`${year} ${make} ${model} - $${price}`);
         const formattedData = formatDataForSubmission(make, model, year, price);
-        console.log("FORMATTED DATA", formattedData);
   
         const curveRequestResponse: CurveRequestResponse = await curveRetrieval(formattedData);
-        console.log("RESPONSE", curveRequestResponse);
         //@ts-ignore
         const curve = await getStorageImgDownloadURL(curveRequestResponse.depreciation.depreciationCurveSrc);
         setDepreciationCurveURI(curve);

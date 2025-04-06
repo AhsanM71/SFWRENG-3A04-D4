@@ -89,9 +89,18 @@ export type CurveRequestResponse = APIResponse & {
   }
 };
 
+export type CarRecommendRetriever = {
+  doc_id: string;
+}
+
 export async function carRecommendRequest(data: CarRecommendRequest): Promise<CarRecommendResponse> {
     const carRecommendData: CarRecommendResponse = await sendCarRecommendRequest<CarRecommendResponse>('/rec/carRecommendation', data);
     return carRecommendData;
+}
+
+export async function carRecommendRetrieve(data: CarRecommendRetriever): Promise<CarRecommendResponse> {
+  const carRecommendData: CarRecommendResponse = await sendCarRecommendRequest<CarRecommendResponse>('/rec/carRecommendation/retrieve', data);
+  return carRecommendData;
 }
 
 export async function recommendationRetrieval(data: RecommendationRetrieval): Promise<CarRecommendResponse> {

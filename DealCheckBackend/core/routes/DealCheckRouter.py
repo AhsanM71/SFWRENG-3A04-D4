@@ -265,7 +265,7 @@ async def getDealCheck():
         }
     '''
     data: dict = request.get_json()
-    dealCheck_id: str = data.get("dealCheck_id")
+    dealCheck_id: str = data.get("doc_id")
     
     try:
         dealCheckData: DealCheckData = dealCheckDAO.getDealCheckData(id=dealCheck_id)
@@ -352,6 +352,9 @@ async def getUserDealChecks():
         for dealCheckData in dealChecks:
             car: Car = dealCheckData.getCar()
             deal_checks_list.append({
+                'obj_id' : {
+                    'id': dealCheckData.getId()
+                },
                 'user_id': {
                     'id': dealCheckData.getUserId()
                 },

@@ -56,6 +56,7 @@ const HomeScreen = () => {
   
           //@ts-ignore
           const valuationActivities = valuations.deal_checks.map((deal: any, index: number) => ({
+            docid: deal.obj_id.id,
             id: `valuation-${index}`,
             type: "Deal Valuation",
             description: `${deal.car_details.year} ${deal.car_details.make} ${deal.car_details.model} - $${deal.pricing.price}`,
@@ -65,6 +66,7 @@ const HomeScreen = () => {
           //@ts-ignore
           const recommendationActivities = recommendations.recommendations.map((rec: any, index: number) => ({
             id: `recommendation-${index}`,
+            docid: rec.obj_id.id,
             type: "Recommendation",
             description: `${rec.carInfo.year} ${rec.carInfo.make} ${rec.carInfo.model} - $${rec.carInfo.price}`,
             decision: "Yes",
@@ -145,7 +147,7 @@ const HomeScreen = () => {
                     onPress={() =>
                       router.push({
                         pathname: "/deal-valuation",
-                        params: { recommendation: JSON.stringify(mockValuations[activity.id]) } 
+                        params: { docid: activity.docid } 
                       })
                     }
                   >
@@ -179,7 +181,7 @@ const HomeScreen = () => {
                     onPress={() =>
                       router.push({
                         pathname: "car-recommendation",
-                        params: { recommendation: JSON.stringify(mockValuations[activity.id]) }
+                        params: { docid: activity.docid }
                       })
                     }
                     >

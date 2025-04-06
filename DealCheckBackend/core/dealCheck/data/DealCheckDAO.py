@@ -3,7 +3,7 @@ from db import getCollectionRef, createDocument, getQueryResults, updateDocument
 from db import CAR_DEALCHECK_FEATURE, CollectionReference, FieldFilter, Query
 
 class DealCheckDAO:
-    def getDealCheckData(id: str) -> DealCheckData:
+    def getDealCheckData(self, id: str) -> DealCheckData:
         '''
         Gets the information of a car deal check valuation data document from the database
         

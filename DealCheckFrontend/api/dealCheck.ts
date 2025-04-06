@@ -10,6 +10,10 @@ export type ValuationRetrieval = {
   user_id: string;
 }
 
+export type valRetrievalDoc = {
+  doc_id: string;
+}
+
 export type ValuationRequest = {
   user_id: {
     id: string;
@@ -85,6 +89,11 @@ export type ValuationResponse = APIResponse & {
 
 export async function valuationRequest(data: ValuationRequest): Promise<ValuationResponse> {
   const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck', data);
+  return valuationData;
+}
+
+export async function valuationRetrieve(data: valRetrievalDoc): Promise<ValuationResponse> {
+  const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck/retrieve', data);
   return valuationData;
 }
 

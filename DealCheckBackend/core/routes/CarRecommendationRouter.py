@@ -138,8 +138,8 @@ async def getCarRecommendation():
         }
     '''
     data: dict = request.get_json()
-    recommendation_id: str = data.get("recommendation_id")
-    
+    recommendation_id: str = data.get("doc_id")
+
     try:
         recommendationData: CarRecommendationInformation = carRecommendDAO.getCarRecommendationInformation(id=recommendation_id)
         response = jsonify({
@@ -151,15 +151,28 @@ async def getCarRecommendation():
             'description': {
                 'user_preferences': recommendationData.getDescription()
             },
-            'answers': {
-                'recommendation_info': recommendationData.getRecommendationInfo(),
-                #'pros': recommendationData.getPros(),
-                #'cons': recommendationData.getCons()
+            'recommendation': {
+                'price': recommendationData.getPrice(),
+                'make': recommendationData.getCar().getMake(),
+                'model': recommendationData.getCar().getModel(),
+                'year': recommendationData.getCar().getYear(),
+                'trim': recommendationData.getCar().getTrim(),
+                'mileage': recommendationData.getCar().getMileage(),
+                'condition': recommendationData.getCar().getCondition(),
+                'accident_history': recommendationData.getCar().getAccidentHistory(),
+                'previous_owners': recommendationData.getCar().getPreviousOwners(),
+                'image': recommendationData.getCar().getImageSource(),
+                'description': recommendationData.getCar().getDescription(),
+                'pros': recommendationData.getPros(),
+                'cons': recommendationData.getCons(),
+                'overall_description': recommendationData.getCarRecommendation(),
+                'depreciationCurveSrc': recommendationData.getDepricationCurveImg()
             }
         })
         response.status_code = 200
         return response
     except Exception as e:
+        print("EXCEPTION AHHJH")
         response = jsonify({
             "success": False,
             "msg": str(e)
@@ -200,6 +213,9 @@ async def getUserDealChecks():
         for carRecData in carRecs:
             car: Car = carRecData.getCar()
             carRecList.append({
+                'obj_id' : {
+                    'id': carRecData.getId()
+                },
                 'user_id': {
                     'id': carRecData.getUserId()  
                 },

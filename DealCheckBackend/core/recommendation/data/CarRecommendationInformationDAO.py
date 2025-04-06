@@ -3,7 +3,7 @@ from db import getCollectionRef, createDocument, getQueryResults, updateDocument
 from db import CAR_RECOMMENDATION_COLLECTION, CollectionReference, FieldFilter,Query
 
 class CarRecommendationInformationDAO:
-    def getCarRecommendationInformation(id: str) -> CarRecommendationInformation:
+    def getCarRecommendationInformation(self, id: str) -> CarRecommendationInformation:
         '''
         Gets the information of a car recommendation information document from the database
 
