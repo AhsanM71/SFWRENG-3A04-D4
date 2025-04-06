@@ -327,7 +327,8 @@ const styles = StyleSheet.create({
     borderColor: "#eee",
   },
   carImageContainer: {
-    padding: 15
+    paddingLeft: 15,
+    paddingRight: 15,
   },
   carImage: {
     width: "100%",

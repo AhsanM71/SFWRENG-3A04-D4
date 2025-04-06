@@ -214,7 +214,7 @@ const DealValuationScreen = () => {
       const reasoning = valuationResponse.answers.rationale;
       const confidence = valuationResponse.answers.confidence;
       const carImageURI = valuationResponse.car_details.image ? await getStorageImgDownloadURL(valuationResponse.car_details.image) : "";
-      const expertUsed = valuationResponse.answers.expert;
+      const expertUsed = valuationResponse.answers.expert.split(",")[0];
 
       const valuationResult: ValuationResult = {
         decision: answer === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
@@ -262,9 +262,9 @@ const DealValuationScreen = () => {
     setUserGuess(false)
     setDescription("")
     setFuelType("gasoline")
-    setResaleValueEstimate("");
-    setImage(null);
-    setImageBase64(null);
+    setResaleValueEstimate("")
+    setImage(null)
+    setImageBase64(null)
     setResult(null)
   }
 
@@ -979,7 +979,7 @@ const styles = StyleSheet.create({
   },
   carImage: {
     width: "100%",
-    height: 200,
+    height: 250,
     borderRadius: 8,
   },
 })
