@@ -15,6 +15,7 @@ from google.genai import types
 vertexai.init(project="dealcheck", location="us-central1")
 
 generation_model = ImageGenerationModel.from_pretrained("imagen-3.0-generate-002")
+_IMAGE_PATH = "decoded_image.jpg"
 
 async def generateCarImg(car: Car):
     carYear: int = car.getYear()
@@ -42,8 +43,8 @@ async def generateCarImg(car: Car):
 
     return imgName
 
-async def _generateDepricationCurve(self, car: Car) -> str:
-    generation_config, safety_settings = self._config_model()
+async def generateDepricationCurve(car: Car) -> str:
+    generation_config, safety_settings = _config_model()
     year = car.getYear()
     make = car.getMake()
     model = car.getModel()
@@ -61,7 +62,7 @@ async def _generateDepricationCurve(self, car: Car) -> str:
     plt.grid(True)
     plt.xticks(years)
     plt.legend()
-    plt.savefig('{self._IMAGE_PATH}')"""
+    plt.savefig('{_IMAGE_PATH}')"""
 
     vertexai.init(
         project="dealcheck",
@@ -75,7 +76,7 @@ async def _generateDepricationCurve(self, car: Car) -> str:
 
     chat = model.start_chat()
     model_output = chat.send_message([deprecationCurvePrompt], generation_config=generation_config, safety_settings=safety_settings)
-    program = self._get_text(model_output)
+    program = _get_text(model_output)
 
     script_path = ""
     with tempfile.NamedTemporaryFile(suffix=".py", delete=False) as temp_script:
@@ -90,16 +91,16 @@ async def _generateDepricationCurve(self, car: Car) -> str:
             text=True,
             check=True
         )
-        with open(self._IMAGE_PATH, "rb") as image_file:
+        with open(_IMAGE_PATH, "rb") as image_file:
             base64_string = base64.b64encode(image_file.read()).decode("utf-8")
 
-        image = await uploadImageWithDeletion(self._IMAGE_PATH, base64_string)
+        image = await uploadImageWithDeletion(_IMAGE_PATH, base64_string)
     except subprocess.CalledProcessError as e:
         print("Error executing the script:", e.stderr)
 
     return image
 
-def _get_text(self, model_output):
+def _get_text(model_output):
     candidates = model_output.candidates
     if candidates:
         # print("First candidate:", candidates[0])
@@ -124,7 +125,7 @@ def _get_text(self, model_output):
     else:
         return "No candidates found."
 
-def _config_model(self):
+def _config_model():
     generation_config = {
     "max_output_tokens": 8192,
     "temperature": 1,
