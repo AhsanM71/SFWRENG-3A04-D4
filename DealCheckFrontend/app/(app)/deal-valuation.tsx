@@ -178,7 +178,7 @@ const DealValuationScreen = () => {
         warranty: warranty || "None",
         inspection_completed: inspectionCompleted
       },
-      additional_factors: {
+      additional_info: {
         fuel_efficiency_mpg: fuelEffInt,
         insurance_estimate: insuranceInt,
         resale_value_estimate: resaleInt
