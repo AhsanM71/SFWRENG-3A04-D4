@@ -5,7 +5,7 @@ import { carImages, mockDepreciationCurve, mockRecommendations } from "@/constan
 import { Recommendation } from "@/types"
 import { useLocalSearchParams } from "expo-router"
 import { useAuth } from "@/context/AuthContext"
-import { carRecommendRequest, CarRecommendResponse } from "@/api/carRecommend"
+import { carRecommendRequest, CarRecommendResponse, carRecommendRetrieve } from "@/api/carRecommend"
 import { getStorageImgDownloadURL } from "@/FirebaseConfig"
 
 const CarRecommendationScreen = () => {
@@ -46,18 +46,28 @@ const CarRecommendationScreen = () => {
   };
 
   useEffect(() => {
-    let parsedRecommendations: Array<Recommendation> | null = null;
-
-    if (params?.recommendations && typeof params.recommendations === "string") {
-      try {
-        parsedRecommendations = JSON.parse(params.recommendations);
-      } catch (error) {
-        console.error("Failed to parse recommendations:", error);
+    setIsLoading(true);
+    const fetchCarRecommendation = async () => {
+      if (params.docid) {
+        try {
+          const carRecommendResponse: CarRecommendResponse = await carRecommendRetrieve({
+            doc_id: params.docid as string
+          });
+          const depreciationCurveURI = await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc)
+          const carRecommendationURI = carRecommendResponse.recommendation.image ? await getStorageImgDownloadURL(carRecommendResponse.recommendation.image) : "";
+          setDepreciationCurve(depreciationCurveURI)
+          setCarRecommendation(carRecommendationURI)
+          setRecommendations([carRecommendResponse.recommendation])
+          // Handle the response data here
+        } catch (error) {
+          console.error("Error retrieving car recommendation:", error);
+        }
       }
-    }
+    };   
+    fetchCarRecommendation()
+    setIsLoading(false);
 
-    setRecommendations(parsedRecommendations);
-  }, []);
+  }, [params.docid]);
 
   const formatDataForSubmission = () => {
     // Convert string values to numbers where needed
@@ -160,7 +170,7 @@ const CarRecommendationScreen = () => {
           </Text>
         </View>
 
-        {!recommendations ? (
+        {isLoading ? <ActivityIndicator color="#000" style={styles.loading} /> : !recommendations ? (
           <View style={styles.formContainer}>
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Description*</Text>
@@ -262,6 +272,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#2c3e50",
     marginBottom: 5,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   subtitle: {
     fontSize: 14,

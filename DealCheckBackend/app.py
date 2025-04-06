@@ -15,6 +15,6 @@ if __name__ == '__main__':
 
     app.register_blueprint(authenticaion_blueprint, url_prefix="/auth")
     app.register_blueprint(dealcheck_blueprint, url_prefix='/val')
-    app.register_blueprint(carrecommendation_blueprint, url_prefix='/recommend')
+    app.register_blueprint(carrecommendation_blueprint, url_prefix='/rec')
     
     app.run(host='0.0.0.0',port=8001,debug=True)

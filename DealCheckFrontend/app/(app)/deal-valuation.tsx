@@ -2,11 +2,11 @@ import { useEffect, useState } from "react"
 import { View, SafeAreaView, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, FlatList, Image } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockValuationResults } from "@/constants"
-import { DealValuation, ValuationResult } from "@/types"
+import { DealValuation, ValuationResult } from "@/types" 
 import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
-import { valuationRequest, ValuationResponse } from "@/api/dealCheck"
+import { valuationRequest, ValuationResponse, valuationRetrieve } from "@/api/dealCheck"
 import { useAuth } from "@/context/AuthContext"
 import { parse } from "@babel/core"
 import * as ImagePicker from "expo-image-picker"
@@ -53,51 +53,42 @@ const DealValuationScreen = () => {
   const models = carData.find(car => car.brand === carMake)?.models || []
 
   useEffect(() => {
-    let parsedValuation = {
-      carMake: "",
-      carModel: "",
-      carTrim: "",
-      carCondition: "Used",
-      sellerType: "Dealer",
-      carYear: "",
-      mileage: "",
-      price: "",
-      acidentHistory: false,
-      inspectionCompleted: false,
-      fuelEfficiencyMpg: "",
-      insuranceEstimate: "",
-      resaleValueEstimate: "",
-      userGuess: false,
-      description: "",
-      fuelType: "gasoline",
-      result: null,
-    };
+    setIsLoading(true);
+    const fetchCarRecommendation = async () => {
+      if (params.docid) {
+        try {
+          const valuationResponse: ValuationResponse = await valuationRetrieve({
+            doc_id: params.docid as string
+          });
+          setTimeout(() => {
+            const setValuationResult = async () => {
+              const result: ValuationResult = {
+                decision: valuationResponse.answers.actual === "NO" ? "NOT RECOMMENDED" : "RECOMMENDED",
+                confidence: valuationResponse.answers.confidence,
+                reports: [{
+                  agent: "AI Agent",
+                  decision: (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 90) ? "AWFUL" : 
+                  (valuationResponse.answers.actual === "NO" && valuationResponse.answers.confidence > 60) ? "WEAK" : 
+                  (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence < 50) ? "FAIR" : 
+                  (valuationResponse.answers.actual === "YES" && valuationResponse.answers.confidence > 50 && valuationResponse.answers.confidence < 90) ? "GOOD" : "GREAT",
+                  reasoning: valuationResponse.answers.rationale
+                }],
+                image: await getStorageImgDownloadURL(valuationResponse.car_details.image)
+              };
+              setResult(result)
+            }
 
-    if (typeof params.dealValuation === "string") {
-      try {
-        parsedValuation = JSON.parse(params.dealValuation);
-      } catch (error) {
-        console.error("Failed to parse deal valuation:", error);
+            setValuationResult()
+          }, 10000)
+        } catch (error) {
+          console.error("Error retrieving car recommendation:", error);
+        }
       }
-    }
+    };   
+    fetchCarRecommendation()
+    setIsLoading(false);
 
-    setCarMake(parsedValuation.carMake);
-    setCarModel(parsedValuation.carModel);
-    setCarMake(parsedValuation.carModel);
-    setCarCondition(parsedValuation.carCondition);
-    setSellerType(parsedValuation.sellerType);
-    setCarYear(parsedValuation.carYear);
-    setMileage(parsedValuation.mileage);
-    setPrice(parsedValuation.price);
-    setAccidentHistory(parsedValuation.acidentHistory);
-    setFuelEfficiencyMpg(parsedValuation.fuelEfficiencyMpg);
-    setResaleValueEstimate(parsedValuation.resaleValueEstimate);
-    setUserGuess(parsedValuation.userGuess);
-    setDescription(parsedValuation.description);
-    setResult(parsedValuation.result);
-    setFuelType(parsedValuation.fuelType);
-
-  }, [params.dealValuation]);
+  }, [params.docid]);
 
   const convertImageToBase64 = async (uri: string) => {
     try {

@@ -21,9 +21,8 @@ class RecommendationAIExpert(Expert[CarRecommendationInformation]):
         request: CarRecommendationInformation = await self._generateScenarioBasedRecommendation(request)
         image: str = await self._generateDepricationCurve(request.getCar(), request.getPrice())
         request.setDepricationCurveImg(image)
-
         return request
-
+    
     async def _generateScenarioBasedRecommendation(self, info: CarRecommendationInformation) -> CarRecommendationInformation:
         client = genai.Client(
         vertexai=True,

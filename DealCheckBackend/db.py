@@ -15,7 +15,6 @@ def resolve_references(data: dict) -> dict:
     Returns:
         dict: The full dictionary of the data of the document
     '''
-
     for key, value in data.items():
         if isinstance(value, DocumentReference):
             snapshot = value.get()
@@ -130,16 +129,12 @@ def getQueryResults(query: Query) -> list[any]:
     Returns:
         list[dict]: A list of dictionaries containing the data of each document in the format { 'id': id, ...rest of the data here }
     '''
-
     queryResults: list[DocumentSnapshot] = query.get()
-    
     result = []
-
     for doc in queryResults:
         data: dict = resolve_references(doc.to_dict())
         data['id'] = doc.id
         result.append(data)
-
     return result
 
 def deleteDocument(collection: str, id: str):

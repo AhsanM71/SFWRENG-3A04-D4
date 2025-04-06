@@ -265,7 +265,7 @@ async def getDealCheck():
         }
     '''
     data: dict = request.get_json()
-    dealCheck_id: str = data.get("dealCheck_id")
+    dealCheck_id: str = data.get("doc_id")
     
     try:
         dealCheckData: DealCheckData = dealCheckDAO.getDealCheckData(id=dealCheck_id)
@@ -309,6 +309,95 @@ async def getDealCheck():
         })
         response.status_code = 200
         return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
+    
+@dealcheck_blueprint.route('/dealCheck/user', methods=['POST'])
+async def getUserDealChecks():
+    '''
+    API endpoint at /val/dealCheck/user that retrieves all deal checks for a given user ID
+
+    Methods:
+        POST
+
+    Args:
+        data (dict): The request must contain the user_id field:
+            "user_id": {
+                "id": "some_user_id"
+            }
+
+    Returns:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Success/Error message",
+            deal_checks: [List of deal check JSONs like from retrieve]
+        }
+    '''
+    data: dict = request.get_json()
+    user_id: str = data.get("user_id")
+
+    if not user_id:
+        return jsonify({"success": False, "msg": "user_id is required"}), 400
+
+    try:
+        dealChecks: list[DealCheckData] = dealCheckDAO.getUserDealCheckData(userId=user_id)
+
+        deal_checks_list = []
+        for dealCheckData in dealChecks:
+            car: Car = dealCheckData.getCar()
+            deal_checks_list.append({
+                'obj_id' : {
+                    'id': dealCheckData.getId()
+                },
+                'user_id': {
+                    'id': dealCheckData.getUserId()
+                },
+                'car_details': {
+                    'make': car.getMake(),
+                    'model': car.getModel(),
+                    'year': car.getYear(),
+                    'trim': car.getTrim(),
+                    'mileage': car.getMileage(),
+                    'condition': car.getCondition(),
+                    'accident_history': car.getAccidentHistory(),
+                    'previous_owners': car.getPreviousOwners(),
+                    'image': car.getImageSource(),
+                    'description': car.getDescription()
+                },
+                'pricing': {
+                    'price': dealCheckData.getPrice()
+                },
+                'seller_info': {
+                    'seller_type': dealCheckData.getSellerType(),
+                    'warranty': dealCheckData.getWarranty(),
+                    'inspection_completed': dealCheckData.getInspectionCompleted()
+                },
+                'additonal_info': {
+                    'fuel_efficiency_mpg': dealCheckData.getfuelEfficiencyMpg(),
+                    'insurance_estimate': dealCheckData.getInsuranceEstimate(),
+                    'resale_value': dealCheckData.getResaleValue()
+                },
+                'answers': {
+                    'prediction': dealCheckData.getPrediction(),
+                    'actual': dealCheckData.getActual(),
+                    'rationale': dealCheckData.getRationale(),
+                    'confidence': dealCheckData.getConfidence(),
+                    'expert': dealCheckData.getExpertUsed()
+                }
+            })
+
+        return jsonify({
+            'success': True,
+            'msg': f'Found {len(deal_checks_list)} deal checks for user {user_id}',
+            'deal_checks': deal_checks_list
+        }), 200
+
     except Exception as e:
         response = jsonify({
             "success": False,
