@@ -58,15 +58,15 @@ const CarRecommendationScreen = () => {
           setDepreciationCurve(depreciationCurveURI)
           setCarRecommendation(carRecommendationURI)
           setRecommendations([carRecommendResponse.recommendation])
+          setIsLoading(false);
           // Handle the response data here
         } catch (error) {
           console.error("Error retrieving car recommendation:", error);
         }
       }
-    };   
-    fetchCarRecommendation()
-    setIsLoading(false);
+    };
 
+    fetchCarRecommendation()
   }, [params.docid]);
 
   const formatDataForSubmission = () => {

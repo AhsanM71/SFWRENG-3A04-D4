@@ -88,8 +88,8 @@ const DealValuationScreen = () => {
               result: result
             };
 
-            console.log(valuationResponse);
             setResult(dealValuation)
+            setIsLoading(false);
           }
 
           setValuationResult()
@@ -99,8 +99,6 @@ const DealValuationScreen = () => {
       }
     };   
     fetchCarRecommendation()
-    setIsLoading(false);
-
   }, [params.docid]);
 
   const convertImageToBase64 = async (uri: string) => {
@@ -250,12 +248,6 @@ const DealValuationScreen = () => {
     } finally {
       setIsLoading(false)
     }
-
-    // // Simulate car valuation and use mock data
-    // setTimeout(() => {
-    //   setIsLoading(false)
-    //   setResult(result)
-    // }, 10000)
   }
 
   const resetForm = () => {
@@ -637,59 +629,64 @@ const DealValuationScreen = () => {
   );
 
   // Create result elements
-  const renderResultElements = () => (
-    <View style={styles.resultContainer}>
-      <View
-        style={[styles.resultHeader, result?.result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
-      >
-        <Text style={styles.resultHeaderText}>{result?.result.decision}</Text>
-        <Text style={styles.confidenceText}>{result?.result.confidence}% Confidence</Text>
-      </View>
-
-      <View style={styles.carSummary}>
-        <Text style={styles.carSummaryText}>
-          {result?.carYear} {result?.carMake} {result?.carModel}
-        </Text>
-        <Text style={styles.carDetailsText}>
-          {result?.mileage} miles · ${result?.price}
-        </Text>
-      </View>
-
-      {result?.result.image &&
-        <View style={styles.carImageContainer}>
-          <Image source={{ uri: result.result.image }} style={styles.carImage} />
-        </View>
-      }
-
-      <Text style={styles.agentReportsTitle}>Agent Reports</Text>
-
-      {result?.result.reports.map((report, index) => (
-        <View key={index} style={styles.reportCard}>
-          <View style={styles.reportHeader}>
-            <Text style={styles.agentName}>{report.agent}</Text>
-            <View
-              style={[
-                styles.decisionBadge,
-                report.decision === "GREAT" ? styles.greatDeal :
-                  report.decision === "GOOD" ? styles.goodDeal :
-                    report.decision === "FAIR" ? styles.fairDeal :
-                      report.decision === "WEAK" ? styles.weakDeal :
-                        report.decision === "AWFUL" ? styles.awfulDeal :
-                          ""
-              ]}
-            >
-              <Text style={styles.decisionText}>{report.decision}</Text>
-            </View>
+  const renderResultElements = () => {
+    if(isLoading)
+      return (<ActivityIndicator color="#000" style={styles.loading} />);
+    else
+      return (
+        <View style={styles.resultContainer}>
+          <View
+            style={[styles.resultHeader, result?.result.decision === "RECOMMENDED" ? styles.goodDealHeader : styles.badDealHeader]}
+          >
+            <Text style={styles.resultHeaderText}>{result?.result.decision}</Text>
+            <Text style={styles.confidenceText}>{result?.result.confidence}% Confidence</Text>
           </View>
-          <Text style={styles.reasoning}>{report.reasoning}</Text>
-        </View>
-      ))}
 
-      <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
-        <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
-      </TouchableOpacity>
-    </View>
-  );
+          <View style={styles.carSummary}>
+            <Text style={styles.carSummaryText}>
+              {result?.carYear} {result?.carMake} {result?.carModel}
+            </Text>
+            <Text style={styles.carDetailsText}>
+              {result?.mileage} miles · ${result?.price}
+            </Text>
+          </View>
+
+          {result?.result.image &&
+            <View style={styles.carImageContainer}>
+              <Image source={{ uri: result.result.image }} style={styles.carImage} />
+            </View>
+          }
+
+          <Text style={styles.agentReportsTitle}>Agent Reports</Text>
+
+          {result?.result.reports.map((report, index) => (
+            <View key={index} style={styles.reportCard}>
+              <View style={styles.reportHeader}>
+                <Text style={styles.agentName}>{report.agent}</Text>
+                <View
+                  style={[
+                    styles.decisionBadge,
+                    report.decision === "GREAT" ? styles.greatDeal :
+                      report.decision === "GOOD" ? styles.goodDeal :
+                        report.decision === "FAIR" ? styles.fairDeal :
+                          report.decision === "WEAK" ? styles.weakDeal :
+                            report.decision === "AWFUL" ? styles.awfulDeal :
+                              ""
+                  ]}
+                >
+                  <Text style={styles.decisionText}>{report.decision}</Text>
+                </View>
+              </View>
+              <Text style={styles.reasoning}>{report.reasoning}</Text>
+            </View>
+          ))}
+
+          <TouchableOpacity style={styles.newAnalysisButton} onPress={resetForm}>
+            <Text style={styles.newAnalysisButtonText}>New Analysis</Text>
+          </TouchableOpacity>
+        </View>
+      )
+};
 
   const renderHeader = () => (
     <View style={styles.header}>
@@ -701,7 +698,7 @@ const DealValuationScreen = () => {
   );
 
   const renderContent = () => {
-    if (!result) {
+    if (!params.docid && !result) {
       return renderFormElements();
     } else {
       return renderResultElements();
@@ -995,6 +992,11 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 250,
     borderRadius: 8,
+  },
+  loading: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 })
 
