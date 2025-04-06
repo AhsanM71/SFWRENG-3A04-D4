@@ -4,7 +4,9 @@ from core.recommendation.blackboard.CarRecommendationBlackBoard import CarRecomm
 from core.recommendation.data.CarRecommendationInformationDAO import CarRecommendationInformationDAO
 from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 from core.ai import CarImgGeneratorAI
+from core.data.car.CarDAO import CarDAO
 
+carDAO: CarDAO = CarDAO()
 carRecommendDAO: CarRecommendationInformationDAO = CarRecommendationInformationDAO()
 carRecommendBlackBoard: CarRecommendationBlackBoard = CarRecommendationBlackBoard(carRecommendDAO)
 
@@ -64,6 +66,7 @@ async def requestCarRecommendation():
         if recommendationData.getCar().getImageSource() is None:
             image: str = await CarImgGeneratorAI.generateCarImg(recommendationData.getCar())
             recommendationData.getCar().setImage(image)
+            carDAO.updateCar(recommendationData.getCar())
             
         response = jsonify({
             'success': True,
