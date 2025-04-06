@@ -6,6 +6,10 @@ async function sendDealCheckRequest<T>(path: string, data: object): Promise<T> {
   return responseData;
 }
 
+export type ValuationRetrieval = {
+  user_id: string;
+}
+
 export type ValuationRequest = {
   user_id: {
     id: string;
@@ -81,5 +85,10 @@ export type ValuationResponse = APIResponse & {
 
 export async function valuationRequest(data: ValuationRequest): Promise<ValuationResponse> {
   const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck', data);
+  return valuationData;
+}
+
+export async function valuationRetrieval(data: ValuationRetrieval): Promise<ValuationResponse> {
+  const valuationData: ValuationResponse = await sendDealCheckRequest<ValuationResponse>('/val/dealCheck/user',data);
   return valuationData;
 }

@@ -4,6 +4,8 @@ from core.recommendation.blackboard.CarRecommendationBlackBoard import CarRecomm
 from core.recommendation.data.CarRecommendationInformationDAO import CarRecommendationInformationDAO
 from core.recommendation.data.CarRecommendationInformation import CarRecommendationInformation
 from core.ai import CarImgGeneratorAI
+from core.data.car.CarDAO import CarDAO
+from core.data.car.Car import Car
 
 carRecommendDAO: CarRecommendationInformationDAO = CarRecommendationInformationDAO()
 carRecommendBlackBoard: CarRecommendationBlackBoard = CarRecommendationBlackBoard(carRecommendDAO)
@@ -157,6 +159,77 @@ async def getCarRecommendation():
         })
         response.status_code = 200
         return response
+    except Exception as e:
+        response = jsonify({
+            "success": False,
+            "msg": str(e)
+        })
+        response.status_code = 200
+        return response
+    
+@carrecommendation_blueprint.route('/carRecommendation/user', methods=['POST'])
+async def getUserDealChecks():
+    '''
+    API endpoint at /rec/carRecommendation/user that retrieves all recommendations for a given user ID
+
+    Methods:
+        POST
+
+    Args:
+        data (dict): The request must contain the user_id field:
+            "user_id": {
+                "id": "some_user_id"
+            }
+
+    Returns:
+        JSON: 
+        {
+            success: True/False,
+            msg: "Success/Error message",
+            car_recommendations: [List of car recommendation JSONs like from retrieve]
+        }
+    '''
+    data: dict = request.get_json()
+    user_id: str = data.get("user_id")
+    if not user_id:
+        return jsonify({"success": False, "msg": "user_id is required"}), 400
+
+    try:
+        carRecs: list[CarRecommendationInformation] = carRecommendDAO.getUserCarRecommendationInformation(userId=user_id)
+        carRecList = []
+        for carRecData in carRecs:
+            car: Car = carRecData.getCar()
+            carRecList.append({
+                'user_id': {
+                    'id': carRecData.getUserId()  
+                },
+                'carInfo': {
+                    'id': car.getId(),
+                    'make': car.getMake(),
+                    'model': car.getModel(),
+                    'year': car.getYear(),
+                    'price': carRecData.getPrice(),
+                    'description': car.getDescription(),
+                    'imgSrc': car.getImageSource()
+                },
+                'description': {
+                    'user_preferences': carRecData.getDescription()
+                },
+                'answers': {
+                    'recommendation_info': carRecData.getCarRecommendation(),
+                    'pros': carRecData.getPros(),
+                    'cons': carRecData.getCons()
+                },
+                'depreciation_info': {
+                    'curveImg': carRecData.getDepricationCurveImg()
+                }
+            })
+        return jsonify({
+            'success': True,
+            'msg': f'Found {len(carRecList)} recommendations for user {user_id}',
+            'recommendations': carRecList
+        }), 200
+
     except Exception as e:
         response = jsonify({
             "success": False,

@@ -21,7 +21,7 @@ class DealCheckDAO:
         data: dict = getDocument(collection=CAR_DEALCHECK_FEATURE, id=id)
         return DealCheckData.from_dict(data=data)
     
-    def getUserDealCheckData(userId: str) -> list[DealCheckData]:
+    def getUserDealCheckData(self, userId: str) -> list[DealCheckData]:
         '''
         Get user car deal check valuation data documents from the database
         

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { View, SafeAreaView, Text, StyleSheet, TextInput, TouchableOpacity, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, FlatList, Image } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { mockValuationResults } from "@/constants"
-import { DealValuation, ValuationResult } from "@/types"
+import { DealValuation, ValuationResult } from "@/types" 
 import DropDownPicker from "react-native-dropdown-picker";
 import { useLocalSearchParams, useRouter } from "expo-router"
 import carData from "../../assets/data/car-list.json"
@@ -200,14 +200,11 @@ const DealValuationScreen = () => {
     setIsLoading(true)
 
     const formattedData = await formatDataForSubmission();
-    console.log(JSON.stringify(formattedData));
     
     try{
       const valuationResponse: ValuationResponse = await valuationRequest(
         formattedData
       );
-      
-      console.log("Agent Output: ", JSON.stringify(valuationResponse, null, 2))
 
       setTimeout(() => {
         setIsLoading(false)

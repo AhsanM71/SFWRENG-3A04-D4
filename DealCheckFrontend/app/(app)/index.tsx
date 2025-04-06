@@ -1,13 +1,17 @@
+import { useEffect, useState } from "react"
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView, Image, Alert } from "react-native"
 import { Feather } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
 import { menuItems, mockActivities, mockRecommendations, mockValuations } from "@/constants"
-import { DealValuation } from "@/types"
+import { DealValuation, Recommendation } from "@/types"
 import { useAuth } from "@/context/AuthContext"
 import { useRouter } from "expo-router"
 import { logoutRequest, LogoutResponse } from "@/api/AuthAPI"
+import { valuationRetrieval, ValuationResponse } from "@/api/dealCheck"
 import { signOut } from "firebase/auth"
 import { auth } from "@/FirebaseConfig"
+import { CarRecommendResponse, recommendationRetrieval } from "@/api/carRecommend"
+import Recents from "./recents"
 
 const HomeScreen = () => {
   const { user, loading } = useAuth()
@@ -28,7 +32,7 @@ const HomeScreen = () => {
       Alert.alert("Logout Failed: ", error.message);
     }
   }
-
+  
   return (
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
@@ -57,58 +61,8 @@ const HomeScreen = () => {
             </TouchableOpacity>
           ))}
         </View>
-
-        {/* Recent Activities */}
-        <View style={styles.recentActivityContainer}>
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          {mockActivities.map((activity) => (
-            <View key={activity.id} style={styles.activityCard}>
-              <View style={styles.activityHeader}>
-                <Text style={styles.activityTitle}>{activity.type}</Text>
-                <Text style={styles.activityDate}>{activity.date}</Text>
-              </View>
-              <Text style={styles.activityDescription}>{activity.description}</Text>
-              <View style={styles.activityResult}>
-                {activity.type === "Deal Valuation" &&
-                  <>
-                    <Text
-                      style={[
-                        styles.activityStatus,
-                        (activity.data as DealValuation).result.decision === "RECOMMENDED"
-                          ? styles.recommended
-                          : (activity.data as DealValuation).result.decision === "NOT RECOMMENDED"
-                            ? styles.notRecommended
-                            : styles.neutral
-                      ]}
-                    >
-                      {(activity.data as DealValuation).result.decision}
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => router.push({
-                        pathname: "/deal-valuation",
-                        params: { dealValuation: JSON.stringify(mockValuations[activity.id]) }
-                      })}
-                    >
-                      <Text style={styles.viewDetails}>View Details →</Text>
-                    </TouchableOpacity>
-                  </>
-                }
-                {activity.type === "Recommendation" &&
-                  <>
-                    <TouchableOpacity
-                      onPress={() => router.push({
-                        pathname: "/car-recommendation",
-                        params: { recommendations: JSON.stringify(mockRecommendations) }
-                      })}
-                    >
-                      <Text style={styles.viewDetails}>View Details →</Text>
-                    </TouchableOpacity>
-                  </>
-                }
-              </View>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.sectionTitle}>Recent Activity</Text>
+        <Recents mode="home" ></Recents>
       </ScrollView>
     </SafeAreaView>
   )
@@ -188,7 +142,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: "#2d3436",
-    marginBottom: 15,
+    marginBottom: 10,
   },
   activityCard: {
     backgroundColor: "#fff",

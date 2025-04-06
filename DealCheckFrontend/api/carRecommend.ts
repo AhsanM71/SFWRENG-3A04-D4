@@ -58,7 +58,16 @@ export type CarRecommendResponse = APIResponse & {
   };
 };
 
+export type RecommendationRetrieval = {
+  user_id: string;
+}
+
 export async function carRecommendRequest(data: CarRecommendRequest): Promise<CarRecommendResponse> {
-    const carRecommendData: CarRecommendResponse = await sendCarRecommendRequest<CarRecommendResponse>('/recommend/carRecommendation', data);
+    const carRecommendData: CarRecommendResponse = await sendCarRecommendRequest<CarRecommendResponse>('/rec/carRecommendation', data);
     return carRecommendData;
+}
+
+export async function recommendationRetrieval(data: RecommendationRetrieval): Promise<CarRecommendResponse> {
+  const carRecommendData: CarRecommendResponse = await sendCarRecommendRequest<CarRecommendResponse>('/rec/carRecommendation/user',data);
+  return carRecommendData;
 }
