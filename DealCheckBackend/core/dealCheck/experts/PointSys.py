@@ -12,7 +12,7 @@ class PointSys(Expert[DealCheckData]):
     async def _process_request(self, id: str) -> DealCheckData:
         request: DealCheckData = self.queue[id]
         del self.queue[id]
-
+        rationale = ""
         car = request.getCar()
 
         # Extract car details directly from the `DealCheckData` object

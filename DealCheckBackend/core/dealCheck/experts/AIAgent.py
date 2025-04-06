@@ -16,6 +16,7 @@ class AIAgent(Expert[DealCheckData]):
     
     async def _processRequest(self, id: int) -> DealCheckData:
         request: DealCheckData = self.queue[id]
+        rationale = ""
         del self.queue[id]
 
         # Construct the AI prompt dynamically from DealCheckData
