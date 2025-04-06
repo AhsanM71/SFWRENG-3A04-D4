@@ -22,7 +22,7 @@ class CarDAO:
         data: dict = createDocument(CARS_COLLECTION, carData)
         return Car.from_dict(data)
 
-    def getCar(id: str) -> Car:
+    def getCar(self, id: str) -> Car:
         '''
         Gets car data from the firestore database
 
@@ -40,7 +40,7 @@ class CarDAO:
         data: dict = getDocument(CARS_COLLECTION, id=id)
         return Car.from_dict(data)
 
-    def deleteCar(id: str) -> bool:
+    def deleteCar(self, id: str) -> bool:
         '''
         Delete a car from the firestore database
         '''
