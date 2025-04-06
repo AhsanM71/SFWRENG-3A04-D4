@@ -63,6 +63,8 @@ const CarRecommendationScreen = () => {
         } catch (error) {
           console.error("Error retrieving car recommendation:", error);
         }
+      } else {
+        setIsLoading(false);
       }
     };
 
