@@ -1,8 +1,9 @@
 export type ValuationResult = {
   decision: "RECOMMENDED" | "NOT RECOMMENDED"
   confidence: number
+  image: string | null
   reports: Array<{
-    agentName: string
+    agent: string,
     decision: "GREAT" | "GOOD" | "FAIR" | "WEAK" | "AWFUL"
     reasoning: string
   }>;

@@ -107,23 +107,23 @@ const CarRecommendationScreen = () => {
       const carRecommendResponse: CarRecommendResponse = await carRecommendRequest(
         formattedData
       );
-      // console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
-      const depreciationCurveURI = await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc)
+
+      console.log("Agent Output: ", JSON.stringify(carRecommendResponse, null, 2))
+
+      const depreciationCurveURI = carRecommendResponse.recommendation.depreciationCurveSrc ? await getStorageImgDownloadURL(carRecommendResponse.recommendation.depreciationCurveSrc) : "";
       const carRecommendationURI = carRecommendResponse.recommendation.image ? await getStorageImgDownloadURL(carRecommendResponse.recommendation.image) : "";
       setDepreciationCurve(depreciationCurveURI)
       setCarRecommendation(carRecommendationURI)
       setRecommendations([carRecommendResponse.recommendation])
     } catch (error: any) {
-      Alert.alert("Deal valuation failed: ", error.message);
+      Alert.alert("Car Recommendation Failed: ", error.message);
     } finally {
       setIsLoading(false)
     }
 
-    // // Simulate API call to the recommendation agents
+    // // Simulate car recommendations and use mock data
     // setTimeout(() => {
     //   setIsLoading(false)
-
-    //   // Mock recommendations
     //   setRecommendations(mockRecommendations)
     // }, 2000)
   }
