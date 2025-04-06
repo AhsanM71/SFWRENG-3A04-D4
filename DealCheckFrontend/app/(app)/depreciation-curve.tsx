@@ -203,7 +203,7 @@ const DepreciationCurveScreen = () => {
         <View style={styles.contentContainer}>
           {isLoading ? <ActivityIndicator color="#000" style={styles.loading} /> : !depreciationCurveURI ? (
             <View>
-              <Text style={styles.sectionTitle}>Select a Deal Valuation / Recommendation:</Text>
+              <Text style={styles.sectionTitle}>Select a Deal Valuation or Recommendation:</Text>
               <View style={styles.recentActivityContainer}>
         {fetching ? (
           <ActivityIndicator color="#000" style={styles.loading} />
