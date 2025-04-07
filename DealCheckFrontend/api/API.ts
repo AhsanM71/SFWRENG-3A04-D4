@@ -1,9 +1,10 @@
 import axios from "axios";
+import Constants from "expo-constants";
 import { Platform } from "react-native";
 
 export const API_URL = Platform.OS === 'ios' ? 
-    process.env.EXPO_PUBLIC_API_URL_IOS : 
-    process.env.EXPO_PUBLIC_API_URL_ANDROID;
+    Constants.expoConfig?.extra?.apiUrlIos : 
+    Constants.expoConfig?.extra?.apiUrlAndroid;
 
 export const dealCheckAPI = axios.create({
     baseURL: API_URL
