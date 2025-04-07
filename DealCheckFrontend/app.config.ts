@@ -9,18 +9,35 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   orientation: "portrait",
   icon: "./assets/images/blackCar.png",
   userInterfaceStyle: "light",
+  plugins:[
+    [
+      'expo-build-properties',
+      {
+        android: {
+          usesCleartextTraffic: true,
+        },
+        ios: {
+          flipper: true,
+        },
+      },
+    ],
+  ],
   assetBundlePatterns: [
     "**/*"
   ],
   ios: {
     supportsTablet: true,
-    bundleIdentifier: "com.3a04.dealcheck"
+    bundleIdentifier: "com.3a04.dealcheck",
+    infoPlist: {
+      NSAppTransportSecurity: { NSAllowsArbitraryLoads: true },
+    },
   },
   android: {
     adaptiveIcon: {
       foregroundImage: "./assets/images/blackCar.png",
       backgroundColor: "#F9F9F9"
     },
+    permissions: ["INTERNET"],
     package: "com.x3a04.dealcheck"
   },
   web: {
