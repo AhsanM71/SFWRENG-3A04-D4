@@ -8,8 +8,10 @@ function AuthStateHandler() {
 
   useEffect(() => {
     if(!loading) {
-      router.dismissAll();
-      router.replace(loggedIn ? '/(app)' : '/main');
+      setTimeout(() => {
+        router.dismissAll();
+        router.replace(loggedIn ? '/(app)' : '/main');
+      }, 2000);
     }
   }, [loading, loggedIn]);
 
