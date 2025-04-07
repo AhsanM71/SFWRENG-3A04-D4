@@ -39,47 +39,49 @@ const HomeScreen = () => {
   useFocusEffect(
     useCallback(() => {
       const fetchValuations = async () => {
-        setDealActivities([]);
-        setRecActivities([]);
-        setFetching(true);
-  
-        const token = user?.uid;
-  
-        const input_data = {
-          user_id: token || ""
-        };
-  
-        try {
-  
-          const valuations = await valuationRetrieval(input_data);
-          const recommendations = await recommendationRetrieval(input_data);
-  
-          //@ts-ignore
-          const valuationActivities = valuations.deal_checks.map((deal: any, index: number) => ({
-            docid: deal.obj_id.id,
-            id: `valuation-${index}`,
-            type: "Deal Valuation",
-            description: `${deal.car_details.year} ${deal.car_details.make} ${deal.car_details.model} - $${deal.pricing.price}`,
-            decision: deal.answers.actual,
-          }));
-  
-          //@ts-ignore
-          const recommendationActivities = recommendations.recommendations.map((rec: any, index: number) => ({
-            id: `recommendation-${index}`,
-            docid: rec.obj_id.id,
-            type: "Recommendation",
-            description: `${rec.carInfo.year} ${rec.carInfo.make} ${rec.carInfo.model} - $${rec.carInfo.price}`,
-            decision: "Yes",
-            curveImg: rec.depreciation_info.curveImg
-          }));
-  
-          setDealActivities(valuationActivities);
-          setRecActivities(recommendationActivities);
-  
-        } catch (error: any) {
-          Alert.alert("Deal valuation failed", error.message);
-        } finally {
-          setFetching(false);
+        if(user) {
+          setDealActivities([]);
+          setRecActivities([]);
+          setFetching(true);
+    
+          const token = user?.uid;
+    
+          const input_data = {
+            user_id: token || ""
+          };
+    
+          try {
+    
+            const valuations = await valuationRetrieval(input_data);
+            const recommendations = await recommendationRetrieval(input_data);
+    
+            //@ts-ignore
+            const valuationActivities = valuations.deal_checks.map((deal: any, index: number) => ({
+              docid: deal.obj_id.id,
+              id: `valuation-${index}`,
+              type: "Deal Valuation",
+              description: `${deal.car_details.year} ${deal.car_details.make} ${deal.car_details.model} - $${deal.pricing.price}`,
+              decision: deal.answers.actual,
+            }));
+    
+            //@ts-ignore
+            const recommendationActivities = recommendations.recommendations.map((rec: any, index: number) => ({
+              id: `recommendation-${index}`,
+              docid: rec.obj_id.id,
+              type: "Recommendation",
+              description: `${rec.carInfo.year} ${rec.carInfo.make} ${rec.carInfo.model} - $${rec.carInfo.price}`,
+              decision: "Yes",
+              curveImg: rec.depreciation_info.curveImg
+            }));
+    
+            setDealActivities(valuationActivities);
+            setRecActivities(recommendationActivities);
+    
+          } catch (error: any) {
+            Alert.alert("Deal valuation failed", error.message);
+          } finally {
+            setFetching(false);
+          }
         }
       };
   
